@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masotto - Anagrafica & Asset Core</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="masotto_db.js"></script>
+    
+    <style>
+        :root { --bg-dark: #080c10; --panel-dark: #0f151a; --border: rgba(255,255,255,0.1); --accent-teal: #2dd4bf; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-dark); color: white; margin: 0; min-height: 100vh; overflow: auto !important; }
+        .main { flex: 1; padding: 2rem; background: radial-gradient(circle at top center, #112a2e 0%, #080c10 40%); min-height: 100vh; }
+        
+        /* EFFETTO NEON CARDS */
+        .neon-card { 
+            background: rgba(15,21,26,0.85); 
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            padding: 1.5rem; 
+            transition: all 0.3s ease; 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .neon-teal { border-top: 3px solid #2dd4bf; box-shadow: 0 -15px 30px -20px rgba(45, 212, 191, 0.4); }
+        .neon-purple { border-top: 3px solid #a855f7; box-shadow: 0 -15px 30px -20px rgba(168, 85, 247, 0.4); }
+        .neon-blue { border-top: 3px solid #3b82f6; box-shadow: 0 -15px 30px -20px rgba(59, 130, 246, 0.4); }
+        .neon-yellow { border-top: 3px solid #f59e0b; box-shadow: 0 -15px 30px -20px rgba(245, 158, 11, 0.4); }
+        .neon-green { border-top: 3px solid #10b981; box-shadow: 0 -15px 30px -20px rgba(16, 185, 129, 0.4); }
+
+        .neon-card:hover { transform: translateY(-4px); background: #1a2430;}
+
+        /* ICONE DI SFONDO */
+        .card-bg-icon {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            opacity: 0.03;
+            transform: scale(3.5);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .card-content { position: relative; z-index: 10; }
+
+        .data-row { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px dashed rgba(255,255,255,0.08); padding-bottom: 8px; margin-bottom: 8px; font-size: 0.85rem; }
+        .data-label { color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; width: 40%;}
+        .data-value { font-weight: bold; color: white; text-align: right; max-width: 60%;}
+        .data-value.mono { font-family: monospace; color: var(--accent-teal); font-size: 0.95rem; }
+
+        .table-condo { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.8rem;}
+        .table-condo th { background: rgba(255,255,255,0.05); padding: 10px; text-align: left; color: #cbd5e1; font-weight: 800; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 1px;}
+        .table-condo td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #e2e8f0; }
+        .table-condo tr:hover td { background: rgba(255,255,255,0.02); }
+        .badge-condo { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+        .badge-ord { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .badge-str { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+<style id="masotto-sidebar-css">
+:root{ --bg-dark:#0b1220; --border:rgba(255,255,255,.10); --brand:#004D54; --accent:#2dd4bf; }
+.ms-sidebar{ position:fixed; inset:0 auto 0 0; width:260px; background:rgba(15,23,42,.96); border-right:1px solid var(--border); padding:20px; z-index:50; overflow-y:auto; display:flex; flex-direction:column; }
+.ms-main{margin-left:260px; min-height:100vh; display:flex; flex-direction:column;}
+@media (max-width: 900px){ .ms-sidebar{transform:translateX(-105%); transition:.2s;} .ms-sidebar.open{transform:translateX(0);} .ms-main{margin-left:0;} .ms-topbar{position:sticky; top:0; z-index:40; backdrop-filter: blur(10px); background:rgba(11,18,32,.75); border-bottom:1px solid var(--border);} }
+.ms-nav a{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:#94a3b8; font-weight:600; text-decoration:none; transition:0.2s;}
+.ms-nav a:hover{background:rgba(255,255,255,.05); color:#fff;} .ms-nav a.active{background:var(--brand); color:var(--accent); border-left:3px solid var(--accent);}
+.ms-chip{font:600 10px monospace; color:var(--accent); background:rgba(45,212,191,.10); border:1px solid rgba(45,212,191,.25); padding:2px 8px; border-radius:999px; display:inline-block;}
+</style>
+</head>
+<body>
+
+    <div>
+        <main class="main">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-white flex items-center gap-3">
+                        Anagrafica Immobile
+                    </h2>
+                    <div class="text-sm text-gray-400">Master Data, Utenze, Contratti e Amministrazione.</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                
+                <div class="neon-card neon-teal">
+                    <i data-lucide="map-pin" class="card-bg-icon"></i>
+                    <div class="card-content">
+                        <div class="flex items-center gap-2 mb-6 border-b border-white/10 pb-3">
+                            <i data-lucide="building" class="w-5 h-5 text-teal-400"></i>
+                            <h3 class="text-lg font-bold text-white">Dati Catastali</h3>
+                        </div>
+                        <div class="data-row"><div class="data-label">Immobile</div><div class="data-value">Masotto Terrace View</div></div>
+                        <div class="data-row"><div class="data-label">Indirizzo</div><div class="data-value text-xs">Via Privata U. Masotto 4<br>20133 Milano (MI)</div></div>
+                        <div class="data-row"><div class="data-label">Foglio Catastale</div><div class="data-value mono">298</div></div>
+                        <div class="data-row"><div class="data-label">Particella / Mapp.</div><div class="data-value mono">145</div></div>
+                        <div class="data-row"><div class="data-label">Subalterno</div><div class="data-value mono">32</div></div>
+                        <div class="data-row"><div class="data-label">Categoria</div><div class="data-value mono">A/3 (Cl. 2)</div></div>
+                        <div class="data-row border-none mb-0"><div class="data-label">Rendita Catastale</div><div class="data-value">€ 387,34</div></div>
+                    </div>
+                </div>
+
+                <div class="neon-card neon-purple">
+                    <i data-lucide="key" class="card-bg-icon"></i>
+                    <div class="card-content">
+                        <div class="flex items-center gap-2 mb-6 border-b border-white/10 pb-3">
+                            <i data-lucide="file-signature" class="w-5 h-5 text-purple-400"></i>
+                            <h3 class="text-lg font-bold text-white">Proprietà & Rogito</h3>
+                        </div>
+                        <div class="data-row"><div class="data-label">Proprietario</div><div class="data-value">Riccardo Armati</div></div>
+                        <div class="data-row"><div class="data-label">Codice Fiscale</div><div class="data-value mono">RMT RCR 85M 12F 205Z</div></div>
+                        <div class="data-row"><div class="data-label">Data Rogito</div><div class="data-value text-emerald-400">17 Aprile 2023</div></div>
+                        <div class="data-row"><div class="data-label">Prezzo Acquisto</div><div class="data-value text-white font-bold text-lg">€ 230.000</div></div>
+                        <div class="data-row"><div class="data-label">Codice CIR / CIN</div><div class="data-value mono text-purple-400 font-bold bg-purple-900/30 px-2 py-0.5 rounded">015146-LNI-09408</div></div>
+                        <div class="data-row"><div class="data-label">A.P.E. (Classe)</div><div class="data-value">Classe <strong class="text-yellow-400">E</strong> (Scade 2033)</div></div>
+                        <div class="data-row border-none mb-0"><div class="data-label">Indice Epgl,nren</div><div class="data-value">132.76 kWh/m² anno</div></div>
+                    </div>
+                </div>
+
+                <div class="neon-card neon-yellow">
+                    <i data-lucide="zap" class="card-bg-icon"></i>
+                    <div class="card-content">
+                        <div class="flex items-center gap-2 mb-6 border-b border-white/10 pb-3">
+                            <i data-lucide="plug" class="w-5 h-5 text-yellow-400"></i>
+                            <h3 class="text-lg font-bold text-white">Reti & Utenze</h3>
+                        </div>
+                        <div class="data-row"><div class="data-label text-yellow-500">Energia Elettrica</div><div class="data-value">A2A Energia</div></div>
+                        <div class="data-row"><div class="data-label">POD Luce</div><div class="data-value mono">IT012E00186429</div></div>
+                        <div class="data-row"><div class="data-label">N. Fornitura Luce</div><div class="data-value mono text-xs">6045433825</div></div>
+                        
+                        <div class="data-row mt-4"><div class="data-label text-blue-400">Rete Gas (ACS)</div><div class="data-value">A2A Energia</div></div>
+                        <div class="data-row"><div class="data-label">PDR Gas</div><div class="data-value mono">05260200407342</div></div>
+                        <div class="data-row"><div class="data-label">N. Fornitura Gas</div><div class="data-value mono text-xs">6045405179</div></div>
+                        
+                        <div class="data-row mt-4"><div class="data-label text-teal-400">Internet (Fibra)</div><div class="data-value">Fastweb</div></div>
+                        <div class="data-row border-none mb-0"><div class="data-label">Rete Wi-Fi</div><div class="data-value mono bg-white/10 px-2 py-0.5 rounded">FASTWEB-FC918B</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <div class="neon-card neon-blue">
+                    <i data-lucide="building-2" class="card-bg-icon"></i>
+                    <div class="card-content">
+                        <div class="flex items-center gap-2 mb-4 border-b border-white/10 pb-3">
+                            <i data-lucide="users" class="w-5 h-5 text-blue-400"></i>
+                            <h3 class="text-lg font-bold text-white">Amministrazione & Condominio</h3>
+                        </div>
+                        
+                        <div class="bg-blue-900/20 rounded-lg p-3 border border-blue-500/30 flex justify-between items-center mb-6">
+                            <div>
+                                <div class="text-sm font-bold text-white">Giani & Cantarini S.r.l.</div>
+                                <div class="text-xs text-blue-300">giani.cantarini@gmail.com</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-gray-400 uppercase tracking-wider">Telefono</div>
+                                <div class="font-mono text-sm text-white">02 76111056</div>
+                            </div>
+                        </div>
+
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Quadro Spese Condominiali (Estratto)</h4>
+                        <div class="overflow-x-auto">
+                            <table class="table-condo">
+                                <thead>
+                                    <tr>
+                                        <th>Data Scad.</th>
+                                        <th>Descrizione Intervento / Rata</th>
+                                        <th>Tipo</th>
+                                        <th style="text-align: right;">Importo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>15/02/2025</td>
+                                        <td>Gestione Ordinaria 24/25 (Saldo + R3)</td>
+                                        <td><span class="badge-condo badge-ord">Ordinaria</span></td>
+                                        <td style="text-align: right; font-family: monospace;">€ 522,16</td>
+                                    </tr>
+                                    <tr>
+                                        <td>20/03/2025</td>
+                                        <td>Bonifica MCA (Amianto) - Rata 1</td>
+                                        <td><span class="badge-condo badge-str">Straordinaria</span></td>
+                                        <td style="text-align: right; font-family: monospace;">€ 285,33</td>
+                                    </tr>
+                                    <tr>
+                                        <td>15/06/2025</td>
+                                        <td>Bonifica MCA (Amianto) - Rata 2</td>
+                                        <td><span class="badge-condo badge-str">Straordinaria</span></td>
+                                        <td style="text-align: right; font-family: monospace;">€ 285,33</td>
+                                    </tr>
+                                    <tr>
+                                        <td>15/06/2025</td>
+                                        <td>Gestione Ordinaria 25/26 - Rata 1</td>
+                                        <td><span class="badge-condo badge-ord">Ordinaria</span></td>
+                                        <td style="text-align: right; font-family: monospace;">€ 305,00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>15/12/2025</td>
+                                        <td>Rifacimento Terrazza (R3) + Amianto</td>
+                                        <td><span class="badge-condo badge-str">Straordinaria</span></td>
+                                        <td style="text-align: right; font-family: monospace; color: #f87171; font-weight:bold;">€ 598,67</td>
+                                    </tr>
+                                    <tr>
+                                        <td>15/02/2026</td>
+                                        <td>Rifacimento Terrazza (Rata 4)</td>
+                                        <td><span class="badge-condo badge-str">Straordinaria</span></td>
+                                        <td style="text-align: right; font-family: monospace;">€ 318,20</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="neon-card neon-green">
+                    <i data-lucide="shield-check" class="card-bg-icon"></i>
+                    <div class="card-content">
+                        <div class="flex items-center gap-2 mb-4 border-b border-white/10 pb-3">
+                            <i data-lucide="umbrella" class="w-5 h-5 text-emerald-400"></i>
+                            <h3 class="text-lg font-bold text-white">Copertura Assicurativa</h3>
+                        </div>
+
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <div class="text-2xl font-bold text-emerald-400 font-mono">Polizza N. 440373024</div>
+                                <div class="text-xs text-gray-400 mt-1">Stipulata specificamente per attività locazione turistica.</div>
+                            </div>
+                            <div class="bg-emerald-900/30 border border-emerald-500/50 px-3 py-1.5 rounded-lg text-center">
+                                <div class="text-[10px] text-emerald-300 font-bold uppercase">Scadenza Annuale</div>
+                                <div class="text-sm font-bold text-white">31 Maggio 2026</div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="bg-black/30 p-3 rounded border border-white/5">
+                                <div class="flex justify-between items-center mb-1">
+                                    <div class="font-bold text-white text-sm flex items-center gap-2"><i data-lucide="flame" class="w-4 h-4 text-orange-500"></i> Incendio e Scoppio</div>
+                                    <div class="font-mono text-emerald-400 text-sm">Copertura Fabbricato</div>
+                                </div>
+                                <div class="text-xs text-gray-400 text-justify">Tutela da danni materiali e diretti causati da incendio, fulmine, esplosione, scoppio (incluso impianto gas e caldaia centralizzata).</div>
+                            </div>
+
+                            <div class="bg-black/30 p-3 rounded border border-white/5">
+                                <div class="flex justify-between items-center mb-1">
+                                    <div class="font-bold text-white text-sm flex items-center gap-2"><i data-lucide="droplets" class="w-4 h-4 text-blue-500"></i> Danni da Acqua e Spargimento</div>
+                                    <div class="font-mono text-emerald-400 text-sm">Ricerca & Riparazione</div>
+                                </div>
+                                <div class="text-xs text-gray-400 text-justify">Copre danni causati da rottura accidentale di tubazioni e impianti idrici (es. flessibili bagno/cucina), inclusi costi di ricerca guasto.</div>
+                            </div>
+
+                            <div class="bg-black/30 p-3 rounded border border-white/5">
+                                <div class="flex justify-between items-center mb-1">
+                                    <div class="font-bold text-white text-sm flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-purple-500"></i> Responsabilità Civile (RCT/RCO)</div>
+                                    <div class="font-mono text-emerald-400 text-sm">Protezione Host</div>
+                                </div>
+                                <div class="text-xs text-gray-400 text-justify">Copertura fondamentale: tutela il proprietario per i danni fisici o materiali cagionati in via accidentale a terzi (es. infortunio di un ospite all'interno dell'immobile).</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Inizializzazione icone al caricamento
+        window.onload = function() {
+            if(window.lucide) lucide.createIcons();
+        };
+    </script>
+    
+<script id="masotto-sidebar">
+(function(){
+  const PAGES = [
+    ["index.html","Dashboard","layout-dashboard"],
+    ["ANAGRAFICA.html","Anagrafica","id-card"],
+    ["asset.html","Asset","boxes"],
+    ["audit.html","Audit","clipboard-check"],
+    ["manutenzione.html","Manutenzione","wrench"],
+    ["prenotazioni.html","Prenotazioni","calendar"],
+    ["FINANZE.html","Finanze","pie-chart"],
+    ["sicurezza.html","Sicurezza","shield"]
+  ];
+
+  window.msUniversalExportDB = function() {
+      const master = window.MASOTTO_DB || {};
+      const keys = { 
+          "property_master": "masotto_prop_data", "bookings": "masotto_booking_db", 
+          "finances": "masotto_finance_db", "structural_assets": "masotto_structural_assets_db", 
+          "assets_mobile": "masotto_assets_mobile_db", "tickets": "masotto_maint_db",
+          "maintenance_presets": "masotto_maintenance_presets_db", "insurance": "masotto_insurance_db",
+          "utilities": "masotto_utilities_db", "contacts": "masotto_contacts_db", "reusable_inventory": "masotto_reusable_inventory_db"
+      };
+      let exportData = {};
+      for (const [dbKey, lsKey] of Object.entries(keys)) {
+          let lsData = localStorage.getItem(lsKey);
+          if (lsData && lsData !== "undefined" && lsData !== "[]" && lsData !== "{}") {
+              try { exportData[dbKey] = JSON.parse(lsData); } catch(e) { exportData[dbKey] = master[dbKey] || []; }
+          } else { exportData[dbKey] = master[dbKey] || []; }
+      }
+      const jsContent = "window.MASOTTO_DB = " + JSON.stringify(exportData, null, 2) + ";";
+      const blob = new Blob([jsContent], { type: "application/javascript" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "masotto_db.js";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  };
+
+  window.msUniversalSyncDB = function() {
+      if(confirm("ATTENZIONE: Ricaricare i dati puliti dal file masotto_db.js originale? Tutte le modifiche NON ESPORTATE andranno perse per sempre.")) {
+          Object.keys(localStorage).forEach(k => { if(k.startsWith("masotto_")) localStorage.removeItem(k); });
+          window.location.reload();
+      }
+  };
+
+  function mountSidebar(){
+      if (window.__MS_SIDEBAR_DONE && document.getElementById("msSidebar")) return;
+      try{ document.querySelectorAll("aside.sidebar, div.sidebar, #sidebar, [data-legacy-sidebar=\"1\"]").forEach(el=>el.remove()); document.querySelectorAll(".ms-sidebar").forEach(el=>{ if(el.id !== "msSidebar") el.remove(); }); }catch(e){}
+      if (document.getElementById("msSidebar")) { window.__MS_SIDEBAR_DONE = true; return; }
+
+      const path = (location.pathname.split("/").pop() || "index.html");
+      const nav = PAGES.map(([href,label,icon])=>{
+        const active = (href.toLowerCase() === path.toLowerCase()) ? "active" : "";
+        return `<a class="${active}" href="${href}"><i data-lucide="${icon}" class="w-4 h-4"></i><span>${label}</span></a>`;
+      }).join("");
+
+      const sidebar = document.createElement("aside");
+      sidebar.className="ms-sidebar";
+      sidebar.id="msSidebar";
+      sidebar.innerHTML = `
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg" style="background:linear-gradient(135deg,#004D54,#10b981)">2M</div>
+          <div>
+            <div class="text-white font-bold leading-tight">Masotto Terrace</div>
+            <div class="ms-chip">single-property mode</div>
+          </div>
+        </div>
+        <nav class="ms-nav space-y-1 mb-8">${nav}</nav>
+        
+        <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 10px;">
+            <div style="font-size: 10px; color: #64748b; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 5px;">Database Manager</div>
+            <button onclick="msUniversalExportDB()" style="background: #2563eb; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);">
+                <i data-lucide="download" class="w-4 h-4"></i> Esporta DB (.js)
+            </button>
+            <button onclick="msUniversalSyncDB()" style="background: transparent; color: #94a3b8; border: 1px solid #334155; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; transition: 0.2s;">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Annulla Modifiche
+            </button>
+        </div>
+      `;
+
+      const mainWrap = document.createElement("div");
+      mainWrap.className = "ms-main";
+      while(document.body.firstChild){ mainWrap.appendChild(document.body.firstChild); }
+      document.body.appendChild(sidebar);
+      document.body.appendChild(mainWrap);
+
+      const topbar = document.createElement("div");
+      topbar.className="ms-topbar p-3 flex items-center justify-between lg:hidden";
+      topbar.innerHTML = `
+        <button id="msToggle" class="px-3 py-2 rounded-lg text-white text-xs font-bold" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);">☰ Menu</button>
+        <div class="text-white font-bold text-sm">Masotto Terrace</div>
+        <div style="width:64px"></div>
+      `;
+      mainWrap.prepend(topbar);
+
+      document.getElementById("msToggle").addEventListener("click", ()=>{ sidebar.classList.toggle("open"); });
+  }
+
+  document.addEventListener("DOMContentLoaded", async ()=>{ mountSidebar(); if(window.lucide && window.lucide.createIcons) window.lucide.createIcons(); });
+})();
+</script>
+</body>
+</html>

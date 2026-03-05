@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masotto - Dashboard Direzionale</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="masotto_db.js"></script>
+    
+    <style>
+        :root { --bg-dark: #080c10; --panel-dark: #0f151a; --border: rgba(255,255,255,0.1); --accent-teal: #2dd4bf; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-dark); color: white; margin: 0; min-height: 100vh; overflow: auto !important; }
+        .main { flex: 1; padding: 2rem; background: radial-gradient(circle at top left, #112a2e 0%, #080c10 40%); min-height: 100vh; }
+        
+        .receipt-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .receipt-table th, .receipt-table td { padding: 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; }
+        .receipt-table th { color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
+        .receipt-table tr:hover td { background: rgba(255,255,255,0.02); }
+        
+        .badge-source { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; }
+        .badge-diretta { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge-ota { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+<style id="masotto-sidebar-css">
+:root{ --bg-dark:#0b1220; --border:rgba(255,255,255,.10); --brand:#004D54; --accent:#2dd4bf; }
+.ms-sidebar{ position:fixed; inset:0 auto 0 0; width:260px; background:rgba(15,23,42,.96); border-right:1px solid var(--border); padding:20px; z-index:50; overflow-y:auto; display:flex; flex-direction:column; }
+.ms-main{margin-left:260px; min-height:100vh; display:flex; flex-direction:column;}
+@media (max-width: 900px){ .ms-sidebar{transform:translateX(-105%); transition:.2s;} .ms-sidebar.open{transform:translateX(0);} .ms-main{margin-left:0;} .ms-topbar{position:sticky; top:0; z-index:40; backdrop-filter: blur(10px); background:rgba(11,18,32,.75); border-bottom:1px solid var(--border);} }
+.ms-nav a{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:#94a3b8; font-weight:600; text-decoration:none; transition:0.2s;}
+.ms-nav a:hover{background:rgba(255,255,255,.05); color:#fff;} .ms-nav a.active{background:var(--brand); color:var(--accent); border-left:3px solid var(--accent);}
+.ms-chip{font:600 10px monospace; color:var(--accent); background:rgba(45,212,191,.10); border:1px solid rgba(45,212,191,.25); padding:2px 8px; border-radius:999px; display:inline-block;}
+</style>
+</head>
+<body>
+
+    <div>
+        <main class="main">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-white flex items-center gap-3">Cruscotto Direzionale</h2>
+                    <div class="text-sm text-gray-400">Masotto Terrace View - Dati Aggiornati in Tempo Reale</div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <select id="dashYearFilter" onchange="loadDashboard()" class="bg-[#1e293b] border border-white/10 text-white px-4 py-2 rounded-lg font-bold text-sm outline-none cursor-pointer shadow-lg">
+                        <option value="2025" selected>Esercizio 2025 (Da 25/08)</option>
+                        <option value="2026">Esercizio 2026</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 shadow-lg border-l-4 border-l-blue-500">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="building-2" class="w-3 h-3 inline"></i> Saldo Reale Conto</div>
+                    <div class="text-2xl font-bold text-blue-400 font-mono" id="kpi-bank">€ 0</div>
+                    <div class="text-[10px] text-gray-500 mt-1">Include fondo inziale. Esclude tasse pagate a parte.</div>
+                </div>
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 shadow-lg border-l-4 border-l-emerald-500">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="trending-up" class="w-3 h-3 inline"></i> Lordo Anno (<span id="kpi-year-label"></span>)</div>
+                    <div class="text-2xl font-bold text-emerald-400 font-mono" id="kpi-revenue">€ 0</div>
+                    <div class="text-[10px] text-gray-500 mt-1">Ricavi generati dalle prenotazioni</div>
+                </div>
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 shadow-lg border-l-4 border-l-teal-500">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="user-check" class="w-3 h-3 inline"></i> Prossimo Check-in</div>
+                    <div class="text-lg font-bold text-white leading-tight truncate" id="kpi-next-guest">-</div>
+                    <div class="text-[10px] text-teal-400 font-mono mt-1" id="kpi-next-date">Nessuna prenotazione</div>
+                </div>
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 shadow-lg border-l-4 border-l-amber-500">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="wrench" class="w-3 h-3 inline"></i> Lavori in Sospeso</div>
+                    <div class="text-2xl font-bold text-white" id="kpi-tickets">0</div>
+                    <div class="text-[10px] text-amber-400 mt-1">Ticket aperti nel gestionale</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4 mb-8">
+                <div class="bg-[#111827] border border-white/5 rounded-xl p-3 flex justify-between items-center">
+                    <div>
+                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Occupazione <span id="lbl-occ-days"></span></div>
+                        <div class="text-xl font-bold text-emerald-400" id="kpi-occ">0%</div>
+                    </div>
+                    <i data-lucide="bed-double" class="w-6 h-6 text-gray-600 opacity-50"></i>
+                </div>
+                <div class="bg-[#111827] border border-white/5 rounded-xl p-3 flex justify-between items-center">
+                    <div>
+                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">ADR (Tariffa Media)</div>
+                        <div class="text-xl font-bold text-white font-mono" id="kpi-adr">€ 0</div>
+                    </div>
+                    <i data-lucide="banknote" class="w-6 h-6 text-gray-600 opacity-50"></i>
+                </div>
+                <div class="bg-[#111827] border border-white/5 rounded-xl p-3 flex justify-between items-center">
+                    <div>
+                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">RevPAR (Resa su Disp.)</div>
+                        <div class="text-xl font-bold text-white font-mono" id="kpi-revpar">€ 0</div>
+                    </div>
+                    <i data-lucide="bar-chart-3" class="w-6 h-6 text-gray-600 opacity-50"></i>
+                </div>
+            </div>
+
+            <div class="bg-[#0f151a] border border-white/10 rounded-xl p-6 shadow-xl mb-8 border-t-4 border-t-purple-500">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-5 flex items-center gap-2"><i data-lucide="trending-up" class="w-5 h-5 text-purple-400"></i> Capital Gain & Valutazione Asset</h3>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div>
+                        <div class="text-[11px] font-bold text-gray-500 mb-1 uppercase">Prezzo d'Acquisto</div>
+                        <div class="text-2xl font-bold text-white font-mono" id="re-base">€ 0</div>
+                        <div class="text-[10px] text-gray-400 mt-1" id="re-date">Aprile 2023</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] font-bold text-gray-500 mb-1 uppercase">Lavori Eseguiti (CAPEX)</div>
+                        <div class="text-2xl font-bold text-amber-400 font-mono" id="re-capex">+ € 0</div>
+                        <div class="text-[10px] text-gray-400 mt-1">Amianto, Terrazze, Asset</div>
+                    </div>
+                    <div class="md:border-l border-white/10 md:pl-6">
+                        <div class="text-[11px] font-bold text-purple-400 mb-1 uppercase">Valore Mercato Stimato</div>
+                        <div class="text-3xl font-bold text-purple-400 font-mono" id="re-market">€ 0</div>
+                        <div class="text-[10px] text-gray-400 mt-1">Crescita annua calcolata a <span class="text-purple-400 font-bold">+4.5%</span></div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] font-bold text-emerald-400 mb-1 uppercase">Plusvalenza Netta Reale</div>
+                        <div class="text-3xl font-bold font-mono" id="re-gain">+ € 0</div>
+                        <div class="text-[10px] text-gray-400 mt-1">Valore finale meno costi sostenuti</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <div class="lg:col-span-2 bg-[#0f151a] border border-white/10 rounded-xl p-5 shadow-xl">
+                    <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+                        <div>
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="receipt" class="w-4 h-4 text-teal-400"></i> Generatore Ricevute Turistiche</h3>
+                            <p class="text-[10px] text-gray-400 mt-1">Emissione giustificativi fiscali con scorporo tassa di soggiorno.</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto max-h-80">
+                        <table class="receipt-table">
+                            <thead class="sticky top-0 bg-[#0f151a]">
+                                <tr>
+                                    <th>Ospite</th>
+                                    <th>Check-in</th>
+                                    <th>Notti</th>
+                                    <th>Totale (Lordo)</th>
+                                    <th style="text-align: right;">Azione</th>
+                                </tr>
+                            </thead>
+                            <tbody id="receipts-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-5 shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-3 opacity-10"><i data-lucide="cpu" class="w-24 h-24"></i></div>
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2 border-b border-white/10 pb-3 mb-4 relative z-10"><i data-lucide="zap" class="w-4 h-4 text-yellow-400"></i> Analisi Consumi Energetici</h3>
+                    
+                    <div id="utility-analysis-content" class="relative z-10">
+                        </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        let bookingsDB = [];
+        let ticketsDB = [];
+        let financesDB = [];
+        let propertyInfo = {};
+        const FUND_2025_INITIAL = 1300.00;
+
+        function loadDashboard() {
+            let masterDB = window.MASOTTO_DB || { bookings: [], property_master: [], tickets: [], finances: [] };
+            propertyInfo = masterDB.property_master[0] || {};
+
+            let locBook = localStorage.getItem('masotto_booking_db');
+            if(!locBook || locBook === "undefined" || locBook === "[]") { bookingsDB = JSON.parse(JSON.stringify(masterDB.bookings || [])); } 
+            else { try { bookingsDB = JSON.parse(locBook); } catch(e) { bookingsDB = []; } }
+
+            let locTick = localStorage.getItem('masotto_maint_db');
+            if(!locTick || locTick === "undefined" || locTick === "[]") { ticketsDB = JSON.parse(JSON.stringify(masterDB.tickets || [])); } 
+            else { try { ticketsDB = JSON.parse(locTick); } catch(e) { ticketsDB = []; } }
+
+            let locFin = localStorage.getItem('masotto_finance_db');
+            if(!locFin || locFin === "undefined" || locFin === "[]") { financesDB = JSON.parse(JSON.stringify(masterDB.finances || [])); } 
+            else { try { financesDB = JSON.parse(locFin); } catch(e) { financesDB = []; } }
+            
+            financesDB = financesDB.map(f => ({
+                id: f.id, date: f.date, description: f.description || f.desc, category: f.category || f.cat || "Altro",
+                amount_eur: parseFloat(f.amount_eur !== undefined ? f.amount_eur : (f.amount || 0)), status: f.status || "paid",
+                type: f.type || (f.category === 'Entrata Extra' ? 'income' : 'expense')
+            }));
+
+            calculateKPIs();
+            renderReceipts();
+            analyzeUtilities();
+            calculateRealEstateValue();
+        }
+
+        function calculateKPIs() {
+            let year = document.getElementById('dashYearFilter').value;
+            document.getElementById('kpi-year-label').innerText = year;
+            let today = new Date();
+            today.setHours(0,0,0,0);
+            
+            let upcoming = bookingsDB.filter(b => new Date(b.check_in || b.checkin) >= today).sort((a,b) => new Date(a.check_in || a.checkin) - new Date(b.check_in || b.checkin));
+            if (upcoming.length > 0) {
+                let next = upcoming[0];
+                document.getElementById('kpi-next-guest').innerText = next.guest || "Ospite";
+                document.getElementById('kpi-next-date').innerText = new Date(next.check_in || next.checkin).toLocaleDateString('it-IT') + ` (${next.nights} notti)`;
+            } else {
+                document.getElementById('kpi-next-guest').innerText = "-";
+                document.getElementById('kpi-next-date').innerText = "Nessuna prenotazione";
+            }
+
+            let openTickets = ticketsDB.filter(t => t.status !== 'DONE').length;
+            document.getElementById('kpi-tickets').innerText = openTickets;
+            if(openTickets > 0) document.getElementById('kpi-tickets').className = "text-2xl font-bold text-amber-400";
+            else document.getElementById('kpi-tickets').className = "text-2xl font-bold text-white";
+
+            // Saldo Reale e Ricavi
+            let closingBalance2025 = 0;
+            let b25 = bookingsDB.filter(b => (b.check_in || b.checkin).startsWith('2025'));
+            let f25 = financesDB.filter(f => f.date && f.date.startsWith('2025') && f.status === 'paid');
+            let totIn25 = 0; b25.forEach(b => totIn25 += (parseFloat(b.gross_eur !== undefined ? b.gross_eur : b.price)||0));
+            let totOut25 = 0;
+            f25.forEach(f => {
+                if(f.type === 'income') totIn25 += f.amount_eur;
+                else if(!(f.category === 'Tasse' && (f.description.toUpperCase().includes('IMU') || f.description.toUpperCase().includes('TARI')))) totOut25 += f.amount_eur;
+            });
+            closingBalance2025 = FUND_2025_INITIAL + totIn25 - totOut25;
+
+            let finalBalance = 0;
+            let yearRev = 0;
+            let yearNights = 0;
+
+            bookingsDB.forEach(b => {
+                let d = b.check_in || b.checkin || "";
+                if(d.startsWith(year)) {
+                    yearNights += b.nights || 0;
+                    yearRev += parseFloat(b.gross_eur !== undefined ? b.gross_eur : b.price) || 0;
+                }
+            });
+
+            if(year === '2025') {
+                finalBalance = closingBalance2025;
+            } else {
+                let b26 = bookingsDB.filter(b => (b.check_in || b.checkin).startsWith('2026'));
+                let f26 = financesDB.filter(f => f.date && f.date.startsWith('2026') && f.status === 'paid');
+                let totIn26 = 0; b26.forEach(b => totIn26 += (parseFloat(b.gross_eur !== undefined ? b.gross_eur : b.price)||0));
+                let totOut26 = 0;
+                f26.forEach(f => {
+                    if(f.type === 'income') totIn26 += f.amount_eur;
+                    else if(!(f.category === 'Tasse' && (f.description.toUpperCase().includes('IMU') || f.description.toUpperCase().includes('TARI')))) totOut26 += f.amount_eur;
+                });
+                finalBalance = closingBalance2025 + totIn26 - totOut26;
+            }
+
+            document.getElementById('kpi-bank').innerText = `€ ${finalBalance.toLocaleString('it-IT',{minimumFractionDigits:2})}`;
+            document.getElementById('kpi-revenue').innerText = `€ ${yearRev.toLocaleString('it-IT', {minimumFractionDigits:0})}`;
+
+            let daysInPeriod = year === '2025' ? 129 : 365;
+            document.getElementById('lbl-occ-days').innerText = year === '2025' ? "(su 129 gg)" : "(su 365 gg)";
+            
+            let occ = daysInPeriod > 0 ? (yearNights / daysInPeriod) * 100 : 0;
+            let adr = yearNights > 0 ? (yearRev / yearNights) : 0;
+            let revpar = daysInPeriod > 0 ? (yearRev / daysInPeriod) : 0;
+
+            document.getElementById('kpi-occ').innerText = `${occ.toFixed(1)}%`;
+            document.getElementById('kpi-adr').innerText = `€ ${adr.toFixed(2)}`;
+            document.getElementById('kpi-revpar').innerText = `€ ${revpar.toFixed(2)}`;
+        }
+
+        function calculateRealEstateValue() {
+            let basePrice = propertyInfo.purchase_price_eur || 230000;
+            let purchaseDateStr = propertyInfo.purchase_date || "2023-04-17";
+            let purchaseDate = new Date(purchaseDateStr);
+            let today = new Date();
+            
+            let yearsElapsed = (today - purchaseDate) / (1000 * 60 * 60 * 24 * 365.25);
+            if(yearsElapsed < 0) yearsElapsed = 0;
+
+            let capex = 0;
+            financesDB.forEach(f => {
+                if(f.status === 'paid' && (f.category === 'Straordinaria' || f.category === 'Asset')) {
+                    capex += parseFloat(f.amount_eur);
+                }
+            });
+
+            let annualRate = 0.045;
+            let marketValueBase = basePrice * Math.pow((1 + annualRate), yearsElapsed);
+            let totalMarketValue = marketValueBase + (capex * 0.7); 
+            
+            let capitalGain = totalMarketValue - basePrice - capex;
+            let roi = ((totalMarketValue / (basePrice + capex)) - 1) * 100;
+
+            document.getElementById('re-base').innerText = `€ ${basePrice.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
+            document.getElementById('re-date').innerText = `Acquisto: ${purchaseDate.toLocaleDateString('it-IT')}`;
+            document.getElementById('re-capex').innerText = `+ € ${capex.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
+            document.getElementById('re-market').innerText = `€ ${totalMarketValue.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
+            
+            let gainEl = document.getElementById('re-gain');
+            if(capitalGain >= 0) {
+                gainEl.innerHTML = `<span class="text-emerald-400">+ € ${capitalGain.toLocaleString('it-IT',{minimumFractionDigits:0})} <span class="text-sm">(+${roi.toFixed(1)}%)</span></span>`;
+            } else {
+                gainEl.innerHTML = `<span class="text-red-400">- € ${Math.abs(capitalGain).toLocaleString('it-IT',{minimumFractionDigits:0})} <span class="text-sm">(${roi.toFixed(1)}%)</span></span>`;
+            }
+        }
+
+        function analyzeUtilities() {
+            let luceBills = financesDB.filter(f => f.category === 'Utenze' && f.description.toLowerCase().includes('luce')).sort((a,b) => new Date(b.date) - new Date(a.date));
+            const container = document.getElementById('utility-analysis-content');
+            
+            if(luceBills.length === 0) {
+                container.innerHTML = `<div class="text-xs text-gray-400">Nessuna bolletta luce registrata per l'analisi.</div>`;
+                return;
+            }
+
+            let latest = luceBills[0];
+            let isHigh = latest.amount_eur > 150;
+            let dotColor = isHigh ? 'bg-red-500' : 'bg-emerald-500';
+            
+            let html = `<div class="bg-black/30 rounded p-3 mb-3 border border-white/5"><div class="text-[10px] text-gray-500 uppercase">Ultima Rilevazione Elettrica</div><div class="flex justify-between items-center mt-1"><div class="font-bold text-white text-sm">${latest.description}</div><div class="font-mono text-lg font-bold flex items-center gap-2"><span class="w-2 h-2 rounded-full ${dotColor}"></span> € ${latest.amount_eur.toFixed(2)}</div></div></div>`;
+
+            if(isHigh) {
+                html += `<div class="text-xs text-gray-300 leading-relaxed text-justify"><span class="text-red-400 font-bold">Avviso di Algoritmo:</span> Il consumo supera la soglia d'allerta di 150€. L'immobile gestisce i carichi pesanti in elettrico (Induzione <span class="font-mono text-[10px]">EQ033</span> + Lavasciuga <span class="font-mono text-[10px]">EQ041</span> + Condizionamento) ma utilizza il <strong>Gas per l'Acqua Calda Sanitaria (ACS)</strong>. Il picco è anomalo: si consiglia l'avvio del Ticket Preset <strong class="text-white">P016</strong> e <strong class="text-white">P001</strong> per ripristinare l'efficienza macchine.</div>`;
+            } else {
+                html += `<div class="text-xs text-gray-300 leading-relaxed text-justify"><span class="text-emerald-400 font-bold">Analisi Congruenza:</span> Consumo in linea con i parametri attesi. Il carico elettrico distribuito tra piano a induzione (<span class="font-mono text-[10px]">EQ033</span>) e climatizzazione è assorbito in modo efficiente, mentre il carico termico principale (ACS) è correttamente delegato alla rete Gas. Nessuna anomalia.</div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function renderReceipts() {
+            let year = document.getElementById('dashYearFilter').value;
+            const tbody = document.getElementById('receipts-body');
+            tbody.innerHTML = '';
+
+            let filtered = bookingsDB.filter(b => (b.check_in || b.checkin || "").startsWith(year));
+            let sorted = [...filtered].sort((a,b) => new Date(b.check_in || b.checkin) - new Date(a.check_in || a.checkin));
+
+            sorted.forEach(b => {
+                let isDirect = (b.source || b.portal || '').toLowerCase() === 'diretta';
+                
+                let dateStr = b.check_in || b.checkin || '';
+                let dateFmt = dateStr ? dateStr.split('-').reverse().join('/') : 'N/D';
+                
+                let gross = parseFloat(b.gross_eur !== undefined ? b.gross_eur : b.price) || 0;
+
+                let actionBtn = isDirect 
+                    ? `<button onclick="generateReceiptPDF('${b.id}')" class="bg-white text-black px-2 py-1 rounded font-bold text-[10px] uppercase tracking-wider hover:bg-gray-200 transition flex items-center gap-1 ml-auto"><i data-lucide="printer" class="w-3 h-3"></i> PDF</button>`
+                    : `<span class="text-[9px] text-gray-500 italic flex justify-end items-center uppercase tracking-wider">Fattura ${b.source}</span>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="font-bold text-white text-xs">${b.guest || 'Ospite'}</td>
+                        <td class="font-mono text-xs text-gray-400">${dateFmt}</td>
+                        <td class="text-xs text-gray-400">${b.nights || 1}</td>
+                        <td class="font-mono text-teal-400 font-bold text-xs">€ ${gross.toFixed(2)}</td>
+                        <td>${actionBtn}</td>
+                    </tr>
+                `;
+            });
+
+            if(window.lucide) lucide.createIcons();
+        }
+
+        // =========================================================
+        // GENERATORE RICEVUTA PDF NATIVO CON FIRMA GRAFICA
+        // =========================================================
+        function generateReceiptPDF(bookingId) {
+            const b = bookingsDB.find(x => x.id == bookingId);
+            if (!b) return;
+
+            let checkinDate = new Date(b.check_in || b.checkin);
+            let checkoutDate = new Date(checkinDate);
+            let nights = b.nights || 1;
+            checkoutDate.setDate(checkoutDate.getDate() + nights);
+            
+            let dateInFmt = checkinDate.toLocaleDateString('it-IT');
+            let dateOutFmt = checkoutDate.toLocaleDateString('it-IT');
+            let todayFmt = new Date().toLocaleDateString('it-IT');
+
+            let totalPagato = parseFloat(b.gross_eur !== undefined ? b.gross_eur : b.price) || 0;
+            let tax = parseFloat(b.city_tax_eur !== undefined ? b.city_tax_eur : b.tax) || 0;
+            let locazionePura = totalPagato - tax; 
+
+            let propName = propertyInfo.name || "Masotto Terrace View";
+            let propAddress = propertyInfo.address || "Via Privata Umberto Masotto 4, Milano";
+            let propOwner = propertyInfo.owner || "Riccardo Armati";
+            let propCIR = propertyInfo.cir || "015146-LNI-09408";
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Ricevuta_${b.guest.replace(/\s+/g, '_')}_${b.id}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
+                    <style>
+                        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #111827; padding: 40px; margin: 0 auto; max-width: 800px; line-height: 1.6; }
+                        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #004D54; padding-bottom: 20px; margin-bottom: 40px; }
+                        .title { font-size: 28px; font-weight: 900; color: #004D54; margin: 0; letter-spacing: -0.5px; }
+                        .subtitle { font-size: 12px; color: #64748b; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;}
+                        .info-grid { display: flex; justify-content: space-between; margin-bottom: 40px; }
+                        .info-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; width: 45%; }
+                        h3 { margin-top: 0; font-size: 14px; color: #004D54; text-transform: uppercase; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px;}
+                        p { margin: 5px 0; font-size: 13px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th { background: #f1f5f9; color: #334155; font-size: 12px; text-transform: uppercase; padding: 12px; text-align: left; border-bottom: 2px solid #cbd5e1; }
+                        td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+                        .val { text-align: right; font-family: monospace; }
+                        .total-row td { font-weight: bold; font-size: 16px; background: #f8fafc; border-top: 2px solid #004D54; }
+                        .footer { margin-top: 60px; font-size: 10px; color: #64748b; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+                        .signature { margin-top: 60px; display: flex; justify-content: flex-end; }
+                        .signature-box { width: 250px; text-align: center; border-top: 1px dotted #111827; padding-top: 10px; font-size: 12px;}
+                        .firma-grafica { font-family: 'Caveat', cursive; font-size: 38px; color: #0f172a; line-height: 0.8; display: block; margin-bottom: 10px; transform: rotate(-3deg); }
+                        @media print { body { padding: 0; } @page { margin: 2cm; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div>
+                            <div class="subtitle">Ricevuta Non Fiscale - Locazione Breve Turistica</div>
+                            <div class="title">RICEVUTA DI PAGAMENTO</div>
+                            <p style="margin-top: 10px; font-weight: bold; color: #475569;">N. Rif: <span style="font-family: monospace;">${b.id}</span></p>
+                            <p style="margin: 0; color: #475569;">Data emissione: ${todayFmt}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <h2 style="margin: 0; color: #004D54; font-size: 20px;">${propName}</h2>
+                            <p style="margin: 5px 0 0 0;">${propAddress}</p>
+                            <p style="margin: 0;">Proprietario: ${propOwner}</p>
+                            <p style="margin: 0;">CIR: ${propCIR}</p>
+                        </div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-box">
+                            <h3>Dati Ospite</h3>
+                            <p><strong>Nome:</strong> ${b.guest}</p>
+                            <p><strong>Ospiti totali:</strong> ${b.pax || 1}</p>
+                        </div>
+                        <div class="info-box">
+                            <h3>Dettagli Soggiorno</h3>
+                            <p><strong>Check-in:</strong> ${dateInFmt}</p>
+                            <p><strong>Check-out:</strong> ${dateOutFmt}</p>
+                            <p><strong>Totale Notti:</strong> ${nights}</p>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Descrizione del Servizio</th>
+                                <th class="val">Importo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Corrispettivo per Locazione Breve Turistica (${nights} notti)</td>
+                                <td class="val">€ ${locazionePura.toLocaleString('it-IT', {minimumFractionDigits:2})}</td>
+                            </tr>
+                            <tr>
+                                <td>Imposta di Soggiorno (Riversata al Comune di Milano)</td>
+                                <td class="val">€ ${tax.toLocaleString('it-IT', {minimumFractionDigits:2})}</td>
+                            </tr>
+                            <tr class="total-row">
+                                <td style="text-align:right;">TOTALE INCASSATO:</td>
+                                <td class="val" style="color: #004D54;">€ ${totalPagato.toLocaleString('it-IT', {minimumFractionDigits:2})}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 30px; font-size: 12px; color: #475569;">
+                        <p><strong>Note di Legge:</strong><br>
+                        Ricevuta emessa per prestazione relativa a locazione breve turistica ai sensi dell'art. 4 DL 50/2017.<br>
+                        Operazione fuori campo IVA ai sensi dell'art. 10 DPR 633/72.</p>
+                    </div>
+
+                    <div class="signature">
+                        <div class="signature-box">
+                            <span style="color: #64748b; font-size: 10px; text-transform: uppercase;">Firma del Locatore</span><br>
+                            <span class="firma-grafica">${propOwner}</span><br>
+                            <strong style="font-size: 12px;">${propOwner}</strong>
+                        </div>
+                    </div>
+
+                    <div class="footer">
+                        Documento generato dal Sistema Gestionale 2M Apartments. Copia per l'ospite.
+                    </div>
+
+                    <script>
+                        window.onload = function() { 
+                            // Piccolo ritardo per permettere al font Google di caricarsi prima della stampa
+                            setTimeout(() => { window.print(); }, 500);
+                        }
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        window.onload = loadDashboard;
+    </script>
+    
+<script id="masotto-sidebar">
+(function(){
+  const PAGES = [
+    ["index.html","Dashboard","layout-dashboard"],
+    ["ANAGRAFICA.html","Anagrafica","id-card"],
+    ["asset.html","Asset","boxes"],
+    ["audit.html","Audit","clipboard-check"],
+    ["manutenzione.html","Manutenzione","wrench"],
+    ["prenotazioni.html","Prenotazioni","calendar"],
+    ["FINANZE.html","Finanze","pie-chart"],
+    ["sicurezza.html","Sicurezza","shield"]
+  ];
+
+  window.msUniversalExportDB = function() {
+      const master = window.MASOTTO_DB || {};
+      const keys = { 
+          "property_master": "masotto_prop_data", "bookings": "masotto_booking_db", 
+          "finances": "masotto_finance_db", "structural_assets": "masotto_structural_assets_db", 
+          "assets_mobile": "masotto_assets_mobile_db", "tickets": "masotto_maint_db",
+          "maintenance_presets": "masotto_maintenance_presets_db", "insurance": "masotto_insurance_db",
+          "utilities": "masotto_utilities_db", "contacts": "masotto_contacts_db", "reusable_inventory": "masotto_reusable_inventory_db"
+      };
+      let exportData = {};
+      for (const [dbKey, lsKey] of Object.entries(keys)) {
+          let lsData = localStorage.getItem(lsKey);
+          if (lsData && lsData !== "undefined" && lsData !== "[]" && lsData !== "{}") {
+              try { exportData[dbKey] = JSON.parse(lsData); } catch(e) { exportData[dbKey] = master[dbKey] || []; }
+          } else { exportData[dbKey] = master[dbKey] || []; }
+      }
+      const jsContent = "window.MASOTTO_DB = " + JSON.stringify(exportData, null, 2) + ";";
+      const blob = new Blob([jsContent], { type: "application/javascript" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "masotto_db.js";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  };
+
+  window.msUniversalSyncDB = function() {
+      if(confirm("ATTENZIONE: Ricaricare i dati puliti dal file masotto_db.js originale? Tutte le modifiche NON ESPORTATE andranno perse per sempre.")) {
+          Object.keys(localStorage).forEach(k => { if(k.startsWith("masotto_")) localStorage.removeItem(k); });
+          window.location.reload();
+      }
+  };
+
+  function mountSidebar(){
+      if (window.__MS_SIDEBAR_DONE && document.getElementById("msSidebar")) return;
+      try{ document.querySelectorAll("aside.sidebar, div.sidebar, #sidebar, [data-legacy-sidebar=\"1\"]").forEach(el=>el.remove()); document.querySelectorAll(".ms-sidebar").forEach(el=>{ if(el.id !== "msSidebar") el.remove(); }); }catch(e){}
+      if (document.getElementById("msSidebar")) { window.__MS_SIDEBAR_DONE = true; return; }
+
+      const path = (location.pathname.split("/").pop() || "index.html");
+      const nav = PAGES.map(([href,label,icon])=>{
+        const active = (href.toLowerCase() === path.toLowerCase()) ? "active" : "";
+        return `<a class="${active}" href="${href}"><i data-lucide="${icon}" class="w-4 h-4"></i><span>${label}</span></a>`;
+      }).join("");
+
+      const sidebar = document.createElement("aside");
+      sidebar.className="ms-sidebar";
+      sidebar.id="msSidebar";
+      sidebar.innerHTML = `
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg" style="background:linear-gradient(135deg,#004D54,#10b981)">2M</div>
+          <div>
+            <div class="text-white font-bold leading-tight">Masotto Terrace</div>
+            <div class="ms-chip">single-property mode</div>
+          </div>
+        </div>
+        <nav class="ms-nav space-y-1 mb-8">${nav}</nav>
+        
+        <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 10px;">
+            <div style="font-size: 10px; color: #64748b; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 5px;">Database Manager</div>
+            <button onclick="msUniversalExportDB()" style="background: #2563eb; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);">
+                <i data-lucide="download" class="w-4 h-4"></i> Esporta DB (.js)
+            </button>
+            <button onclick="msUniversalSyncDB()" style="background: transparent; color: #94a3b8; border: 1px solid #334155; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; transition: 0.2s;">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Annulla Modifiche
+            </button>
+        </div>
+      `;
+
+      const mainWrap = document.createElement("div");
+      mainWrap.className = "ms-main";
+      while(document.body.firstChild){ mainWrap.appendChild(document.body.firstChild); }
+      document.body.appendChild(sidebar);
+      document.body.appendChild(mainWrap);
+
+      const topbar = document.createElement("div");
+      topbar.className="ms-topbar p-3 flex items-center justify-between lg:hidden";
+      topbar.innerHTML = `
+        <button id="msToggle" class="px-3 py-2 rounded-lg text-white text-xs font-bold" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);">☰ Menu</button>
+        <div class="text-white font-bold text-sm">Masotto Terrace</div>
+        <div style="width:64px"></div>
+      `;
+      mainWrap.prepend(topbar);
+
+      document.getElementById("msToggle").addEventListener("click", ()=>{ sidebar.classList.toggle("open"); });
+  }
+
+  document.addEventListener("DOMContentLoaded", async ()=>{ mountSidebar(); if(window.lucide && window.lucide.createIcons) window.lucide.createIcons(); });
+})();
+</script>
+</body>
+</html>

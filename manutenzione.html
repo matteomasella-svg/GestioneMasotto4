@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masotto - Manutenzione & Costi</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --bg-dark: #080c10; --panel-dark: #0f151a; --border: rgba(255,255,255,0.1); --accent-teal: #2dd4bf; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-dark); color: white; margin: 0; min-height: 100vh; overflow: auto !important; height: auto !important; }
+        
+        .main { flex: 1; padding: 2rem; background: radial-gradient(circle at top right, #112a2e 0%, #080c10 40%); overflow: visible !important; min-height: 100vh; }
+        
+        /* Griglie per Icone */
+        .icon-bar-container { display: flex; flex-wrap: wrap; gap: 1rem; padding-bottom: 0.5rem; }
+        
+        .icon-btn { min-width: 80px; max-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; position: relative; }
+        .icon-box { width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .icon-btn:hover .icon-box { transform: translateY(-3px); }
+        .icon-label { font-size: 0.65rem; text-align: center; color: #94a3b8; font-weight: 700; text-transform: uppercase; line-height: 1.2; }
+        
+        .use-badge { position: absolute; top: -5px; right: 5px; background: #f59e0b; color: #080c10; font-size: 0.6rem; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-dark); z-index: 2;}
+
+        .box-asset { background: rgba(45, 212, 191, 0.1); border: 1px solid rgba(45, 212, 191, 0.3); color: #2dd4bf; }
+        .icon-btn:hover .box-asset { background: #2dd4bf; color: #080c10; box-shadow: 0 5px 15px rgba(45,212,191,0.3); }
+
+        .box-inv { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; }
+        .icon-btn:hover .box-inv { background: #f59e0b; color: #080c10; box-shadow: 0 5px 15px rgba(245,158,11,0.3); }
+
+        /* Kanban Styles */
+        .kanban-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; margin-top: 1rem; }
+        @media (min-width: 1024px) { .kanban-grid { grid-template-columns: repeat(3, 1fr); } }
+        .kanban-col { background: rgba(15,21,26,0.8); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; min-height: 400px; display: flex; flex-direction: column; gap: 10px; }
+        .ticket { background: #1e293b; padding: 16px; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 4px 15px rgba(0,0,0,0.2); cursor: pointer; transition: 0.2s; }
+        .ticket:hover { transform: translateY(-2px); border-color: var(--accent-teal); background: #233147; }
+        .ticket-todo { border-left-color: #ef4444; } .ticket-doing { border-left-color: #f59e0b; } .ticket-done { border-left-color: #10b981; opacity: 0.85; }
+
+        .quick-btn { display: inline-flex; align-items: center; gap: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; transition: 0.2s; background: rgba(255,255,255,0.05); }
+        .quick-btn:hover { background: rgba(255,255,255,0.15); }
+
+        /* Modal Styles */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; }
+        .modal-box { background: var(--panel-dark); border: 1px solid var(--accent-teal); width: 95%; max-width: 700px; padding: 2rem; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); max-height: 90vh; overflow-y: auto; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+        input, select, textarea { width: 100%; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; color: white; font-size: 0.9rem; }
+        .btn-primary { background: var(--accent-teal); color: #00282c; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%; text-align: center; border: none;}
+        .btn-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; text-align: center; border:none; }
+        .magazzino-box { background: rgba(0,0,0,0.3); border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; margin-top: 8px; font-size: 0.85rem; }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+<style id="masotto-sidebar-css">
+:root{ --bg-dark:#0b1220; --border:rgba(255,255,255,.10); --brand:#004D54; --accent:#2dd4bf; }
+.ms-sidebar{ position:fixed; inset:0 auto 0 0; width:260px; background:rgba(15,23,42,.96); border-right:1px solid var(--border); padding:20px; z-index:50; overflow-y:auto; }
+.ms-main{margin-left:260px; min-height:100vh; display:flex; flex-direction:column;}
+@media (max-width: 900px){ .ms-sidebar{transform:translateX(-105%); transition:.2s;} .ms-sidebar.open{transform:translateX(0);} .ms-main{margin-left:0;} .ms-topbar{position:sticky; top:0; z-index:40; backdrop-filter: blur(10px); background:rgba(11,18,32,.75); border-bottom:1px solid var(--border);} }
+.ms-nav a{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:#94a3b8; font-weight:600; text-decoration:none; }
+.ms-nav a:hover{background:rgba(255,255,255,.05); color:#fff;} .ms-nav a.active{background:var(--brand); color:var(--accent); border-left:3px solid var(--accent);}
+.ms-chip{font:600 10px monospace; color:var(--accent); background:rgba(45,212,191,.10); border:1px solid rgba(45,212,191,.25); padding:2px 8px; border-radius:999px; display:inline-block;}
+</style>
+    <script src="masotto_db.js"></script>
+</head>
+<body>
+
+    <div>
+        <main class="main">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-white">Centro Manutenzioni</h2>
+                    <div class="text-sm text-gray-400">Gestione Ticket, Finanze e Magazzino</div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <select id="yearFilter" onchange="renderBoard()" class="bg-[#1e293b] border border-white/10 text-white px-3 py-2 rounded-lg font-bold text-sm outline-none cursor-pointer">
+                        <option value="ALL">Tutti i periodi</option>
+                        <option value="2026">Anno 2026</option>
+                        <option value="2025" selected>Anno 2025</option>
+                        <option value="PAST">Tutti i passati</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-l-4 border-l-blue-500 shadow-lg">
+                    <div id="lbl-ytd" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="calendar" class="w-3 h-3 inline"></i> Spese Anno in Corso</div>
+                    <div class="text-3xl font-bold text-white font-mono" id="kpi-ytd">€ 0.00</div>
+                </div>
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-l-4 border-l-teal-500 shadow-lg">
+                    <div id="lbl-mtd" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="calendar-days" class="w-3 h-3 inline"></i> Spese Mese in Corso</div>
+                    <div class="text-3xl font-bold text-white font-mono" id="kpi-mtd">€ 0.00</div>
+                </div>
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-l-4 border-l-yellow-500 shadow-lg">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="clock" class="w-3 h-3 inline"></i> Previste (Prox 3 Mesi)</div>
+                    <div class="text-3xl font-bold text-yellow-400 font-mono" id="kpi-upc">€ 0.00</div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="text-xs font-bold text-teal-400 uppercase tracking-wider mb-3"><i data-lucide="monitor-speaker" class="inline w-3 h-3"></i> Asset Struttura (Clicca per Ticket)</h3>
+                <div id="asset-bar" class="icon-bar-container"></div>
+            </div>
+            <div class="mb-8">
+                <h3 class="text-xs font-bold text-amber-500 uppercase tracking-wider mb-3"><i data-lucide="package-search" class="inline w-3 h-3"></i> Magazzino Attrezzi</h3>
+                <div id="inventory-bar" class="icon-bar-container"></div>
+            </div>
+            
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-2xl font-bold text-white">Bacheca Interventi</h2>
+                <button onclick="openModal()" class="bg-teal-500 text-teal-950 font-bold px-3 py-1.5 rounded flex items-center gap-2 text-sm"><i data-lucide="plus" class="w-4 h-4"></i> Lavoro Libero</button>
+            </div>
+            
+            <div class="kanban-grid">
+                <div class="kanban-col border-t-4 border-red-500"><h3 class="font-bold text-red-400 mb-2 flex items-center gap-2"><i data-lucide="alert-circle" class="w-4 h-4"></i> Da Fare</h3><div id="col-TODO" class="flex flex-col gap-3"></div></div>
+                <div class="kanban-col border-t-4 border-yellow-500"><h3 class="font-bold text-yellow-400 mb-2 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4"></i> In Corso</h3><div id="col-DOING" class="flex flex-col gap-3"></div></div>
+                <div class="kanban-col border-t-4 border-teal-500"><h3 class="font-bold text-teal-400 mb-2 flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Eseguiti</h3><div id="col-DONE" class="flex flex-col gap-3"></div></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="ticketModal" class="modal">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2" id="modalTitle"><i data-lucide="wrench"></i> Dettaglio Intervento</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <div class="form-group p-3 mb-4 rounded-lg border border-white/10 bg-white/5 flex items-center gap-3">
+                <div id="modal-asset-icon" class="w-10 h-10 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center"><i data-lucide="box" class="w-5 h-5"></i></div>
+                <div class="flex-1">
+                    <div class="text-[10px] text-gray-400 uppercase font-bold">Asset Collegato</div>
+                    <div id="modal-asset-name" class="font-bold text-white text-base">Nessuno</div>
+                    <input type="hidden" id="t-linked-asset">
+                </div>
+            </div>
+
+            <div class="form-group mb-4 p-2 bg-teal-500/10 border border-teal-500/30 rounded-lg">
+                <label class="text-teal-400">Preset specifici per questo Asset</label>
+                <select id="t-preset-select" onchange="applyPreset()" class="mb-0 border-teal-500/50 bg-teal-900/50">
+                    <option value="">-- Seleziona o compila a mano --</option>
+                </select>
+            </div>
+
+            <input type="hidden" id="t-id">
+            <input type="hidden" id="t-inv-processed" value="false">
+            
+            <div class="form-group"><label>Titolo Intervento</label><input type="text" id="t-title" placeholder="Es. Tinteggiatura Pareti"></div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="form-group"><label>Stato</label><select id="t-status"><option value="TODO">Da Fare (TODO)</option><option value="DOING">In Corso (DOING)</option><option value="DONE">Eseguito (DONE)</option></select></div>
+                <div class="form-group"><label>Data Scadenza / Esecuzione</label><input type="date" id="t-date"></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="form-group"><label>Costo Manodopera (€)</label><input type="number" id="t-labor" step="0.01" min="0" placeholder="0.00"></div>
+                <div class="form-group"><label>Costo Materiali Tot. (€)</label><input type="number" id="t-material" step="0.01" min="0" placeholder="0.00"></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 border-t border-white/10 pt-4 mt-2">
+                <div class="form-group"><label>Consumabili</label><textarea id="t-consumables" placeholder="Materiale a perdere."></textarea></div>
+                <div class="form-group"><label class="text-amber-500"><i data-lucide="package-search" class="w-3 h-3 inline"></i> Attrezzi Riutilizzabili</label><textarea id="t-reusables" placeholder="Verranno inseriti in magazzino." onkeyup="checkInventory()"></textarea></div>
+            </div>
+            <div id="inventory-result" class="magazzino-box hidden mt-0 mb-4"></div>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="saveTicket()" class="btn-primary flex-1">Salva e Sincronizza Finanze</button>
+                <button id="btn-delete" onclick="deleteTicket()" class="btn-danger flex-1 hidden">Elimina</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ticketsDB = []; let presetsDB = []; let inventoryDB = []; let allAssets = []; let financesDB = [];
+
+        function getIconForName(name) {
+            if(!name) return 'box';
+            const s = name.toString().toLowerCase();
+            if(s.includes('frigo') || s.includes('cottura') || s.includes('cappa')) return 'chef-hat';
+            if(s.includes('lavastoviglie') || s.includes('lavasciuga')) return 'washing-machine';
+            if(s.includes('tv') || s.includes('televisore')) return 'tv';
+            if(s.includes('clima') || s.includes('condiz') || s.includes('riscaldamento')) return 'thermometer-snowflake';
+            if(s.includes('materasso') || s.includes('topper')) return 'bed-double';
+            if(s.includes('aspirapolvere')) return 'sparkles';
+            if(s.includes('pareti') || s.includes('soffitti') || s.includes('tintegg') || s.includes('rullo') || s.includes('pennell')) return 'paint-roller';
+            if(s.includes('infissi') || s.includes('porta') || s.includes('tapparelle')) return 'door-open';
+            if(s.includes('idraul') || s.includes('bagno') || s.includes('silicone') || s.includes('scaric')) return 'droplets';
+            if(s.includes('elettri') || s.includes('salvavita')) return 'zap';
+            if(s.includes('raschietto') || s.includes('attrezz')) return 'hammer';
+            return 'box';
+        }
+
+        function forceLoadFromMasterDB() {
+            if(window.MASOTTO_DB) {
+                ticketsDB = window.MASOTTO_DB.tickets || [];
+                presetsDB = window.MASOTTO_DB.maintenance_presets || [];
+                inventoryDB = window.MASOTTO_DB.reusable_inventory || [];
+                financesDB = window.MASOTTO_DB.finances || [];
+                
+                localStorage.setItem('masotto_maint_db', JSON.stringify(ticketsDB));
+                localStorage.setItem('masotto_maintenance_presets_db', JSON.stringify(presetsDB));
+                localStorage.setItem('masotto_reusable_inventory_db', JSON.stringify(inventoryDB));
+                localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
+            }
+        }
+
+        function loadDB() {
+            let locTickets = localStorage.getItem('masotto_maint_db');
+            if(!locTickets || locTickets === "undefined" || locTickets === "[]") {
+                forceLoadFromMasterDB();
+            } else {
+                try {
+                    ticketsDB = JSON.parse(locTickets);
+                    presetsDB = JSON.parse(localStorage.getItem('masotto_maintenance_presets_db') || "[]");
+                    inventoryDB = JSON.parse(localStorage.getItem('masotto_reusable_inventory_db') || "[]");
+                    financesDB = JSON.parse(localStorage.getItem('masotto_finance_db') || "[]");
+                } catch(e) { forceLoadFromMasterDB(); }
+            }
+            
+            let aMob = window.MASOTTO_DB ? window.MASOTTO_DB.assets_mobile || [] : [];
+            let aStr = window.MASOTTO_DB ? window.MASOTTO_DB.structural_assets || [] : [];
+            
+            allAssets = [];
+            aMob.forEach(a => allAssets.push({ id: a.id, name: a.tipo, icon: getIconForName(a.tipo) }));
+            aStr.forEach(a => allAssets.push({ id: a.id, name: a.nome, icon: getIconForName(a.nome) }));
+
+            renderTopBars();
+            renderBoard();
+        }
+
+        function renderTopBars() {
+            const assetBar = document.getElementById('asset-bar');
+            assetBar.innerHTML = "";
+            allAssets.forEach(a => {
+                assetBar.innerHTML += `
+                <div class="icon-btn" onclick="openModal(null, '${a.id}')">
+                    <div class="icon-box box-asset"><i data-lucide="${a.icon}" class="w-6 h-6"></i></div>
+                    <div class="icon-label label-asset" title="${a.name}">${a.name}</div>
+                </div>`;
+            });
+
+            const invBar = document.getElementById('inventory-bar');
+            invBar.innerHTML = "";
+            inventoryDB.forEach(i => {
+                let uses = i.usi_rimanenti || 3;
+                invBar.innerHTML += `
+                <div class="icon-btn" title="${i.nome} - Usi rimasti: ${uses}">
+                    <div class="use-badge">${uses}</div>
+                    <div class="icon-box box-inv"><i data-lucide="${getIconForName(i.nome)}" class="w-6 h-6"></i></div>
+                    <div class="icon-label">${i.nome}</div>
+                </div>`;
+            });
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function populatePresetsSelect(assetId) {
+            const select = document.getElementById('t-preset-select');
+            select.innerHTML = '<option value="">-- Seleziona o compila a mano --</option>';
+            let filtered = presetsDB.filter(p => !assetId || (p.asset_link && p.asset_link.includes(assetId)));
+            filtered.forEach(p => { select.innerHTML += `<option value="${p.id_preset}">${p.titolo}</option>`; });
+        }
+
+        function applyPreset() {
+            const presetId = document.getElementById('t-preset-select').value;
+            if(!presetId) return;
+            const p = presetsDB.find(x => x.id_preset === presetId);
+            if(p) {
+                document.getElementById('t-title').value = p.titolo || '';
+                document.getElementById('t-labor').value = p.costo_manodopera_eur_h ? (p.costo_manodopera_eur_h * (p.durata_std_h||1)) : '';
+                document.getElementById('t-material').value = p.costo_materiali_eur || '';
+                let note = p.note || ''; let reusables = ""; let cons = note;
+                if(note.includes("magazzino")) { reusables = note.split('.')[1] || "Attrezzi"; cons = note.split('.')[0] || ""; }
+                document.getElementById('t-consumables').value = cons;
+                document.getElementById('t-reusables').value = reusables.replace("Aggiunti a magazzino:","").replace("Usati attrezzi a magazzino.","").trim();
+                checkInventory();
+            }
+        }
+
+        function checkInventory() {
+            const inputStr = document.getElementById('t-reusables').value;
+            const resultBox = document.getElementById('inventory-result');
+            if(!inputStr.trim()) { resultBox.classList.add('hidden'); return; }
+            
+            const reqItems = inputStr.split(',').map(s => s.trim().toLowerCase()).filter(s=>s);
+            let toBuy = []; let inStock = [];
+            
+            reqItems.forEach(req => {
+                const found = inventoryDB.find(inv => inv.nome.toLowerCase().includes(req) || req.includes(inv.nome.toLowerCase()));
+                if(found) inStock.push(`${found.nome} (${found.usi_rimanenti||3} usi)`); else toBuy.push(req);
+            });
+
+            resultBox.classList.remove('hidden');
+            let html = "";
+            if(toBuy.length > 0) html += `<div class="text-red-400 text-xs mb-1"><i data-lucide="shopping-cart" class="w-3 h-3 inline"></i> <b>Da comprare:</b> ${toBuy.join(', ')}</div>`;
+            if(inStock.length > 0) html += `<div class="text-teal-400 text-xs"><i data-lucide="package-check" class="w-3 h-3 inline"></i> <b>In magazzino:</b> ${inStock.join(', ')}</div>`;
+            resultBox.innerHTML = html;
+            if(window.lucide) lucide.createIcons();
+        }
+
+        // ============================================
+        // CALCOLI KPI AGGIORNATI CON IL FILTRO DINAMICO
+        // ============================================
+        function calculateKPIs() {
+            const filter = document.getElementById('yearFilter').value;
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            
+            let currentYear = today.getFullYear();
+            let targetYear = currentYear;
+            let currentMonth = today.getMonth();
+            
+            if(filter !== 'ALL' && filter !== 'PAST') {
+                targetYear = parseInt(filter);
+            }
+
+            let ytd = 0; let mtd = 0; let upc = 0;
+            const next3M = new Date(today); next3M.setMonth(next3M.getMonth() + 3);
+
+            ticketsDB.forEach(t => {
+                const cost = (parseFloat(t.costo_lavoro) || 0) + (parseFloat(t.costo_materiali) || 0);
+                if(cost === 0 || !t.date) return;
+                
+                const tDate = new Date(t.date);
+                const tYear = tDate.getFullYear();
+                
+                if (t.status === 'DONE') {
+                    if (filter === 'ALL') {
+                        ytd += cost;
+                        if (tYear === currentYear && tDate.getMonth() === currentMonth) mtd += cost;
+                    } else if (filter === 'PAST') {
+                        if (tYear < 2025) ytd += cost;
+                    } else {
+                        if (tYear === targetYear) ytd += cost;
+                        if (tYear === targetYear && tDate.getMonth() === currentMonth) mtd += cost;
+                    }
+                } else {
+                    if (tDate <= next3M) upc += cost;
+                }
+            });
+
+            // Aggiorna le etichette dinamicamente
+            let lblYtd = "Spese Totali";
+            if (filter !== 'ALL' && filter !== 'PAST') lblYtd = "Spese Anno " + targetYear;
+            if (filter === 'PAST') lblYtd = "Spese Pre-2025";
+            
+            const monthNames = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+            let lblMtd = "Mese in Corso";
+            if (filter !== 'ALL' && filter !== 'PAST') lblMtd = `Mese ${monthNames[currentMonth]} ${targetYear}`;
+
+            document.getElementById('lbl-ytd').innerHTML = `<i data-lucide="calendar" class="w-3 h-3 inline"></i> ${lblYtd}`;
+            document.getElementById('lbl-mtd').innerHTML = `<i data-lucide="calendar-days" class="w-3 h-3 inline"></i> ${lblMtd}`;
+
+            document.getElementById('kpi-ytd').innerText = `€ ${ytd.toLocaleString('it-IT',{minimumFractionDigits:2})}`;
+            document.getElementById('kpi-mtd').innerText = `€ ${mtd.toLocaleString('it-IT',{minimumFractionDigits:2})}`;
+            document.getElementById('kpi-upc').innerText = `€ ${upc.toLocaleString('it-IT',{minimumFractionDigits:2})}`;
+        }
+
+        function quickChangeStatus(e, id, newStatus) {
+            e.stopPropagation();
+            const tIdx = ticketsDB.findIndex(x => x.id === id);
+            if(tIdx === -1) return;
+            
+            let t = ticketsDB[tIdx];
+            
+            if (newStatus === 'DONE' && !t.inventory_processed && t.reusables && t.reusables.trim() !== "") {
+                const tools = t.reusables.split(',').map(s=>s.trim()).filter(s=>s);
+                tools.forEach(tool => {
+                    let foundIdx = inventoryDB.findIndex(inv => inv.nome.toLowerCase().includes(tool.toLowerCase()));
+                    if (foundIdx > -1) {
+                        inventoryDB[foundIdx].usi_rimanenti = (inventoryDB[foundIdx].usi_rimanenti || 3) - 1;
+                        if (inventoryDB[foundIdx].usi_rimanenti <= 0) inventoryDB.splice(foundIdx, 1);
+                    } else {
+                        inventoryDB.push({ id: "TOOL-" + Date.now() + Math.floor(Math.random()*100), nome: tool, categoria: "Attrezzatura", data_acquisizione: new Date().toISOString().split('T')[0], usi_rimanenti: 3 });
+                    }
+                });
+                t.inventory_processed = true;
+                localStorage.setItem('masotto_reusable_inventory_db', JSON.stringify(inventoryDB));
+                renderTopBars();
+            }
+            
+            t.status = newStatus;
+            
+            const totalCost = (parseFloat(t.costo_lavoro) || 0) + (parseFloat(t.costo_materiali) || 0);
+            let finIdx = financesDB.findIndex(f => f.id === t.id || f.id === parseInt(t.id));
+            if (totalCost > 0) {
+                let finRecord = {
+                    id: t.id,
+                    date: t.date || new Date().toISOString().split('T')[0],
+                    description: "Manutenzione: " + t.title,
+                    category: "Straordinaria",
+                    amount_eur: totalCost,
+                    status: newStatus === 'DONE' ? 'paid' : 'pending'
+                };
+                if (finIdx > -1) financesDB[finIdx] = finRecord;
+                else financesDB.push(finRecord);
+            } else {
+                if (finIdx > -1) financesDB.splice(finIdx, 1);
+            }
+            
+            localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
+            localStorage.setItem('masotto_maint_db', JSON.stringify(ticketsDB));
+            renderBoard();
+        }
+
+        function getQuickActionButton(t) {
+            if(t.status === 'TODO') {
+                return `<button onclick="quickChangeStatus(event, ${t.id}, 'DOING')" class="quick-btn text-yellow-400 hover:text-yellow-300"><i data-lucide="play" class="w-3 h-3"></i> Inizia</button>`;
+            } else if(t.status === 'DOING') {
+                return `<button onclick="quickChangeStatus(event, ${t.id}, 'DONE')" class="quick-btn text-teal-400 hover:text-teal-300"><i data-lucide="check" class="w-3 h-3"></i> Completa</button>`;
+            } else {
+                return `<button onclick="quickChangeStatus(event, ${t.id}, 'TODO')" class="quick-btn text-gray-400 hover:text-white"><i data-lucide="rotate-ccw" class="w-3 h-3"></i> Riapri</button>`;
+            }
+        }
+
+        function renderBoard() {
+            const filter = document.getElementById('yearFilter').value;
+            
+            document.getElementById('col-TODO').innerHTML = ""; 
+            document.getElementById('col-DOING').innerHTML = ""; 
+            document.getElementById('col-DONE').innerHTML = "";
+            
+            let filteredTickets = ticketsDB.filter(t => {
+                if(filter === 'ALL') return true;
+                let y = t.date ? t.date.substring(0,4) : new Date().getFullYear().toString();
+                if(filter === 'PAST') return parseInt(y) < 2025;
+                return y === filter;
+            });
+
+            filteredTickets.forEach(t => {
+                const col = document.getElementById(`col-${t.status}`);
+                if(col) {
+                    const totalCost = (parseFloat(t.costo_lavoro) || 0) + (parseFloat(t.costo_materiali) || 0);
+                    let borderClass = t.status === 'TODO' ? 'ticket-todo' : (t.status === 'DONE' ? 'ticket-done' : 'ticket-doing');
+                    let assetObj = allAssets.find(a => a.id === t.asset) || { name: 'Generale', icon: getIconForName(t.title) };
+                    
+                    col.innerHTML += `
+                    <div class="ticket ${borderClass}" onclick="openModal(${t.id})">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="text-[10px] bg-white/10 text-gray-300 px-2 py-1 rounded flex items-center gap-1"><i data-lucide="${assetObj.icon}" class="w-3 h-3"></i> ${assetObj.name}</div>
+                            <div class="text-xs text-gray-400 font-mono">${t.date || ''}</div>
+                        </div>
+                        <div class="font-bold text-white mb-2 leading-tight">${t.title || 'Senza Titolo'}</div>
+                        
+                        <div class="flex justify-between items-center border-t border-white/10 pt-3 mt-1">
+                            ${getQuickActionButton(t)}
+                            <div class="text-sm font-mono font-bold text-white">€ ${totalCost.toFixed(2)}</div>
+                        </div>
+                    </div>`;
+                }
+            });
+            
+            calculateKPIs();
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function openModal(id = null, linkedAssetId = null) {
+            document.getElementById('ticketModal').style.display = 'flex';
+            document.getElementById('inventory-result').classList.add('hidden');
+            
+            if(id) {
+                const t = ticketsDB.find(x => x.id === id);
+                let aObj = allAssets.find(a => a.id === t.asset) || { name: 'Generale', icon: 'box' };
+                setupModalHeader('edit', aObj, t.asset);
+                populatePresetsSelect(t.asset);
+
+                document.getElementById('t-id').value = t.id;
+                document.getElementById('t-inv-processed').value = t.inventory_processed || 'false';
+                document.getElementById('t-title').value = t.title || '';
+                document.getElementById('t-status').value = t.status || 'TODO';
+                document.getElementById('t-date').value = t.date || '';
+                document.getElementById('t-labor').value = t.costo_lavoro || '';
+                document.getElementById('t-material').value = t.costo_materiali || '';
+                document.getElementById('t-consumables').value = t.consumables || t.note || '';
+                document.getElementById('t-reusables').value = t.reusables || '';
+                document.getElementById('btn-delete').classList.remove('hidden');
+                checkInventory();
+            } else {
+                let aObj = allAssets.find(a => a.id === linkedAssetId) || { name: 'Generale', icon: 'wrench' };
+                setupModalHeader('plus', aObj, linkedAssetId);
+                populatePresetsSelect(linkedAssetId);
+
+                document.getElementById('t-id').value = '';
+                document.getElementById('t-inv-processed').value = 'false';
+                document.getElementById('t-title').value = '';
+                document.getElementById('t-status').value = 'TODO';
+                document.getElementById('t-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('t-labor').value = '';
+                document.getElementById('t-material').value = '';
+                document.getElementById('t-consumables').value = '';
+                document.getElementById('t-reusables').value = '';
+                document.getElementById('btn-delete').classList.add('hidden');
+            }
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function setupModalHeader(icon, assetObj, assetId) {
+            document.getElementById('modalTitle').innerHTML = `<i data-lucide="${icon}"></i> ${icon==='edit'?'Modifica':'Nuovo'} Ticket`;
+            document.getElementById('modal-asset-icon').innerHTML = `<i data-lucide="${assetObj.icon}" class="w-6 h-6"></i>`;
+            document.getElementById('modal-asset-name').innerText = assetObj.name;
+            document.getElementById('t-linked-asset').value = assetId || '';
+        }
+
+        function saveTicket() {
+            const idStr = document.getElementById('t-id').value;
+            const status = document.getElementById('t-status').value;
+            const isProcessed = document.getElementById('t-inv-processed').value === 'true';
+            
+            const newTicket = {
+                id: idStr ? parseInt(idStr) : Date.now(),
+                asset: document.getElementById('t-linked-asset').value,
+                title: document.getElementById('t-title').value,
+                status: status,
+                date: document.getElementById('t-date').value,
+                costo_lavoro: parseFloat(document.getElementById('t-labor').value) || 0,
+                costo_materiali: parseFloat(document.getElementById('t-material').value) || 0,
+                consumables: document.getElementById('t-consumables').value,
+                reusables: document.getElementById('t-reusables').value,
+                inventory_processed: isProcessed
+            };
+
+            if(status === 'DONE' && !isProcessed && newTicket.reusables.trim() !== "") {
+                const tools = newTicket.reusables.split(',').map(s=>s.trim()).filter(s=>s);
+                tools.forEach(tool => {
+                    let foundIdx = inventoryDB.findIndex(inv => inv.nome.toLowerCase().includes(tool.toLowerCase()));
+                    if (foundIdx > -1) {
+                        inventoryDB[foundIdx].usi_rimanenti = (inventoryDB[foundIdx].usi_rimanenti || 3) - 1;
+                        if (inventoryDB[foundIdx].usi_rimanenti <= 0) inventoryDB.splice(foundIdx, 1);
+                    } else {
+                        inventoryDB.push({ id: "TOOL-" + Date.now() + Math.floor(Math.random()*100), nome: tool, categoria: "Attrezzatura", data_acquisizione: newTicket.date, usi_rimanenti: 3 });
+                    }
+                });
+                newTicket.inventory_processed = true;
+                localStorage.setItem('masotto_reusable_inventory_db', JSON.stringify(inventoryDB));
+                renderTopBars();
+            }
+
+            const totalCost = newTicket.costo_lavoro + newTicket.costo_materiali;
+            let finIdx = financesDB.findIndex(f => f.id === newTicket.id || f.id === parseInt(newTicket.id));
+            
+            if (totalCost > 0) {
+                let finRecord = {
+                    id: newTicket.id,
+                    date: newTicket.date,
+                    description: "Manutenzione: " + newTicket.title,
+                    category: "Straordinaria",
+                    amount_eur: totalCost,
+                    status: status === 'DONE' ? 'paid' : 'pending'
+                };
+                if (finIdx > -1) financesDB[finIdx] = finRecord;
+                else financesDB.push(finRecord);
+            } else {
+                if (finIdx > -1) financesDB.splice(finIdx, 1);
+            }
+            localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
+
+            if(idStr) {
+                const idx = ticketsDB.findIndex(x => x.id === parseInt(idStr));
+                if(idx > -1) ticketsDB[idx] = newTicket;
+            } else {
+                ticketsDB.push(newTicket);
+            }
+
+            localStorage.setItem('masotto_maint_db', JSON.stringify(ticketsDB));
+            renderBoard(); closeModal();
+        }
+
+        function deleteTicket() {
+            const id = document.getElementById('t-id').value;
+            if(!id) return;
+            if(confirm("Eliminare questo ticket e rimuovere la spesa associata dalle Finanze?")) {
+                ticketsDB = ticketsDB.filter(x => x.id !== parseInt(id));
+                financesDB = financesDB.filter(f => f.id !== parseInt(id) && f.id !== id);
+                
+                localStorage.setItem('masotto_maint_db', JSON.stringify(ticketsDB));
+                localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
+                renderBoard(); closeModal();
+            }
+        }
+        function closeModal() { document.getElementById('ticketModal').style.display = 'none'; }
+        window.onload = loadDB;
+    </script>
+    
+<script id="masotto-sidebar">
+(function(){
+  const PAGES = [
+    ["index.html","Dashboard","layout-dashboard"],
+    ["ANAGRAFICA.html","Anagrafica","id-card"],
+    ["asset.html","Asset","boxes"],
+    ["audit.html","Audit","clipboard-check"],
+    ["manutenzione.html","Manutenzione","wrench"],
+    ["prenotazioni.html","Prenotazioni","calendar"],
+    ["FINANZE.html","Finanze","pie-chart"],
+    ["sicurezza.html","Sicurezza","shield"]
+  ];
+
+  function mountSidebar(){
+  if (window.__MS_SIDEBAR_DONE && document.getElementById("msSidebar")) return;
+  try{ document.querySelectorAll(".ms-sidebar, [data-legacy-sidebar=\"1\"]").forEach(el=>el.remove()); }catch(e){}
+  const path = (location.pathname.split("/").pop() || "index.html");
+    const nav = PAGES.map(([href,label,icon])=>{
+      const active = (href.toLowerCase() === path.toLowerCase()) ? "active" : "";
+      return `<a class="${active}" href="${href}"><i data-lucide="${icon}" class="w-4 h-4"></i><span>${label}</span></a>`;
+    }).join("");
+    const sidebar = document.createElement("aside");
+    sidebar.className="ms-sidebar"; sidebar.id="msSidebar";
+    sidebar.innerHTML = `
+      <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg" style="background:linear-gradient(135deg,#004D54,#10b981)">2M</div><div><div class="text-white font-bold leading-tight">Masotto Terrace</div><div class="ms-chip">single-property mode</div></div></div>
+      <nav class="ms-nav space-y-1">${nav}</nav>
+      <div class="mt-6 p-3 rounded-xl" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);">
+        <button id="msSyncBtn" class="w-full text-xs font-bold px-3 py-2 rounded-lg transition hover:bg-teal-900" style="background:rgba(45,212,191,.15);color:#a7f3d0;border:1px solid rgba(45,212,191,.35);"><i data-lucide="refresh-cw" class="w-3 h-3 inline mr-1"></i> Sincronizza Dati</button>
+      </div>`;
+    const mainWrap = document.createElement("div"); mainWrap.className = "ms-main";
+    while(document.body.firstChild){ mainWrap.appendChild(document.body.firstChild); }
+    document.body.appendChild(sidebar); document.body.appendChild(mainWrap);
+    const topbar = document.createElement("div"); topbar.className="ms-topbar p-3 flex items-center justify-between lg:hidden";
+    topbar.innerHTML = `<button id="msToggle" class="px-3 py-2 rounded-lg text-white text-xs font-bold" style="background:rgba(255,255,255,.06);">☰ Menu</button><div class="text-white font-bold text-sm">Masotto Terrace</div><div style="width:64px"></div>`;
+    mainWrap.prepend(topbar);
+    document.getElementById("msToggle").addEventListener("click", ()=>{ sidebar.classList.toggle("open"); });
+    
+    document.getElementById("msSyncBtn").addEventListener("click", ()=>{ 
+      localStorage.removeItem('masotto_maint_db'); 
+      localStorage.removeItem('masotto_reusable_inventory_db'); 
+      localStorage.removeItem('masotto_maintenance_presets_db');
+      localStorage.removeItem('masotto_finance_db');
+      location.reload(); 
+    });
+  }
+  document.addEventListener("DOMContentLoaded", ()=>{ mountSidebar(); if(window.lucide) window.lucide.createIcons(); });
+})();
+</script>
+</body>
+</html>

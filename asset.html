@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masotto - Gestione Asset</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --bg-dark: #080c10; --panel-dark: #0f151a; --border: rgba(255,255,255,0.1); --accent-teal: #2dd4bf; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-dark); color: white; margin: 0; min-height: 100vh; overflow: auto !important; height: auto !important; }
+        
+        .main { flex: 1; padding: 2rem; background: radial-gradient(circle at top right, #112a2e 0%, #080c10 40%); overflow: visible !important; min-height: 100vh; }
+        
+        .section-title { font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 1rem; margin-top: 2rem; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
+        
+        .asset-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.25rem; }
+        @media (min-width: 768px) { .asset-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1280px) { .asset-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        .asset-card { background: rgba(15,21,26,0.9); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; position: relative; transition: 0.2s; cursor: pointer; display: flex; gap: 1rem; }
+        .asset-card:hover { transform: translateY(-3px); border-color: var(--accent-teal); background: #1a2430; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+        .asset-icon-box { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .bg-mobile { background: rgba(45, 212, 191, 0.1); color: #2dd4bf; }
+        .bg-struct { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+        .data-row { display: flex; justify-content: space-between; font-size: 0.75rem; margin-top: 4px; border-top: 1px dashed rgba(255,255,255,0.05); padding-top: 4px; }
+        .data-lbl { color: #94a3b8; } .data-val { color: white; font-weight: 600; text-align: right;}
+
+        /* Modal Styles */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; }
+        .modal-box { background: var(--panel-dark); border: 1px solid var(--accent-teal); width: 95%; max-width: 600px; padding: 2rem; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); max-height: 90vh; overflow-y: auto; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+        input, select { width: 100%; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; color: white; font-size: 0.9rem; }
+        
+        .btn-primary { background: var(--accent-teal); color: #00282c; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%; border: none;}
+        .btn-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; }
+
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+<style id="masotto-sidebar-css">
+:root{ --bg-dark:#0b1220; --border:rgba(255,255,255,.10); --brand:#004D54; --accent:#2dd4bf; }
+.ms-sidebar{ position:fixed; inset:0 auto 0 0; width:260px; background:rgba(15,23,42,.96); border-right:1px solid var(--border); padding:20px; z-index:50; overflow-y:auto; }
+.ms-main{margin-left:260px; min-height:100vh; display:flex; flex-direction:column;}
+@media (max-width: 900px){ .ms-sidebar{transform:translateX(-105%); transition:.2s;} .ms-sidebar.open{transform:translateX(0);} .ms-main{margin-left:0;} .ms-topbar{position:sticky; top:0; z-index:40; backdrop-filter: blur(10px); background:rgba(11,18,32,.75); border-bottom:1px solid var(--border);} }
+.ms-nav a{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:#94a3b8; font-weight:600; text-decoration:none; }
+.ms-nav a:hover{background:rgba(255,255,255,.05); color:#fff;} .ms-nav a.active{background:var(--brand); color:var(--accent); border-left:3px solid var(--accent);}
+.ms-chip{font:600 10px monospace; color:var(--accent); background:rgba(45,212,191,.10); border:1px solid rgba(45,212,191,.25); padding:2px 8px; border-radius:999px; display:inline-block;}
+</style>
+    <script src="masotto_db.js"></script>
+</head>
+<body>
+
+    <div>
+        <main class="main">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-white">Inventario Asset</h2>
+                    <div class="text-sm text-gray-400">Gestione beni mobili, elettrodomestici e componenti strutturali.</div>
+                </div>
+                <button onclick="openModal()" class="bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i> Nuovo Asset
+                </button>
+            </div>
+
+            <div class="section-title text-teal-400"><i data-lucide="sofa" class="w-5 h-5"></i> Asset Mobili & Elettrodomestici</div>
+            <div class="asset-grid" id="grid-mobile"></div>
+
+            <div class="section-title text-amber-500 mt-12"><i data-lucide="building-2" class="w-5 h-5"></i> Asset Strutturali & Impianti</div>
+            <div class="asset-grid" id="grid-struct"></div>
+
+        </main>
+    </div>
+
+    <div id="assetModal" class="modal">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2" id="modalTitle"><i data-lucide="box"></i> Dettaglio Asset</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <input type="hidden" id="a-id">
+            <input type="hidden" id="a-original-type">
+
+            <div class="form-group mb-6 p-3 bg-white/5 border border-white/10 rounded-lg">
+                <label>Tipologia Asset</label>
+                <select id="a-db-type" onchange="toggleFormFields()">
+                    <option value="mobile">Asset Mobile (Elettrodomestico / Arredo)</option>
+                    <option value="struct">Asset Strutturale (Impianto / Involucro / Infisso)</option>
+                </select>
+            </div>
+
+            <div id="form-mobile" class="hidden">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group"><label>Tipo (es. Frigorifero)</label><input type="text" id="m-tipo"></div>
+                    <div class="form-group"><label>Marca</label><input type="text" id="m-marca"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group"><label>Modello</label><input type="text" id="m-modello"></div>
+                    <div class="form-group"><label>Seriale / S/N</label><input type="text" id="m-sn"></div>
+                </div>
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="form-group"><label>Acquisto (Data)</label><input type="date" id="m-acquisto"></div>
+                    <div class="form-group"><label>Prezzo (€)</label><input type="number" step="0.01" id="m-prezzo"></div>
+                    <div class="form-group"><label>Garanzia</label><input type="text" id="m-garanzia" placeholder="es. attiva (2025)"></div>
+                </div>
+                <div class="form-group"><label>Contatto Assistenza</label><input type="text" id="m-assistenza"></div>
+            </div>
+
+            <div id="form-struct" class="hidden">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group"><label>Nome (es. Pareti, Tubazioni)</label><input type="text" id="s-nome"></div>
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <select id="s-categoria">
+                            <option value="Involucro">Involucro (Pareti, Pavimenti)</option>
+                            <option value="Infissi">Infissi / Porte</option>
+                            <option value="Impianti">Impianti (Elettrico, Idraulico)</option>
+                            <option value="Bagno">Bagno / Sanitari</option>
+                            <option value="Clima">Climatizzazione / Riscaldamento</option>
+                            <option value="Sigilli">Sigilli / Siliconature</option>
+                            <option value="Esterni">Esterni / Terrazzi</option>
+                            <option value="Sicurezza">Sicurezza / Allarmi</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label>Descrizione Dettagliata</label><input type="text" id="s-desc"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group"><label>Stato / Ultimo Check</label><input type="text" id="s-check" placeholder="es. OK, da verificare..."></div>
+                    <div class="form-group"><label>Anni Vita Stimati</label><input type="number" id="s-life" placeholder="es. 15"></div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-8">
+                <button onclick="saveAsset()" class="btn-primary flex-1">Salva Asset</button>
+                <button id="btn-delete" onclick="deleteAsset()" class="btn-danger flex-1 hidden">Elimina</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dbMobile = [];
+        let dbStruct = [];
+
+        function getIconForName(name) {
+            if(!name) return 'box';
+            const s = name.toString().toLowerCase();
+            if(s.includes('frigo') || s.includes('cottura') || s.includes('cappa')) return 'chef-hat';
+            if(s.includes('lavastoviglie') || s.includes('lavasciuga')) return 'washing-machine';
+            if(s.includes('tv') || s.includes('televisore')) return 'tv';
+            if(s.includes('clima') || s.includes('condiz') || s.includes('riscaldamento')) return 'thermometer-snowflake';
+            if(s.includes('materasso') || s.includes('topper') || s.includes('letto')) return 'bed-double';
+            if(s.includes('aspirapolvere')) return 'sparkles';
+            if(s.includes('pareti') || s.includes('soffitti') || s.includes('tintegg')) return 'paint-roller';
+            if(s.includes('infissi') || s.includes('porta') || s.includes('tapparelle')) return 'door-open';
+            if(s.includes('idraul') || s.includes('bagno') || s.includes('silicone') || s.includes('scaric') || s.includes('sanitari')) return 'droplets';
+            if(s.includes('elettri') || s.includes('salvavita') || s.includes('quadro')) return 'zap';
+            if(s.includes('balcone') || s.includes('terrazzo') || s.includes('esterni')) return 'sun';
+            if(s.includes('pavimenti')) return 'layout-grid';
+            if(s.includes('asse') || s.includes('stiro')) return 'shirt';
+            if(s.includes('caffè') || s.includes('frullatore')) return 'coffee';
+            return 'box';
+        }
+
+        function loadDB() {
+            let locMob = localStorage.getItem('masotto_assets_mobile_db');
+            let locStr = localStorage.getItem('masotto_structural_assets_db');
+            
+            if(!locMob || locMob === "undefined" || locMob === "[]") dbMobile = window.MASOTTO_DB.assets_mobile || [];
+            else dbMobile = JSON.parse(locMob);
+
+            if(!locStr || locStr === "undefined" || locStr === "[]") dbStruct = window.MASOTTO_DB.structural_assets || [];
+            else dbStruct = JSON.parse(locStr);
+
+            renderAssets();
+        }
+
+        function renderAssets() {
+            const gridMob = document.getElementById('grid-mobile');
+            const gridStr = document.getElementById('grid-struct');
+            gridMob.innerHTML = ""; gridStr.innerHTML = "";
+
+            // Render Mobili
+            dbMobile.forEach(a => {
+                let icon = getIconForName(a.tipo);
+                gridMob.innerHTML += `
+                <div class="asset-card" onclick="openModal('${a.id}', 'mobile')">
+                    <div class="asset-icon-box bg-mobile"><i data-lucide="${icon}" class="w-6 h-6"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-[10px] font-bold text-teal-400 tracking-wider uppercase mb-0.5">${a.id}</div>
+                        <div class="text-white font-bold text-lg leading-tight truncate">${a.tipo}</div>
+                        <div class="text-sm text-gray-400 truncate mb-2">${a.marca} ${a.modello || ''}</div>
+                        <div class="data-row"><span class="data-lbl">Garanzia</span><span class="data-val">${a.garanzia || 'N/D'}</span></div>
+                        <div class="data-row"><span class="data-lbl">S/N</span><span class="data-val">${a.sn || '-'}</span></div>
+                    </div>
+                </div>`;
+            });
+
+            // Render Strutturali
+            dbStruct.forEach(a => {
+                let icon = getIconForName(a.nome);
+                gridStr.innerHTML += `
+                <div class="asset-card" onclick="openModal('${a.id}', 'struct')">
+                    <div class="asset-icon-box bg-struct"><i data-lucide="${icon}" class="w-6 h-6"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-[10px] font-bold text-amber-500 tracking-wider uppercase mb-0.5">${a.categoria} • ${a.id}</div>
+                        <div class="text-white font-bold text-lg leading-tight truncate">${a.nome}</div>
+                        <div class="text-sm text-gray-400 truncate mb-2">${a.descrizione || ''}</div>
+                        <div class="data-row"><span class="data-lbl">Stato</span><span class="data-val text-amber-400">${a.stato_check || 'N/D'}</span></div>
+                        <div class="data-row"><span class="data-lbl">Vita Utile</span><span class="data-val">${a.life_years ? a.life_years+' anni' : '-'}</span></div>
+                    </div>
+                </div>`;
+            });
+
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function toggleFormFields() {
+            const type = document.getElementById('a-db-type').value;
+            if(type === 'mobile') {
+                document.getElementById('form-mobile').classList.remove('hidden');
+                document.getElementById('form-struct').classList.add('hidden');
+            } else {
+                document.getElementById('form-mobile').classList.add('hidden');
+                document.getElementById('form-struct').classList.remove('hidden');
+            }
+        }
+
+        function openModal(id = null, type = 'mobile') {
+            document.getElementById('assetModal').style.display = 'flex';
+            document.getElementById('a-db-type').value = type;
+            document.getElementById('a-original-type').value = type; // Track original array
+            toggleFormFields();
+
+            if (id) {
+                document.getElementById('modalTitle').innerHTML = `<i data-lucide="edit"></i> Modifica Asset`;
+                document.getElementById('a-id').value = id;
+                document.getElementById('a-db-type').disabled = true; // Non puoi cambiare tipo se editi
+                document.getElementById('btn-delete').classList.remove('hidden');
+
+                if (type === 'mobile') {
+                    const a = dbMobile.find(x => x.id === id);
+                    document.getElementById('m-tipo').value = a.tipo || '';
+                    document.getElementById('m-marca').value = a.marca || '';
+                    document.getElementById('m-modello').value = a.modello || '';
+                    document.getElementById('m-sn').value = a.sn || '';
+                    document.getElementById('m-acquisto').value = a.acquisto || '';
+                    document.getElementById('m-prezzo').value = a.prezzo_eur || '';
+                    document.getElementById('m-garanzia').value = a.garanzia || '';
+                    document.getElementById('m-assistenza').value = a.assistenza || '';
+                } else {
+                    const a = dbStruct.find(x => x.id === id);
+                    document.getElementById('s-nome').value = a.nome || '';
+                    document.getElementById('s-categoria').value = a.categoria || 'Impianti';
+                    document.getElementById('s-desc').value = a.descrizione || '';
+                    document.getElementById('s-check').value = a.stato_check || '';
+                    document.getElementById('s-life').value = a.life_years || '';
+                }
+            } else {
+                document.getElementById('modalTitle').innerHTML = `<i data-lucide="plus-circle"></i> Nuovo Asset`;
+                document.getElementById('a-id').value = '';
+                document.getElementById('a-db-type').disabled = false;
+                document.getElementById('btn-delete').classList.add('hidden');
+                
+                // Clear all
+                document.getElementById('m-tipo').value = ''; document.getElementById('m-marca').value = '';
+                document.getElementById('m-modello').value = ''; document.getElementById('m-sn').value = '';
+                document.getElementById('m-acquisto').value = new Date().toISOString().split('T')[0];
+                document.getElementById('m-prezzo').value = ''; document.getElementById('m-garanzia').value = '';
+                document.getElementById('m-assistenza').value = '';
+                
+                document.getElementById('s-nome').value = ''; document.getElementById('s-categoria').value = 'Impianti';
+                document.getElementById('s-desc').value = ''; document.getElementById('s-check').value = ''; document.getElementById('s-life').value = '';
+            }
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function saveAsset() {
+            const id = document.getElementById('a-id').value;
+            const type = document.getElementById('a-db-type').value;
+            
+            if (type === 'mobile') {
+                const newAsset = {
+                    id: id || "EQ" + Math.floor(Math.random()*10000),
+                    tipo: document.getElementById('m-tipo').value || 'Sconosciuto',
+                    marca: document.getElementById('m-marca').value,
+                    modello: document.getElementById('m-modello').value,
+                    sn: document.getElementById('m-sn').value,
+                    acquisto: document.getElementById('m-acquisto').value,
+                    prezzo_eur: parseFloat(document.getElementById('m-prezzo').value) || 0,
+                    garanzia: document.getElementById('m-garanzia').value,
+                    assistenza: document.getElementById('m-assistenza').value
+                };
+                
+                if (id) {
+                    const idx = dbMobile.findIndex(x => x.id === id);
+                    if(idx > -1) dbMobile[idx] = newAsset;
+                } else {
+                    dbMobile.push(newAsset);
+                }
+                localStorage.setItem('masotto_assets_mobile_db', JSON.stringify(dbMobile));
+
+            } else {
+                const newAsset = {
+                    id: id || "STR-" + Math.floor(Math.random()*10000),
+                    nome: document.getElementById('s-nome').value || 'Sconosciuto',
+                    categoria: document.getElementById('s-categoria').value,
+                    descrizione: document.getElementById('s-desc').value,
+                    stato_check: document.getElementById('s-check').value,
+                    life_years: parseInt(document.getElementById('s-life').value) || 10
+                };
+
+                if (id) {
+                    const idx = dbStruct.findIndex(x => x.id === id);
+                    if(idx > -1) dbStruct[idx] = newAsset;
+                } else {
+                    dbStruct.push(newAsset);
+                }
+                localStorage.setItem('masotto_structural_assets_db', JSON.stringify(dbStruct));
+            }
+            
+            renderAssets(); closeModal();
+        }
+
+        function deleteAsset() {
+            const id = document.getElementById('a-id').value;
+            const type = document.getElementById('a-original-type').value;
+            if(!id) return;
+
+            if(confirm("Sei sicuro di voler eliminare questo asset dal sistema?")) {
+                if(type === 'mobile') {
+                    dbMobile = dbMobile.filter(x => x.id !== id);
+                    localStorage.setItem('masotto_assets_mobile_db', JSON.stringify(dbMobile));
+                } else {
+                    dbStruct = dbStruct.filter(x => x.id !== id);
+                    localStorage.setItem('masotto_structural_assets_db', JSON.stringify(dbStruct));
+                }
+                renderAssets(); closeModal();
+            }
+        }
+
+        function closeModal() { document.getElementById('assetModal').style.display = 'none'; }
+        window.onload = loadDB;
+    </script>
+    
+<script id="masotto-sidebar">
+(function(){
+  const PAGES = [
+    ["index.html","Dashboard","layout-dashboard"],
+    ["ANAGRAFICA.html","Anagrafica","id-card"],
+    ["asset.html","Asset","boxes"],
+    ["audit.html","Audit","clipboard-check"],
+    ["manutenzione.html","Manutenzione","wrench"],
+    ["prenotazioni.html","Prenotazioni","calendar"],
+    ["FINANZE.html","Finanze","pie-chart"],
+    ["sicurezza.html","Sicurezza","shield"]
+  ];
+
+  function mountSidebar(){
+  if (window.__MS_SIDEBAR_DONE && document.getElementById("msSidebar")) return;
+  try{ document.querySelectorAll(".ms-sidebar, [data-legacy-sidebar=\"1\"]").forEach(el=>el.remove()); }catch(e){}
+  const path = (location.pathname.split("/").pop() || "index.html");
+    const nav = PAGES.map(([href,label,icon])=>{
+      const active = (href.toLowerCase() === path.toLowerCase()) ? "active" : "";
+      return `<a class="${active}" href="${href}"><i data-lucide="${icon}" class="w-4 h-4"></i><span>${label}</span></a>`;
+    }).join("");
+    const sidebar = document.createElement("aside");
+    sidebar.className="ms-sidebar"; sidebar.id="msSidebar";
+    sidebar.innerHTML = `
+      <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg" style="background:linear-gradient(135deg,#004D54,#10b981)">2M</div><div><div class="text-white font-bold leading-tight">Masotto Terrace</div><div class="ms-chip">single-property mode</div></div></div>
+      <nav class="ms-nav space-y-1">${nav}</nav>
+      <div class="mt-6 p-3 rounded-xl" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);">
+        <button id="msSyncBtn" class="w-full text-xs font-bold px-3 py-2 rounded-lg transition hover:bg-teal-900" style="background:rgba(45,212,191,.15);color:#a7f3d0;border:1px solid rgba(45,212,191,.35);"><i data-lucide="refresh-cw" class="w-3 h-3 inline mr-1"></i> Sincronizza Dati</button>
+      </div>`;
+    const mainWrap = document.createElement("div"); mainWrap.className = "ms-main";
+    while(document.body.firstChild){ mainWrap.appendChild(document.body.firstChild); }
+    document.body.appendChild(sidebar); document.body.appendChild(mainWrap);
+    const topbar = document.createElement("div"); topbar.className="ms-topbar p-3 flex items-center justify-between lg:hidden";
+    topbar.innerHTML = `<button id="msToggle" class="px-3 py-2 rounded-lg text-white text-xs font-bold" style="background:rgba(255,255,255,.06);">☰ Menu</button><div class="text-white font-bold text-sm">Masotto Terrace</div><div style="width:64px"></div>`;
+    mainWrap.prepend(topbar);
+    document.getElementById("msToggle").addEventListener("click", ()=>{ sidebar.classList.toggle("open"); });
+    
+    // TASTO SYNC
+    document.getElementById("msSyncBtn").addEventListener("click", ()=>{ 
+      localStorage.removeItem('masotto_assets_mobile_db'); 
+      localStorage.removeItem('masotto_structural_assets_db'); 
+      location.reload(); 
+    });
+  }
+  document.addEventListener("DOMContentLoaded", ()=>{ mountSidebar(); if(window.lucide) window.lucide.createIcons(); });
+})();
+</script>
+</body>
+</html>

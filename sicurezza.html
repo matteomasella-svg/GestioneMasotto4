@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masotto - Sicurezza & Compliance</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --bg-dark: #080c10; --panel-dark: #0f151a; --border: rgba(255,255,255,0.1); --accent-teal: #2dd4bf; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-dark); color: white; margin: 0; min-height: 100vh; overflow: auto !important; height: auto !important; }
+        .main { flex: 1; padding: 2rem; background: radial-gradient(circle at top right, #112a2e 0%, #080c10 40%); min-height: 100vh; }
+        
+        .comp-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
+        @media (min-width: 768px) { .comp-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1280px) { .comp-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        .comp-card { background: rgba(15,21,26,0.9); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; position: relative; transition: 0.2s; cursor: pointer; display: flex; flex-direction: column; gap: 0.75rem; }
+        .comp-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+        .border-safe { border-color: rgba(16, 185, 129, 0.4); }
+        .border-safe:hover { border-color: #10b981; }
+        .border-warn { border-color: rgba(245, 158, 11, 0.4); }
+        .border-warn:hover { border-color: #f59e0b; }
+        .border-danger { border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); }
+        .border-danger:hover { border-color: #ef4444; }
+
+        .badge-status { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; align-self: flex-start; }
+        .status-ok { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-warn { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-expired { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); animation: pulseRed 2s infinite; }
+
+        @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+        .data-row { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.05); padding-top: 8px; margin-top: auto; font-size: 0.8rem; }
+        .data-lbl { color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 700;} 
+        .data-val { font-family: monospace; font-weight: bold; font-size: 0.9rem; }
+
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; }
+        .modal-box { background: var(--panel-dark); border: 1px solid var(--accent-teal); width: 95%; max-width: 500px; padding: 2rem; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+        input, select { width: 100%; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; color: white; font-size: 0.9rem; }
+        .btn-primary { background: var(--accent-teal); color: #00282c; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; border: none;}
+        
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+<style id="masotto-sidebar-css">
+:root{ --bg-dark:#0b1220; --border:rgba(255,255,255,.10); --brand:#004D54; --accent:#2dd4bf; }
+.ms-sidebar{ position:fixed; inset:0 auto 0 0; width:260px; background:rgba(15,23,42,.96); border-right:1px solid var(--border); padding:20px; z-index:50; overflow-y:auto; }
+.ms-main{margin-left:260px; min-height:100vh; display:flex; flex-direction:column;}
+@media (max-width: 900px){ .ms-sidebar{transform:translateX(-105%); transition:.2s;} .ms-sidebar.open{transform:translateX(0);} .ms-main{margin-left:0;} .ms-topbar{position:sticky; top:0; z-index:40; backdrop-filter: blur(10px); background:rgba(11,18,32,.75); border-bottom:1px solid var(--border);} }
+.ms-nav a{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:#94a3b8; font-weight:600; text-decoration:none; }
+.ms-nav a:hover{background:rgba(255,255,255,.05); color:#fff;} .ms-nav a.active{background:var(--brand); color:var(--accent); border-left:3px solid var(--accent);}
+.ms-chip{font:600 10px monospace; color:var(--accent); background:rgba(45,212,191,.10); border:1px solid rgba(45,212,191,.25); padding:2px 8px; border-radius:999px; display:inline-block;}
+</style>
+    <script src="masotto_db.js"></script>
+</head>
+<body>
+
+    <div>
+        <main class="main">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-white">Sicurezza & Normativa</h2>
+                    <div class="text-sm text-gray-400">Adempimenti DL 191/2023, Certificazioni e Prevenzione Rischi.</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 shadow-lg flex items-center justify-between">
+                    <div>
+                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Indice Compliance</div>
+                        <div class="text-3xl font-bold font-mono" id="kpi-score">100%</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-teal-500/20 text-teal-400" id="kpi-icon"><i data-lucide="shield-check" class="w-6 h-6"></i></div>
+                </div>
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-l-4 border-l-emerald-500 shadow-lg">
+                    <div class="text-[10px] font-bold text-emerald-500 uppercase tracking-wider mb-1">Dispositivi A Norma</div>
+                    <div class="text-2xl font-bold text-white font-mono" id="kpi-ok">0</div>
+                </div>
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-l-4 border-l-red-500 shadow-lg">
+                    <div class="text-[10px] font-bold text-red-500 uppercase tracking-wider mb-1">Scaduti / Critici</div>
+                    <div class="text-2xl font-bold text-red-400 font-mono" id="kpi-ko">0</div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-teal-400 mb-2 border-b border-white/10 pb-2"><i data-lucide="siren" class="inline w-5 h-5 mr-1"></i> Dispositivi Fisici (D.L. 191/2023)</h3>
+            <div class="comp-grid" id="grid-devices"></div>
+
+            <h3 class="text-lg font-bold text-purple-400 mb-2 border-b border-white/10 pb-2 mt-10"><i data-lucide="file-check-2" class="inline w-5 h-5 mr-1"></i> Burocrazia & Certificazioni</h3>
+            <div class="comp-grid" id="grid-docs"></div>
+
+        </main>
+    </div>
+
+    <div id="safetyModal" class="modal">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2"><i data-lucide="shield"></i> Aggiorna Documento / Dispositivo</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <input type="hidden" id="s-id">
+            
+            <div class="form-group mb-4">
+                <label>Nome Requisito</label>
+                <input type="text" id="s-name" readonly class="text-gray-400 cursor-not-allowed">
+            </div>
+
+            <div class="form-group mb-4">
+                <label>Codice / Seriale / Riferimento</label>
+                <input type="text" id="s-code" placeholder="es. IT015146C... oppure Numero Polizza">
+            </div>
+
+            <div class="form-group mb-4">
+                <label>Data di Scadenza / Prossima Revisione</label>
+                <input type="date" id="s-expiry">
+            </div>
+
+            <div class="form-group mb-6">
+                <label>Stato Reale (Override)</label>
+                <select id="s-status">
+                    <option value="AUTO">Calcola in automatico dalla data</option>
+                    <option value="OK">Forza OK (A Norma)</option>
+                    <option value="KO">Forza SCADUTO / NON FUNZIONANTE</option>
+                </select>
+            </div>
+
+            <button onclick="saveSafetyItem()" class="btn-primary">Salva ed Esegui Controllo</button>
+        </div>
+    </div>
+
+    <script>
+        let safetyDB = [];
+        let propMaster = {};
+
+        // Struttura di base dei requisiti obbligatori
+        const DEFAULT_SAFETY = [
+            { id: "S1", type: "device", icon: "fire-extinguisher", name: "Estintore Portatile (Min. 6kg)", code: "Da acquistare/Posizionare", expiry: "2026-12-31", status: "AUTO", desc: "Obbligatorio per D.L. Anticipi. Revisione ogni 36 mesi." },
+            { id: "S2", type: "device", icon: "radio", name: "Rilevatore Gas & Monossido (CO)", code: "Installato in Cucina", expiry: "2028-05-01", status: "AUTO", desc: "Obbligatorio per impianti a gas/combustibili solidi." },
+            { id: "S3", type: "device", icon: "cross", name: "Cassetta Primo Soccorso (All. 2)", code: "Standard Aziendale", expiry: "2027-01-01", status: "AUTO", desc: "Controllo semestrale scadenza presidi medici." },
+            
+            { id: "D1", type: "doc", icon: "hash", name: "Codice CIN (Ministero Tur.)", code: "In attesa di assegnazione", expiry: "2099-12-31", status: "AUTO", desc: "Da esporre all'esterno dello stabile e sugli annunci." },
+            { id: "D2", type: "doc", icon: "file-digit", name: "Codice CIR (Regione Lombardia)", code: "", expiry: "2099-12-31", status: "AUTO", desc: "Codice Regionale Identificativo Struttura." },
+            { id: "D3", type: "doc", icon: "shield-alert", name: "Assicurazione RC", code: "", expiry: "", status: "AUTO", desc: "Responsabilità Civile verso Terzi e Ospiti." },
+            { id: "D4", type: "doc", icon: "zap", name: "DiCo Impianto Elettrico", code: "Certificato di Conformità", expiry: "2033-01-01", status: "AUTO", desc: "Dichiarazione a regola d'arte (DM 37/08)." },
+            { id: "D5", type: "doc", icon: "flame", name: "DiCo Impianto Idrico/Gas", code: "Non applicabile (Teleriscaldamento)", expiry: "2099-12-31", status: "OK", desc: "Conformità gas (Se assente gas, forzare OK)." },
+            { id: "D6", type: "doc", icon: "users", name: "Portale Alloggiati Web", code: "Credenziali Questura Attive", expiry: "2099-12-31", status: "AUTO", desc: "Segnalazione ospiti obbligatoria entro 24h." }
+        ];
+
+        function loadDB() {
+            // Cerca di estrarre dati già inseriti in Property Master (Anagrafica)
+            try {
+                let masterData = JSON.parse(localStorage.getItem('masotto_prop_data'));
+                if(!masterData || masterData.length === 0) {
+                    if(window.MASOTTO_DB && window.MASOTTO_DB.property_master) propMaster = window.MASOTTO_DB.property_master[0];
+                } else {
+                    propMaster = masterData[0];
+                }
+            } catch(e) {}
+
+            // Carica DB Sicurezza locale
+            let locSafe = localStorage.getItem('masotto_sicurezza_db');
+            if(!locSafe || locSafe === "undefined" || locSafe === "[]") {
+                safetyDB = JSON.parse(JSON.stringify(DEFAULT_SAFETY)); // Copia profonda
+                
+                // Prepopola con dati dell'Anagrafica se esistono
+                if (propMaster) {
+                    let cirItem = safetyDB.find(x => x.id === "D2");
+                    if(cirItem && propMaster.cir) cirItem.code = propMaster.cir;
+
+                    let insItem = safetyDB.find(x => x.id === "D3");
+                    if(insItem) {
+                        if(propMaster.insurance_policy) insItem.code = propMaster.insurance_policy;
+                        if(propMaster.insurance_expiry) insItem.expiry = propMaster.insurance_expiry;
+                    }
+                }
+                localStorage.setItem('masotto_sicurezza_db', JSON.stringify(safetyDB));
+            } else {
+                safetyDB = JSON.parse(locSafe);
+            }
+            
+            renderBoard();
+        }
+
+        function calculateStatus(item) {
+            if (item.status === 'OK') return { class: 'status-ok border-safe', lbl: 'A Norma', color: 'text-emerald-400', isOk: true };
+            if (item.status === 'KO') return { class: 'status-expired border-danger', lbl: 'NON A NORMA', color: 'text-red-500', isOk: false };
+            
+            // Logica "AUTO": controllo data
+            if (!item.expiry) return { class: 'status-warn border-warn', lbl: 'Data Mancante', color: 'text-yellow-500', isOk: false };
+            
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const expDate = new Date(item.expiry);
+            
+            // Calcolo giorni rimanenti
+            const diffTime = expDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+            if (diffDays < 0) return { class: 'status-expired border-danger', lbl: 'SCADUTO', color: 'text-red-500', isOk: false };
+            if (diffDays <= 30) return { class: 'status-warn border-warn', lbl: `Scade tra ${diffDays} gg`, color: 'text-yellow-500', isOk: false }; // Considero Warn come action required
+            
+            return { class: 'status-ok border-safe', lbl: 'A Norma', color: 'text-emerald-400', isOk: true };
+        }
+
+        function renderBoard() {
+            const gridDev = document.getElementById('grid-devices');
+            const gridDoc = document.getElementById('grid-docs');
+            gridDev.innerHTML = ""; gridDoc.innerHTML = "";
+
+            let totItems = safetyDB.length;
+            let okItems = 0;
+
+            safetyDB.forEach(item => {
+                let stat = calculateStatus(item);
+                if (stat.isOk) okItems++;
+
+                let expStr = item.expiry ? item.expiry.split('-').reverse().join('/') : 'N/D';
+                if(item.expiry === '2099-12-31') expStr = 'Senza Scadenza';
+
+                let cardHtml = `
+                <div class="comp-card ${stat.class}" onclick="openModal('${item.id}')">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="badge-status ${stat.class}">${stat.lbl}</div>
+                        <i data-lucide="${item.icon}" class="w-6 h-6 opacity-50 ${stat.color}"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white leading-tight">${item.name}</h3>
+                        <div class="text-xs text-gray-400 mt-1">${item.desc}</div>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-lbl">Valore/Seriale</span>
+                        <span class="data-val ${stat.color} truncate max-w-[150px] text-right" title="${item.code}">${item.code || 'Mancante'}</span>
+                    </div>
+                    <div class="data-row" style="margin-top:0; border:none; padding-top:4px;">
+                        <span class="data-lbl">Scadenza</span>
+                        <span class="data-val text-white">${expStr}</span>
+                    </div>
+                </div>`;
+
+                if(item.type === 'device') gridDev.innerHTML += cardHtml;
+                else gridDoc.innerHTML += cardHtml;
+            });
+
+            // Update KPIs
+            let score = Math.round((okItems / totItems) * 100);
+            let kpiScore = document.getElementById('kpi-score');
+            let kpiIcon = document.getElementById('kpi-icon');
+            
+            kpiScore.innerText = `${score}%`;
+            document.getElementById('kpi-ok').innerText = okItems;
+            document.getElementById('kpi-ko').innerText = totItems - okItems;
+
+            if (score === 100) {
+                kpiScore.className = "text-3xl font-bold font-mono text-emerald-400";
+                kpiIcon.innerHTML = `<i data-lucide="shield-check" class="w-6 h-6"></i>`;
+                kpiIcon.className = "w-12 h-12 rounded-full flex items-center justify-center bg-emerald-500/20 text-emerald-400";
+            } else if (score >= 70) {
+                kpiScore.className = "text-3xl font-bold font-mono text-yellow-400";
+                kpiIcon.innerHTML = `<i data-lucide="shield-alert" class="w-6 h-6"></i>`;
+                kpiIcon.className = "w-12 h-12 rounded-full flex items-center justify-center bg-yellow-500/20 text-yellow-400";
+            } else {
+                kpiScore.className = "text-3xl font-bold font-mono text-red-500";
+                kpiIcon.innerHTML = `<i data-lucide="shield-x" class="w-6 h-6"></i>`;
+                kpiIcon.className = "w-12 h-12 rounded-full flex items-center justify-center bg-red-500/20 text-red-500";
+            }
+
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function openModal(id) {
+            const item = safetyDB.find(x => x.id === id);
+            if(!item) return;
+
+            document.getElementById('s-id').value = item.id;
+            document.getElementById('s-name').value = item.name;
+            document.getElementById('s-code').value = item.code || '';
+            document.getElementById('s-expiry').value = item.expiry === '2099-12-31' ? '' : (item.expiry || '');
+            document.getElementById('s-status').value = item.status || 'AUTO';
+            
+            document.getElementById('safetyModal').style.display = 'flex';
+        }
+
+        function saveSafetyItem() {
+            const id = document.getElementById('s-id').value;
+            const idx = safetyDB.findIndex(x => x.id === id);
+            if(idx > -1) {
+                safetyDB[idx].code = document.getElementById('s-code').value;
+                
+                let exp = document.getElementById('s-expiry').value;
+                if(!exp && safetyDB[idx].expiry === '2099-12-31') exp = '2099-12-31'; // Preserve no-expiry items if left blank
+                safetyDB[idx].expiry = exp;
+                
+                safetyDB[idx].status = document.getElementById('s-status').value;
+                
+                localStorage.setItem('masotto_sicurezza_db', JSON.stringify(safetyDB));
+                renderBoard();
+                closeModal();
+            }
+        }
+
+        function closeModal() { document.getElementById('safetyModal').style.display = 'none'; }
+        
+        window.onload = loadDB;
+    </script>
+    
+<script id="masotto-sidebar">
+(function(){
+  const PAGES = [
+    ["index.html","Dashboard","layout-dashboard"],
+    ["ANAGRAFICA.html","Anagrafica","id-card"],
+    ["asset.html","Asset","boxes"],
+    ["audit.html","Audit","clipboard-check"],
+    ["manutenzione.html","Manutenzione","wrench"],
+    ["prenotazioni.html","Prenotazioni","calendar"],
+    ["FINANZE.html","Finanze","pie-chart"],
+    ["sicurezza.html","Sicurezza","shield"]
+  ];
+
+  function mountSidebar(){
+  if (window.__MS_SIDEBAR_DONE && document.getElementById("msSidebar")) return;
+  try{ document.querySelectorAll("aside.sidebar, div.sidebar, #sidebar, [data-legacy-sidebar=\"1\"]").forEach(el=>el.remove()); document.querySelectorAll(".ms-sidebar").forEach(el=>{ if(el.id !== "msSidebar") el.remove(); }); }catch(e){}
+  if (document.getElementById("msSidebar")) { window.__MS_SIDEBAR_DONE = true; return; }
+
+  const path = (location.pathname.split("/").pop() || "index.html");
+    const nav = PAGES.map(([href,label,icon])=>{
+      const active = (href.toLowerCase() === path.toLowerCase()) ? "active" : "";
+      return `<a class="${active}" href="${href}"><i data-lucide="${icon}" class="w-4 h-4"></i><span>${label}</span></a>`;
+    }).join("");
+
+    const sidebar = document.createElement("aside");
+    sidebar.className="ms-sidebar";
+    sidebar.id="msSidebar";
+    sidebar.innerHTML = `
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg"
+             style="background:linear-gradient(135deg,#004D54,#10b981)">2M</div>
+        <div>
+          <div class="text-white font-bold leading-tight">Masotto Terrace</div>
+          <div class="ms-chip">single-property mode</div>
+        </div>
+      </div>
+      <nav class="ms-nav space-y-1">${nav}</nav>
+      <div class="mt-6 p-3 rounded-xl" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);">
+        <button id="msSyncBtn" class="w-full text-xs font-bold px-3 py-2 rounded-lg transition hover:bg-teal-900"
+          style="background:rgba(45,212,191,.15);border:1px solid rgba(45,212,191,.35);color:#a7f3d0;">
+          <i data-lucide="refresh-cw" class="w-3 h-3 inline mr-1"></i> Sincronizza Dati
+        </button>
+      </div>
+    `;
+
+    const mainWrap = document.createElement("div");
+    mainWrap.className = "ms-main";
+    while(document.body.firstChild){ mainWrap.appendChild(document.body.firstChild); }
+    document.body.appendChild(sidebar);
+    document.body.appendChild(mainWrap);
+
+    const topbar = document.createElement("div");
+    topbar.className="ms-topbar p-3 flex items-center justify-between lg:hidden";
+    topbar.innerHTML = `
+      <button id="msToggle" class="px-3 py-2 rounded-lg text-white text-xs font-bold"
+        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);">
+        ☰ Menu
+      </button>
+      <div class="text-white font-bold text-sm">Masotto Terrace</div>
+      <div style="width:64px"></div>
+    `;
+    mainWrap.prepend(topbar);
+
+    document.getElementById("msToggle").addEventListener("click", ()=>{ sidebar.classList.toggle("open"); });
+    document.getElementById("msSyncBtn").addEventListener("click", ()=>{ 
+      localStorage.removeItem('masotto_sicurezza_db'); 
+      location.reload(); 
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", ()=>{ mountSidebar(); if(window.lucide && window.lucide.createIcons) window.lucide.createIcons(); });
+})();
+</script>
+</body>
+</html>

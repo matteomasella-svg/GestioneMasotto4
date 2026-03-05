@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masotto - Finanze & Saldo Conto Reale</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="masotto_db.js"></script>
+    
+    <style>
+        :root { --bg-dark: #080c10; --panel-dark: #0f151a; --border: rgba(255,255,255,0.1); --accent-teal: #2dd4bf; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-dark); color: white; margin: 0; min-height: 100vh; overflow: auto !important; }
+        .main { flex: 1; padding: 2rem; background: radial-gradient(circle at top right, #112a2e 0%, #080c10 40%); min-height: 100vh; }
+        
+        .fin-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1rem; }
+        
+        .exp-card { background: rgba(15,21,26,0.9); border: 1px solid var(--border); border-left: 4px solid #64748b; border-radius: 12px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .exp-card:hover { border-color: var(--accent-teal); transform: translateX(5px); background: #1a2430; }
+        
+        .exp-pending { border-left-color: #f59e0b; }
+        .exp-paid { border-left-color: #ef4444; opacity: 0.85; } 
+        .exp-income { border-left-color: #10b981; background: rgba(16, 185, 129, 0.05); } 
+        
+        .badge-cat { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; background: rgba(255,255,255,0.1); color: #cbd5e1; }
+        .badge-utenze { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .badge-tasse { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .badge-straord { background: rgba(217, 70, 239, 0.2); color: #e879f9; }
+        .badge-ordinaria { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge-pulizie { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+        .badge-prenotazioni { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-extra { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .badge-fee { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+        .btn-status { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; border: 1px solid; }
+        .btn-pay { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-color: #f59e0b; }
+        .btn-pay:hover { background: #f59e0b; color: #000; }
+        .btn-paid { background: rgba(239, 68, 68, 0.1); color: #f87171; border-color: #ef4444; }
+
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; }
+        .modal-box { background: var(--panel-dark); border: 1px solid var(--accent-teal); width: 95%; max-width: 600px; padding: 2rem; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+        input, select { width: 100%; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; color: white; font-size: 0.9rem; }
+        .btn-primary { background: var(--accent-teal); color: #00282c; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; border: none;}
+        .btn-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; }
+
+        .bank-data-row { display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 6px; margin-bottom: 6px; font-size: 0.8rem;}
+        .bank-lbl { color: #94a3b8;} .bank-val { font-family: monospace; font-weight: bold; }
+
+        .move-row-in { color: #10b981; } .move-row-out { color: #ef4444; }
+        .move-table td { font-family: 'Plus Jakarta Sans', sans-serif !important;}
+        .move-table .font-mono { font-family: monospace !important;}
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+<style id="masotto-sidebar-css">
+:root{ --bg-dark:#0b1220; --border:rgba(255,255,255,.10); --brand:#004D54; --accent:#2dd4bf; }
+.ms-sidebar{ position:fixed; inset:0 auto 0 0; width:260px; background:rgba(15,23,42,.96); border-right:1px solid var(--border); padding:20px; z-index:50; overflow-y:auto; }
+.ms-main{margin-left:260px; min-height:100vh; display:flex; flex-direction:column;}
+@media (max-width: 900px){ .ms-sidebar{transform:translateX(-105%); transition:.2s;} .ms-sidebar.open{transform:translateX(0);} .ms-main{margin-left:0;} .ms-topbar{position:sticky; top:0; z-index:40; backdrop-filter: blur(10px); background:rgba(11,18,32,.75); border-bottom:1px solid var(--border);} }
+.ms-nav a{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:#94a3b8; font-weight:600; text-decoration:none; }
+.ms-nav a:hover{background:rgba(255,255,255,.05); color:#fff;} .ms-nav a.active{background:var(--brand); color:var(--accent); border-left:3px solid var(--accent);}
+.ms-chip{font:600 10px monospace; color:var(--accent); background:rgba(45,212,191,.10); border:1px solid rgba(45,212,191,.25); padding:2px 8px; border-radius:999px; display:inline-block;}
+</style>
+</head>
+<body>
+
+    <div>
+        <main class="main">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-white flex items-center gap-3">
+                        Finanze & Saldo Conto
+                    </h2>
+                    <div class="text-sm text-gray-400">Riconciliazione bancaria, Estratto Conto e P&L Fiscale.</div>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <button onclick="exportDatabaseJS()" class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold px-4 py-2 rounded-lg flex items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.4)] transition" title="Scarica il file masotto_db.js aggiornato">
+                        <i data-lucide="download" class="w-5 h-5"></i> Esporta DB (.js)
+                    </button>
+                    <button onclick="syncFromJS()" class="bg-gray-800 hover:bg-gray-700 border border-white/20 text-white font-bold px-3 py-2 rounded-lg flex items-center gap-2 transition" title="Annulla modifiche non esportate">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Sincronizza
+                    </button>
+                    <select id="yearFilter" onchange="renderBoard()" class="bg-[#1e293b] border border-white/10 text-white px-3 py-2 rounded-lg font-bold text-sm outline-none cursor-pointer">
+                        <option value="ALL">Tutto lo Storico</option>
+                        <option value="2026">Anno 2026</option>
+                        <option value="2025" selected>Anno 2025</option>
+                    </select>
+                    <button onclick="generateProfessionalReport()" class="bg-[#1e293b] hover:bg-gray-700 border border-white/10 text-white font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition">
+                        <i data-lucide="file-text" class="w-4 h-4 text-amber-500"></i> Genera Report PDF
+                    </button>
+                    <button onclick="openModal()" class="bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i> Movimento Manuale
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-emerald-500 shadow-lg">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="trending-up" class="w-3 h-3 inline"></i> Entrate (Lordo + Extra)</div>
+                    <div class="text-2xl font-bold text-emerald-400 font-mono" id="kpi-in">€ 0</div>
+                </div>
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-red-500 shadow-lg">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="trending-down" class="w-3 h-3 inline"></i> Uscite Pagate (Totali)</div>
+                    <div class="text-2xl font-bold text-red-400 font-mono" id="kpi-out">€ 0</div>
+                </div>
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-white shadow-lg bg-white/5 relative group">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="wallet" class="w-3 h-3 inline"></i> Utile Fiscale (P&L)</div>
+                    <div class="text-2xl font-bold text-white font-mono" id="kpi-pl">€ 0</div>
+                    <div class="absolute inset-0 bg-black/90 hidden group-hover:flex items-center justify-center text-[10px] text-gray-300 p-2 text-center rounded-xl z-10">
+                        Include TUTTE le spese dell'anno: Fee Gestione, IMU, TARI, Accantonamenti Cedolare ecc.
+                    </div>
+                </div>
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-yellow-500 shadow-lg relative group">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="clock" class="w-3 h-3 inline"></i> Scadenze / Accantonato</div>
+                    <div class="text-2xl font-bold text-yellow-400 font-mono" id="kpi-pending">€ 0</div>
+                    <div class="absolute inset-0 bg-black/90 hidden group-hover:flex items-center justify-center text-[10px] text-gray-300 p-2 text-center rounded-xl z-10">
+                        Mostra l'accantonamento stimato della Cedolare Secca + Scadenze future non saldate.
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <h3 class="text-lg font-bold text-white mb-3 border-b border-white/10 pb-2">Tutti i Movimenti</h3>
+                    <div class="fin-grid" id="fin-grid"></div>
+                </div>
+
+                <div class="space-y-6 sticky top-24 h-fit">
+                    <div class="bg-[#0f151a] border border-white/10 rounded-xl p-5 shadow-xl border-l-4 border-l-blue-500">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2"><i data-lucide="building-2" class="w-4 h-4 text-blue-400"></i> Saldo Conto Corrente</h3>
+                            <button onclick="openMovementsModal()" class="text-[10px] bg-blue-500 text-black px-2 py-1 rounded-md font-extrabold transition hover:bg-blue-400 flex items-center gap-1">
+                                <i data-lucide="list" class="w-3 h-3"></i> Movimenti
+                            </button>
+                        </div>
+                        <div class="text-4xl font-bold font-mono text-blue-400 mb-2" id="box-saldo-conto">€ 0.00</div>
+                        <div class="text-[10px] text-gray-500 leading-tight">Include Fondo Cassa Iniziale (1.300€). Esclude esplicitamente IMU/TARI 2025 pagate da un altro conto.</div>
+                        <div id="bank-summary-content" class="mt-4"></div>
+                    </div>
+
+                    <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 shadow-lg">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4"></i> Ripartizione Uscite Fiscale</h3>
+                        <div class="h-64 w-full flex justify-center">
+                            <canvas id="catChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="expenseModal" class="modal">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2" id="modalTitle"><i data-lucide="wallet"></i> Inserimento Movimento</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <input type="hidden" id="e-id">
+            <div class="form-group mb-4">
+                <label>Descrizione</label>
+                <input type="text" id="e-desc" placeholder="es. Fattura Elettricista, Fee 2M...">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="e-cat">
+                        <option value="Entrata Extra" class="bg-emerald-900 text-white font-bold">➕ ENTRATA EXTRA / RIMBORSO</option>
+                        <option disabled>──────────</option>
+                        <option value="Fee Gestione" class="bg-purple-900 text-white font-bold" selected>➖ FEE GESTIONE / CONSULENZA 2M</option>
+                        <option disabled>──────────</option>
+                        <option value="Utenze">Utenze (Luce, Gas, Internet)</option>
+                        <option value="Tasse">Tasse (IMU, TARI, Cedolare, RAI)</option>
+                        <option value="Ordinaria">Spese Condominiali Ordinarie</option>
+                        <option value="Straordinaria">Manutenzione / Straordinaria</option>
+                        <option value="Asset">Acquisto Asset / Mobili</option>
+                        <option value="Pulizie">Pulizie Extra</option>
+                        <option value="Altro">Altro (Uscita)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Stato Pagamento</label>
+                    <select id="e-status">
+                        <option value="pending">DA PAGARE (Scadenza)</option>
+                        <option value="paid">ESEGUITO / PAGATO</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="form-group"><label>Data Scadenza / Pagamento</label><input type="date" id="e-date"></div>
+                <div class="form-group"><label>Importo (€)</label><input type="number" id="e-amount" step="0.01" placeholder="0.00"></div>
+            </div>
+
+            <div class="flex gap-3 mt-8">
+                <button onclick="saveExpense()" class="btn-primary flex-1">Salva Movimento</button>
+                <button id="btn-delete" onclick="deleteExpense()" class="btn-danger flex-1 hidden">Elimina</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="movementsModal" class="modal">
+        <div class="modal-box" style="max-width: 800px; max-height: 90vh;">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2"><i data-lucide="table-properties"></i> Estratto Conto <span id="move-year-title" class="text-blue-400 font-mono"></span></h3>
+                <div class="flex gap-2">
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+                </div>
+            </div>
+            <div id="movements-print-area" class="overflow-y-auto" style="max-height: 70vh;">
+                <table class="w-full text-xs pl-table move-table">
+                    <thead class="sticky top-0 z-10 bg-[#0f151a] text-gray-400"><tr><th>Data</th><th>Descrizione</th><th>Categoria</th><th class="pl-val">Entrate (€)</th><th class="pl-val">Uscite (€)</th><th>Stato</th></tr></thead>
+                    <tbody id="movements-tbody" class="text-white"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let financesDB = [];
+        let bookingsDB = [];
+        let chartInstance = null;
+        
+        const FUND_2025_INITIAL = 1300.00;
+        let closingBalance2025 = 0; 
+
+        function exportDatabaseJS() {
+            const master = window.MASOTTO_DB || {};
+            const keys = { 
+                "property_master": "masotto_prop_data", "bookings": "masotto_booking_db", 
+                "finances": "masotto_finance_db", "structural_assets": "masotto_structural_assets_db", 
+                "assets_mobile": "masotto_assets_mobile_db", "tickets": "masotto_maint_db",
+                "maintenance_presets": "masotto_maintenance_presets_db", "insurance": "masotto_insurance_db",
+                "utilities": "masotto_utilities_db", "contacts": "masotto_contacts_db", "reusable_inventory": "masotto_reusable_inventory_db"
+            };
+
+            let exportData = {};
+            for (const [dbKey, lsKey] of Object.entries(keys)) {
+                let lsData = localStorage.getItem(lsKey);
+                if (lsData && lsData !== "undefined" && lsData !== "[]" && lsData !== "{}") {
+                    try { exportData[dbKey] = JSON.parse(lsData); } catch(e) { exportData[dbKey] = master[dbKey] || []; }
+                } else {
+                    exportData[dbKey] = master[dbKey] || [];
+                }
+            }
+
+            const jsContent = "window.MASOTTO_DB = " + JSON.stringify(exportData, null, 2) + ";";
+            const blob = new Blob([jsContent], { type: "application/javascript" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "masotto_db.js";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function syncFromJS() {
+            if(confirm("Ricaricare i dati dal file masotto_db.js originale? TUTTE le modifiche non esportate andranno perse.")) {
+                Object.keys(localStorage).forEach(k => { if(k.startsWith("masotto_")) localStorage.removeItem(k); });
+                window.location.reload();
+            }
+        }
+
+        function loadDB() {
+            let masterDB = window.MASOTTO_DB || { finances: [], bookings: [] };
+
+            let locFin = localStorage.getItem('masotto_finance_db');
+            if(!locFin || locFin === "undefined" || locFin === "[]") { financesDB = JSON.parse(JSON.stringify(masterDB.finances || [])); } 
+            else { try { financesDB = JSON.parse(locFin); } catch(e) { financesDB = []; } }
+
+            let locBook = localStorage.getItem('masotto_booking_db');
+            if(!locBook || locBook === "undefined" || locBook === "[]") { bookingsDB = JSON.parse(JSON.stringify(masterDB.bookings || [])); } 
+            else { try { bookingsDB = JSON.parse(locBook); } catch(e) { bookingsDB = []; } }
+            
+            bookingsDB = bookingsDB.map(b => ({
+                id: b.id, guest: b.guest, check_in: b.check_in || b.checkin, nights: b.nights || 1,
+                gross_eur: parseFloat(b.gross_eur !== undefined ? b.gross_eur : (b.price || 0)),
+                commission_eur: parseFloat(b.commission_eur !== undefined ? b.commission_eur : (b.comm || 0)),
+                city_tax_eur: parseFloat(b.city_tax_eur !== undefined ? b.city_tax_eur : (b.tax || 0)),
+                cleaning_eur: parseFloat(b.cleaning_eur !== undefined ? b.cleaning_eur : (b.clean || 0)),
+                source: b.source || b.portal || "Diretta"
+            }));
+
+            financesDB = financesDB.map(f => ({
+                id: f.id, date: f.date, description: f.description || f.desc, category: f.category || f.cat || "Altro",
+                amount_eur: parseFloat(f.amount_eur !== undefined ? f.amount_eur : (f.amount || 0)), status: f.status || "paid",
+                related_year: f.related_year,
+                type: f.type || (f.category === 'Entrata Extra' ? 'income' : 'expense')
+            }));
+
+            runAutomations();
+            calculateClosingBalance2025(); 
+            renderBoard();
+        }
+
+        function runAutomations() {
+            let changed = false;
+            let yearsWithBookings = [...new Set(bookingsDB.map(b => b.check_in ? b.check_in.substring(0,4) : null).filter(Boolean))];
+            
+            yearsWithBookings.forEach(year => {
+                let imponibile = 0;
+                bookingsDB.forEach(b => {
+                    if (b.check_in && b.check_in.startsWith(year)) { imponibile += ((parseFloat(b.gross_eur)||0) - (parseFloat(b.city_tax_eur)||0)); }
+                });
+                
+                let cedolareAmount = imponibile * 0.21;
+                let cedolareDesc = `Accantonamento Cedolare Secca ${year}`;
+                
+                if (cedolareAmount > 0) {
+                    let idx = financesDB.findIndex(f => f.description === cedolareDesc);
+                    let expiryDate = `${parseInt(year)+1}-06-30`; 
+                    if (idx > -1) {
+                        if(financesDB[idx].amount_eur !== cedolareAmount) {
+                            financesDB[idx].amount_eur = cedolareAmount;
+                            changed = true;
+                        }
+                    } else {
+                        financesDB.push({ id: parseInt(`999${year}`), date: expiryDate, description: cedolareDesc, category: "Tasse", amount_eur: cedolareAmount, status: "pending", related_year: year, type: "expense" });
+                        changed = true;
+                    }
+                }
+            });
+
+            bookingsDB.forEach(b => {
+                if (!b.check_in) return;
+                let guest = b.guest || "Ospite";
+                let checkinDate = b.check_in;
+                
+                let pulizieDesc = `Pulizie: ${guest}`;
+                let pulizieAmount = parseFloat(b.cleaning_eur) || 0;
+                if(pulizieAmount === 0 && b.nights) pulizieAmount = b.nights < 15 ? 45 : 80;
+                
+                if (pulizieAmount > 0 && !financesDB.some(f => f.description.includes(pulizieDesc))) {
+                    financesDB.push({ id: Date.now() + Math.floor(Math.random() * 10000), date: checkinDate, description: pulizieDesc, category: "Pulizie", amount_eur: pulizieAmount, status: 'paid', type: 'expense' }); 
+                    changed = true;
+                }
+
+                let taxAmount = parseFloat(b.city_tax_eur) || 0;
+                let isAirbnb = (b.source||'').toLowerCase().includes('airbnb');
+                let taxDesc = `Versamento City Tax: ${guest}`;
+                if (taxAmount > 0 && !financesDB.some(f => f.description.includes(taxDesc))) {
+                    let taxStatus = (isAirbnb || checkinDate.startsWith('2025')) ? "paid" : "pending";
+                    financesDB.push({ id: Date.now() + Math.floor(Math.random() * 10000), date: checkinDate, description: taxDesc, category: "Tasse", amount_eur: taxAmount, status: taxStatus, type: 'expense' });
+                    changed = true;
+                }
+            });
+
+            if (changed) {
+                localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
+            }
+        }
+
+        function calculateClosingBalance2025() {
+            let b25 = bookingsDB.filter(b => b.check_in && b.check_in.startsWith('2025'));
+            let f25 = financesDB.filter(f => f.date && f.date.startsWith('2025') && f.status === 'paid');
+
+            let totEntrate = 0; 
+            b25.forEach(b => totEntrate += (parseFloat(b.gross_eur)||0));
+
+            let totUsciteConto = 0;
+            f25.forEach(f => {
+                if (f.type === 'income') {
+                    totEntrate += (parseFloat(f.amount_eur)||0);
+                } else {
+                    let desc = f.description.toUpperCase();
+                    if(f.category === 'Tasse' && (desc.includes('IMU') || desc.includes('TARI'))) {
+                        // Ignorate dal conto
+                    } else {
+                        totUsciteConto += (parseFloat(f.amount_eur)||0);
+                    }
+                }
+            });
+
+            closingBalance2025 = FUND_2025_INITIAL + totEntrate - totUsciteConto;
+        }
+
+        function getCatStyle(cat) {
+            const s = (cat||'').toLowerCase();
+            if(s.includes('fee') || s.includes('consulenz')) return 'badge-fee';
+            if(s.includes('extra') || s.includes('rimbors')) return 'badge-extra';
+            if(s.includes('prenotaz')) return 'badge-prenotazioni';
+            if(s.includes('utenz')) return 'badge-utenze';
+            if(s.includes('tass')) return 'badge-tasse';
+            if(s.includes('straor') || s.includes('manuten') || s.includes('asset')) return 'badge-straord';
+            if(s.includes('ordinar')) return 'badge-ordinaria';
+            if(s.includes('pulizi')) return 'badge-pulizie';
+            return 'badge-cat';
+        }
+
+        function toggleStatus(e, id) {
+            e.stopPropagation();
+            const idx = financesDB.findIndex(x => x.id === id);
+            if(idx > -1) {
+                financesDB[idx].status = financesDB[idx].status === 'paid' ? 'pending' : 'paid';
+                localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
+                renderBoard();
+            }
+        }
+
+        function getUnifiedMovements(filterYear) {
+            let unified = [];
+            bookingsDB.forEach(b => {
+                if(filterYear === 'ALL' || (b.check_in && b.check_in.startsWith(filterYear))) {
+                    unified.push({ type: 'income', id: 'bk-' + b.id, date: b.check_in, desc: `Incasso Lordo: ${b.guest}`, cat: 'Prenotazione', inc: (parseFloat(b.gross_eur)||0), out: 0, status: 'paid' });
+                }
+            });
+            financesDB.forEach(f => {
+                let showInYear = (f.related_year) ? f.related_year : (f.date ? f.date.substring(0,4) : '2025');
+                if(filterYear === 'ALL' || showInYear === filterYear) {
+                    if (f.type === 'income' || parseFloat(f.amount_eur) < 0) {
+                        unified.push({ type: 'income', id: f.id, date: f.date, desc: f.description, cat: f.category, inc: Math.abs(parseFloat(f.amount_eur)||0), out: 0, status: f.status, related_year: f.related_year });
+                    } else {
+                        unified.push({ type: 'expense', id: f.id, date: f.date, desc: f.description, cat: f.category, inc: 0, out: (parseFloat(f.amount_eur)||0), status: f.status, related_year: f.related_year });
+                    }
+                }
+            });
+            unified.sort((a,b) => new Date(b.date) - new Date(a.date));
+            return unified;
+        }
+
+        function renderCharts(unifiedTransactions) {
+            const ctx = document.getElementById('catChart').getContext('2d');
+            let catData = {};
+            unifiedTransactions.forEach(t => {
+                if(t.type === 'expense' && t.out > 0) {
+                    let cat = t.cat || 'Altro';
+                    if(!catData[cat]) catData[cat] = 0;
+                    catData[cat] += t.out;
+                }
+            });
+            if (chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut', data: { labels: Object.keys(catData), datasets: [{ data: Object.values(catData), backgroundColor: ['#3b82f6', '#ef4444', '#a855f7', '#d946ef', '#10b981', '#38bdf8', '#8b5cf6'], borderWidth: 0, hoverOffset: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: {size: 10} } } } }
+            });
+        }
+
+        function renderBoard() {
+            const filterYear = document.getElementById('yearFilter').value;
+            const grid = document.getElementById('fin-grid');
+            grid.innerHTML = "";
+
+            let unifiedTransactions = getUnifiedMovements(filterYear);
+            
+            let kpiIn = 0; let kpiOutPaid = 0; let kpiPending = 0; let kpiTotalExpensesForPL = 0;
+            let bankIn = 0; let bankOut = 0; let excludedTaxes = 0;
+
+            unifiedTransactions.forEach(t => {
+                let dateFormatted = t.date ? t.date.split('-').reverse().join('/') : '';
+                if(t.related_year) dateFormatted = `Scad. ${t.date.split('-').reverse().join('/')}`;
+                
+                if (t.type === 'income') {
+                    kpiIn += t.inc; 
+                    if(t.status === 'paid') bankIn += t.inc;
+                    
+                    grid.innerHTML += `<div class="exp-card exp-income" onclick="openModal('${t.id}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="${getCatStyle(t.cat)}"><i data-lucide="arrow-down-left" class="w-3 h-3 inline"></i> ${t.cat}</span><span class="text-xs text-gray-400 font-mono">${dateFormatted}</span></div><div class="font-bold text-white text-lg">${t.desc}</div></div><div class="flex flex-col items-end gap-2"><div class="font-mono font-bold text-xl text-emerald-400">+ € ${t.inc.toFixed(2)}</div></div></div>`;
+                } else {
+                    kpiTotalExpensesForPL += t.out;
+                    if(t.status === 'paid') {
+                        kpiOutPaid += t.out;
+                        if(t.date && t.date.startsWith('2025') && t.cat === 'Tasse' && (t.desc.toUpperCase().includes('IMU') || t.desc.toUpperCase().includes('TARI'))) { excludedTaxes += t.out; } else { bankOut += t.out; }
+                    } else {
+                        kpiPending += t.out;
+                    }
+
+                    let cardClass = t.status === 'paid' ? 'exp-paid' : 'exp-pending';
+                    let btnHtml = t.status === 'paid' ? `<button onclick="toggleStatus(event, ${t.id})" class="btn-status btn-paid"><i data-lucide="check" class="w-3 h-3 inline"></i> Pagato</button>` : `<button onclick="toggleStatus(event, ${t.id})" class="btn-status btn-pay"><i data-lucide="alert-circle" class="w-3 h-3 inline"></i> ${t.related_year ? 'Accantonato' : 'Da Pagare'}</button>`;
+                    grid.innerHTML += `<div class="exp-card ${cardClass}" onclick="openModal('${t.id}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="${getCatStyle(t.cat)}">${t.cat}</span><span class="text-xs text-gray-400 font-mono">${dateFormatted}</span></div><div class="font-bold text-white text-lg">${t.desc}</div></div><div class="flex flex-col items-end gap-2"><div class="font-mono font-bold text-xl text-red-400">- € ${t.out.toFixed(2)}</div>${btnHtml}</div></div>`;
+                }
+            });
+
+            document.getElementById('kpi-in').innerText = `€ ${kpiIn.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
+            document.getElementById('kpi-out').innerText = `€ ${kpiOutPaid.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
+            document.getElementById('kpi-pending').innerText = `€ ${kpiPending.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
+            
+            let utilePL = kpiIn - kpiTotalExpensesForPL;
+            let plColor = utilePL >= 0 ? "text-white" : "text-red-400";
+            document.getElementById('kpi-pl').innerText = `€ ${utilePL.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
+            document.getElementById('kpi-pl').className = `text-2xl font-bold font-mono ${plColor}`;
+
+            let startBal = filterYear === '2025' ? FUND_2025_INITIAL : (filterYear === '2026' ? closingBalance2025 : 0);
+            let saldoReale = startBal + bankIn - bankOut;
+            document.getElementById('box-saldo-conto').innerText = `€ ${saldoReale.toLocaleString('it-IT',{minimumFractionDigits:2})}`;
+            
+            const summaryBox = document.getElementById('bank-summary-content');
+            if(filterYear === 'ALL') {
+                summaryBox.innerHTML = '<div class="text-sm text-gray-400">Seleziona un anno specifico per calcolare il saldo esatto.</div>';
+            } else {
+                let html = `<div class="bank-data-row"><span class="bank-lbl">${filterYear === '2025' ? 'Fondo Cassa Iniziale' : 'Riporto Saldo Precedente'}</span><span class="bank-val">€ ${startBal.toFixed(2)}</span></div><div class="bank-data-row"><span class="bank-lbl text-emerald-400">Incassi & Entrate (+)</span><span class="bank-val text-emerald-400">+ € ${bankIn.toFixed(2)}</span></div><div class="bank-data-row"><span class="bank-lbl text-red-400">Uscite Reali su Conto (-)</span><span class="bank-val text-red-400">- € ${bankOut.toFixed(2)}</span></div>`;
+                if(filterYear === '2025' && excludedTaxes > 0) { html += `<div class="bank-data-row border-none opacity-60 text-xs italic"><span class="bank-lbl">Tasse escluse dal conto (IMU/TARI)</span><span class="bank-val text-yellow-500">- € ${excludedTaxes.toFixed(2)}</span></div>`; }
+                summaryBox.innerHTML = html;
+            }
+
+            renderCharts(unifiedTransactions);
+            if(window.lucide) lucide.createIcons();
+        }
+
+        // =======================================================================
+        // METODO INFALLIBILE: STAMPA NATIVA DEL BROWSER (NUOVA FINESTRA)
+        // =======================================================================
+        function generateProfessionalReport() {
+            const filter = document.getElementById('yearFilter').value;
+            const yearLabel = filter === 'ALL' ? 'Tutto lo storico' : filter;
+
+            let unifiedList = getUnifiedMovements(filter);
+            
+            let tEntrate = 0;
+            let speseAggregato = {};
+            let totUscite = 0;
+            let detailedRowsHTML = "";
+
+            // Calcolo Notti (solo se c'è un anno specifico)
+            let bFiltered = bookingsDB.filter(b => filter === 'ALL' || (b.check_in && b.check_in.startsWith(filter)));
+            let totalNights = 0;
+            bFiltered.forEach(b => { totalNights += b.nights; });
+            let adr = totalNights > 0 ? (tEntrate / totalNights) : 0;
+
+            unifiedList.forEach(t => {
+                let dateFormatted = t.date ? t.date.split('-').reverse().join('/') : 'N/D';
+                if(t.related_year) dateFormatted = `Acc. ${t.related_year}`;
+
+                if (t.type === 'income') {
+                    tEntrate += t.inc;
+                    detailedRowsHTML += `<tr><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${dateFormatted}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${t.desc}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${t.cat}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px; text-align:right; font-family:monospace; color:#10b981;">+ € ${t.inc.toFixed(2)}</td></tr>`;
+                } else if (t.type === 'expense') {
+                    totUscite += t.out;
+                    if(!speseAggregato[t.cat]) speseAggregato[t.cat] = 0;
+                    speseAggregato[t.cat] += t.out;
+                    detailedRowsHTML += `<tr><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${dateFormatted}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${t.desc}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${t.cat}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px; text-align:right; font-family:monospace; color:#ef4444;">- € ${t.out.toFixed(2)}</td></tr>`;
+                }
+            });
+
+            // Calcolo Saldo Finale (Inclusivo del fondo per replicare il tuo PDF)
+            let startBal = filter === '2025' ? FUND_2025_INITIAL : 0;
+            let utileNetto = tEntrate - totUscite;
+            let saldoFinaleLordo = startBal + utileNetto;
+            let plColor = utileNetto >= 0 ? "#10b981" : "#ef4444";
+
+            let analysisText = "";
+            if (utileNetto < 0) {
+                analysisText = `L'esercizio ${yearLabel} per l'asset Masotto Terrace View ha generato ricavi operativi lordi per <strong>€ ${tEntrate.toLocaleString('it-IT',{minimumFractionDigits:2})}</strong>. Il bilancio fiscale registra un assorbimento (perdita tecnica operativa) di <strong>- € ${Math.abs(utileNetto).toLocaleString('it-IT',{minimumFractionDigits:2})}</strong>. L'analisi oggettiva evidenzia che tale risultato è fisiologico e direttamente riconducibile ai significativi costi di avviamento (startup) e ai pesanti interventi straordinari (CAPEX sull'involucro condominiale, bonifica amianto). La capacità reddituale della struttura risulta solida e in grado di ammortizzare questi investimenti una tantum, ponendo basi concrete per la profittabilità negli esercizi a regime.`;
+            } else {
+                analysisText = `L'esercizio ${yearLabel} per l'asset Masotto Terrace View si chiude positivamente superando le sfide della fase di startup. A fronte di ricavi operativi lordi per <strong>€ ${tEntrate.toLocaleString('it-IT',{minimumFractionDigits:2})}</strong>, la struttura ha assorbito efficacemente tutti i costi e le tasse generate, registrando un Utile Operativo di <strong>€ ${utileNetto.toLocaleString('it-IT',{minimumFractionDigits:2})}</strong>. Il modello di business si dimostra profittevole e l'immobile si proietta verso gli esercizi futuri con ottimi margini strutturali.`;
+            }
+
+            let aggRowsHTML = `<tr><td style="padding:10px; border-bottom:1px solid #cbd5e1; font-size:14px;"><strong>Ricavi Operativi (Incassi Lordi)</strong></td><td style="padding:10px; border-bottom:1px solid #cbd5e1; font-size:14px; text-align:right; font-family:monospace; color:#10b981;"><strong>+ € ${tEntrate.toLocaleString('it-IT',{minimumFractionDigits:2})}</strong></td></tr>`;
+            Object.keys(speseAggregato).forEach(cat => {
+                aggRowsHTML += `<tr><td style="padding:10px; border-bottom:1px dashed #e2e8f0; font-size:14px; color:#475569;">[-] Costi e Tasse: ${cat}</td><td style="padding:10px; border-bottom:1px dashed #e2e8f0; font-size:14px; text-align:right; font-family:monospace; color:#ef4444;">- € ${speseAggregato[cat].toLocaleString('it-IT',{minimumFractionDigits:2})}</td></tr>`;
+            });
+
+            // Apertura della finestra di stampa
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Consuntivo ${yearLabel} - Masotto Terrace</title>
+                    <style>
+                        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1e293b; padding: 40px; margin: 0 auto; max-width: 800px; line-height: 1.6; }
+                        h1 { color: #004D54; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+                        h2 { color: #004D54; border-bottom: 2px solid #cbd5e1; padding-bottom: 8px; margin-top: 30px; font-size: 18px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                        th { background: #f1f5f9; color: #334155; font-size: 13px; text-transform: uppercase; padding: 10px; text-align: left; }
+                        .kpi-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+                        .header-row { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid #004D54; padding-bottom: 20px; margin-bottom: 30px; }
+                        @media print {
+                            body { padding: 0; }
+                            @page { margin: 1.5cm; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header-row">
+                        <div>
+                            <div style="font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Property Management</div>
+                            <h1>2M APARTMENTS</h1>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 20px; font-weight: bold;">Consuntivo & P&L Fiscale</div>
+                            <div style="font-size: 14px; font-weight: bold; color: #10b981; background: #ecfdf5; display: inline-block; padding: 4px 10px; border-radius: 6px; margin-top: 5px;">Esercizio ${yearLabel}</div>
+                        </div>
+                    </div>
+
+                    <h2>1) Executive summary</h2>
+                    <ul style="font-size: 15px; padding-left: 20px;">
+                        <li><strong>Fondo iniziale:</strong> € ${startBal.toLocaleString('it-IT',{minimumFractionDigits:2})}</li>
+                        <li><strong>Saldo operativo netto dell'esercizio (Utile/Perdita):</strong> <span style="color: ${plColor}; font-weight: bold;">€ ${utileNetto.toLocaleString('it-IT',{minimumFractionDigits:2})}</span></li>
+                        <li><strong>Saldo Finale Teorico (Cassa + Risultato):</strong> € ${saldoFinaleLordo.toLocaleString('it-IT',{minimumFractionDigits:2})}</li>
+                    </ul>
+
+                    <h2>2) Numeri chiave (KPI) - Periodo ${yearLabel}</h2>
+                    <div class="kpi-box">
+                        <ul style="font-size: 14px; margin: 0; padding-left: 20px;">
+                            <li><strong>Totale Incassi Lordi:</strong> € ${tEntrate.toLocaleString('it-IT',{minimumFractionDigits:2})}</li>
+                            <li><strong>Notti Vendute:</strong> ${totalNights} notti</li>
+                            <li><strong>ADR Medio (Tariffa Media Giornaliera):</strong> € ${adr.toLocaleString('it-IT',{minimumFractionDigits:2})}</li>
+                        </ul>
+                    </div>
+
+                    <h2>3) Analisi Finanziaria Sintetica</h2>
+                    <p style="font-size: 14px; text-align: justify; background: #f8fafc; border-left: 4px solid #004D54; padding: 15px;">
+                        ${analysisText}
+                    </p>
+
+                    <h2>4) Sintesi di Bilancio (P&L)</h2>
+                    <table>
+                        <tbody>
+                            ${aggRowsHTML}
+                            <tr style="background: #f1f5f9;">
+                                <td style="padding: 15px; border-top: 3px solid #64748b; font-weight: 900; font-size: 16px;">UTILE / PERDITA FISCALE</td>
+                                <td style="padding: 15px; border-top: 3px solid #64748b; text-align: right; font-family: monospace; font-weight: 900; font-size: 18px; color: ${plColor};">
+                                    € ${utileNetto.toLocaleString('it-IT',{minimumFractionDigits:2})}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="page-break-before: always;"></div>
+
+                    <h2>5) Distinta Analitica Movimenti</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data / Rif.</th>
+                                <th>Descrizione</th>
+                                <th>Centro Costo</th>
+                                <th style="text-align: right;">Importo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${detailedRowsHTML}
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 50px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+                        Report elaborato automaticamente dal Sistema Gestionale 2M in data ${new Date().toLocaleDateString('it-IT')}.<br>
+                        Le voci di "Accantonamento Cedolare" sono proiezioni gestionali.
+                    </div>
+
+                    <script>
+                        // Lancia in automatico la finestra di stampa del browser appena la pagina è caricata
+                        window.onload = function() { window.print(); }
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        function openModal(id = null) {
+            document.getElementById('expenseModal').style.display = 'flex';
+            if (id && !id.toString().startsWith('bk-')) { 
+                const e = financesDB.find(x => x.id === id || x.id === parseInt(id));
+                if(e) {
+                    document.getElementById('modalTitle').innerHTML = `<i data-lucide="edit"></i> Modifica Movimento`;
+                    document.getElementById('e-id').value = e.id;
+                    document.getElementById('e-desc').value = e.description || '';
+                    document.getElementById('e-cat').value = e.category || 'Altro';
+                    document.getElementById('e-status').value = e.status || 'pending';
+                    document.getElementById('e-date').value = e.date || '';
+                    document.getElementById('e-amount').value = e.amount_eur || '';
+                    document.getElementById('btn-delete').classList.remove('hidden');
+                }
+            } else if (!id) {
+                document.getElementById('modalTitle').innerHTML = `<i data-lucide="plus-circle"></i> Nuovo Movimento`;
+                document.getElementById('e-id').value = '';
+                document.getElementById('e-desc').value = '';
+                document.getElementById('e-cat').value = 'Fee Gestione'; 
+                document.getElementById('e-status').value = 'paid';
+                document.getElementById('e-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('e-amount').value = '';
+                document.getElementById('btn-delete').classList.add('hidden');
+            } else {
+                alert("Questa è un'entrata automatica legata a una prenotazione.");
+                closeModal();
+            }
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function saveExpense() {
+            const idStr = document.getElementById('e-id').value;
+            const desc = document.getElementById('e-desc').value;
+            if(!desc) return;
+
+            const category = document.getElementById('e-cat').value;
+            const type = category === 'Entrata Extra' ? 'income' : 'expense';
+
+            const newExp = {
+                id: idStr ? parseInt(idStr) : Date.now(),
+                description: desc, category: category,
+                status: document.getElementById('e-status').value, date: document.getElementById('e-date').value,
+                amount_eur: parseFloat(document.getElementById('e-amount').value) || 0,
+                type: type
+            };
+
+            if(idStr) {
+                const idx = financesDB.findIndex(x => x.id === parseInt(idStr));
+                if(idx > -1) financesDB[idx] = newExp;
+            } else { financesDB.push(newExp); }
+
+            localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
+            loadDB(); closeModal();
+        }
+
+        function deleteExpense() {
+            const id = document.getElementById('e-id').value;
+            if(!id) return;
+            if(confirm("Eliminare questa registrazione?")) {
+                financesDB = financesDB.filter(x => x.id !== parseInt(id));
+                localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
+                loadDB(); closeModal();
+            }
+        }
+
+        function openMovementsModal() {
+            const filterYear = document.getElementById('yearFilter').value;
+            document.getElementById('move-year-title').innerText = filterYear === 'ALL' ? 'Tutto lo storico' : filterYear;
+            const tbody = document.getElementById('movements-tbody');
+            tbody.innerHTML = "";
+            let unified = getUnifiedMovements(filterYear);
+
+            unified.forEach(t => {
+                let dateFormatted = t.date ? t.date.split('-').reverse().join('/') : 'N/D';
+                if(t.related_year) dateFormatted = `Scad. ${t.date.split('-').reverse().join('/')}`;
+                let rowClassIn = t.inc > 0 ? 'move-row-in' : '';
+                let rowClassOut = t.out > 0 ? 'move-row-out' : '';
+                let badgeClassStatus = t.status === 'paid' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-yellow-500/20 text-yellow-400';
+                let labelStatus = t.status === 'paid' ? 'Eseguito' : 'Accantonato';
+                let isExcluded = (filterYear === '2025' && t.out > 0 && t.cat === 'Tasse' && (t.desc.toUpperCase().includes('IMU') || t.desc.toUpperCase().includes('TARI')));
+
+                tbody.innerHTML += `
+                <tr class="border-b border-white/5 ${isExcluded ? 'opacity-40 italic' : ''}">
+                    <td>${dateFormatted}</td>
+                    <td>${t.desc} ${isExcluded ? '<span class="text-[9px] text-yellow-500"> (No Conto)</span>' : ''}</td>
+                    <td><span class="${getCatStyle(t.cat)} text-[9px]">${t.cat}</span></td>
+                    <td class="pl-val font-mono ${rowClassIn}">${t.inc > 0 ? '+ ' + t.inc.toFixed(2) : '-'}</td>
+                    <td class="pl-val font-mono ${rowClassOut}">${t.out > 0 ? '- ' + t.out.toFixed(2) : '-'}</td>
+                    <td><span class="${badgeClassStatus} px-1.5 py-0.5 rounded text-[10px]">${labelStatus}</span></td>
+                </tr>`;
+            });
+            document.getElementById('movementsModal').style.display = 'flex';
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function closeModal() { 
+            document.getElementById('expenseModal').style.display = 'none'; 
+            document.getElementById('movementsModal').style.display = 'none'; 
+        }
+
+        window.onload = loadDB;
+    </script>
+    
+<script id="masotto-sidebar">
+(function(){
+  const PAGES = [
+    ["index.html","Dashboard","layout-dashboard"],
+    ["ANAGRAFICA.html","Anagrafica","id-card"],
+    ["asset.html","Asset","boxes"],
+    ["audit.html","Audit","clipboard-check"],
+    ["manutenzione.html","Manutenzione","wrench"],
+    ["prenotazioni.html","Prenotazioni","calendar"],
+    ["FINANZE.html","Finanze","pie-chart"],
+    ["sicurezza.html","Sicurezza","shield"]
+  ];
+
+  function mountSidebar(){
+  if (window.__MS_SIDEBAR_DONE && document.getElementById("msSidebar")) return;
+  try{ document.querySelectorAll("aside.sidebar, div.sidebar, #sidebar, [data-legacy-sidebar=\"1\"]").forEach(el=>el.remove()); document.querySelectorAll(".ms-sidebar").forEach(el=>{ if(el.id !== "msSidebar") el.remove(); }); }catch(e){}
+  if (document.getElementById("msSidebar")) { window.__MS_SIDEBAR_DONE = true; return; }
+
+  const path = (location.pathname.split("/").pop() || "index.html");
+    const nav = PAGES.map(([href,label,icon])=>{
+      const active = (href.toLowerCase() === path.toLowerCase()) ? "active" : "";
+      return `<a class="${active}" href="${href}"><i data-lucide="${icon}" class="w-4 h-4"></i><span>${label}</span></a>`;
+    }).join("");
+
+    const sidebar = document.createElement("aside");
+    sidebar.className="ms-sidebar";
+    sidebar.id="msSidebar";
+    sidebar.innerHTML = `
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg"
+             style="background:linear-gradient(135deg,#004D54,#10b981)">2M</div>
+        <div>
+          <div class="text-white font-bold leading-tight">Masotto Terrace</div>
+          <div class="ms-chip">single-property mode</div>
+        </div>
+      </div>
+      <nav class="ms-nav space-y-1">${nav}</nav>
+    `;
+
+    const mainWrap = document.createElement("div");
+    mainWrap.className = "ms-main";
+    while(document.body.firstChild){ mainWrap.appendChild(document.body.firstChild); }
+    document.body.appendChild(sidebar);
+    document.body.appendChild(mainWrap);
+
+    const topbar = document.createElement("div");
+    topbar.className="ms-topbar p-3 flex items-center justify-between lg:hidden";
+    topbar.innerHTML = `
+      <button id="msToggle" class="px-3 py-2 rounded-lg text-white text-xs font-bold"
+        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);">
+        ☰ Menu
+      </button>
+      <div class="text-white font-bold text-sm">Masotto Terrace</div>
+      <div style="width:64px"></div>
+    `;
+    mainWrap.prepend(topbar);
+
+    document.getElementById("msToggle").addEventListener("click", ()=>{ sidebar.classList.toggle("open"); });
+  }
+
+  document.addEventListener("DOMContentLoaded", async ()=>{ mountSidebar(); if(window.lucide && window.lucide.createIcons) window.lucide.createIcons(); });
+})();
+</script>
+</body>
+</html>
