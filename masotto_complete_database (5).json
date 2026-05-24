@@ -1,0 +1,839 @@
+{
+  "property_master": [
+    {
+      "property_id": "MASOTTO4",
+      "name": "Masotto Terrace View",
+      "address": "Via Privata Umberto Masotto 4, 20133 Milano",
+      "owner": "Armati Riccardo",
+      "purchase_date": "2023-04-17",
+      "purchase_price_eur": 230000,
+      "pod_luce": "IT012E00186429",
+      "fornitura_luce": "6045433825",
+      "pdr_gas": "6045405179",
+      "cir": "015146-LNI-09408",
+      "ape_class": "E",
+      "ape_epgl_nren_kwh_m2": 132.76,
+      "internet_ssid": "FASTWEB-FC918B"
+    }
+  ],
+  "assets_mobile": [
+    {
+      "id": "EQ031",
+      "tipo": "Frigorifero",
+      "marca": "IKEA",
+      "modello": "HUTTRA",
+      "sn": "IK-FR-8890",
+      "acquisto": "2023-10-02",
+      "prezzo_eur": 409.0,
+      "garanzia": "attiva (2028)"
+    },
+    {
+      "id": "EQ032",
+      "tipo": "Lavastoviglie",
+      "marca": "IKEA",
+      "modello": "MEDELSTOR",
+      "sn": "IK-DW-221",
+      "acquisto": "2023-10-02",
+      "prezzo_eur": 419.0,
+      "garanzia": "attiva (2028)"
+    },
+    {
+      "id": "EQ033",
+      "tipo": "Piano Cottura",
+      "marca": "IKEA",
+      "modello": "VILSTA",
+      "sn": "IK-IND-55",
+      "acquisto": "2023-10-02",
+      "prezzo_eur": 239.0,
+      "garanzia": "attiva (2028)"
+    },
+    {
+      "id": "EQ034",
+      "tipo": "Cappa",
+      "marca": "IKEA",
+      "modello": "UTDRAG",
+      "sn": "-",
+      "acquisto": "2023-10-02",
+      "prezzo_eur": 149.0,
+      "garanzia": "scaduta (2025)"
+    },
+    {
+      "id": "EQ041",
+      "tipo": "Lavasciuga",
+      "marca": "MIELE",
+      "modello": "WT 2670",
+      "sn": "86308219",
+      "acquisto": "2019-09-01",
+      "prezzo_eur": 459.0,
+      "garanzia": "scaduta (2021)"
+    },
+    {
+      "id": "EQ037",
+      "tipo": "TV 43",
+      "marca": "HISENSE",
+      "modello": "43E63KT",
+      "sn": "36FG5G23113",
+      "acquisto": "2023-11-06",
+      "prezzo_eur": 299.0,
+      "garanzia": "attiva (2027)"
+    },
+    {
+      "id": "EQ093",
+      "tipo": "Macchina Caffè",
+      "marca": "LAVAZZA",
+      "modello": "Jolie Evo",
+      "sn": "YWU9AJPKFPKER9WC",
+      "acquisto": "2024-11-14",
+      "prezzo_eur": 94.9,
+      "garanzia": "attiva (2026)"
+    },
+    {
+      "id": "EQ044",
+      "tipo": "Aspirapolvere 2in1",
+      "marca": "BLACK+DECKER",
+      "modello": "BXVMS600E",
+      "sn": "44491HK",
+      "acquisto": "2026-01-04",
+      "prezzo_eur": 49.0,
+      "garanzia": "attiva (2028)"
+    },
+    {
+      "id": "EQ101",
+      "tipo": "Asse/Stiro",
+      "marca": "STANDARD",
+      "modello": "Stiro Kit",
+      "sn": "-",
+      "acquisto": "2026-02-09",
+      "prezzo_eur": 39.0,
+      "garanzia": "n/a"
+    },
+    {
+      "id": "EQ102",
+      "tipo": "Frullatore",
+      "marca": "STANDARD",
+      "modello": "Blender",
+      "sn": "-",
+      "acquisto": "2026-02-09",
+      "prezzo_eur": 59.0,
+      "garanzia": "n/a"
+    },
+    {
+      "id": "EQ103",
+      "tipo": "Grucce",
+      "marca": "GENERICO",
+      "modello": "Set 10",
+      "sn": "-",
+      "acquisto": "2026-02-09",
+      "prezzo_eur": 12.0,
+      "garanzia": "n/a"
+    }
+  ],
+  "supply_presets": [
+    {
+      "id": "SUP001",
+      "nome": "Sapone Mani Liquido (Ricarica 1L)",
+      "categoria": "Housekeeping",
+      "quantita_standard": 2,
+      "prezzo_stimato_eur": 3.5,
+      "fornitura_consigliato": "Esselunga",
+      "note": "Per i dosatori in bagno e cucina"
+    },
+    {
+      "id": "SUP002",
+      "nome": "Pastiglie Lavastoviglie (Sacco XL)",
+      "categoria": "Housekeeping",
+      "quantita_standard": 1,
+      "prezzo_stimato_eur": 12.9,
+      "fornitura_consigliato": "Amazon",
+      "note": "Verificare scorta ogni fine mese"
+    },
+    {
+      "id": "SUP003",
+      "nome": "Detersivo Lavatrice Liquido (Classico)",
+      "categoria": "Housekeeping",
+      "quantita_standard": 2,
+      "prezzo_stimato_eur": 4.99,
+      "fornitura_consigliato": "Esselunga",
+      "note": "Essenziale per i lavaggi lenzuola/asciugamani in loco"
+    },
+    {
+      "id": "SUP004",
+      "nome": "Detergente Pavimenti Professionale",
+      "categoria": "Housekeeping",
+      "quantita_standard": 1,
+      "prezzo_stimato_eur": 5.5,
+      "fornitura_consigliato": "Tigotà",
+      "note": "Profumazione neutra/fresca"
+    },
+    {
+      "id": "SUP005",
+      "nome": "Sgrassatore Universale (Spray + Ricarica)",
+      "categoria": "Housekeeping",
+      "quantita_standard": 2,
+      "prezzo_stimato_eur": 2.8,
+      "fornitura_consigliato": "Esselunga",
+      "note": "Per pulizia cucina e superfici dure"
+    },
+    {
+      "id": "SUP006",
+      "nome": "Gel Disincrostante WC",
+      "categoria": "Housekeeping",
+      "quantita_standard": 2,
+      "prezzo_stimato_eur": 1.9,
+      "fornitura_consigliato": "Tigotà",
+      "note": "Presidio per igienizzazione bagno"
+    },
+    {
+      "id": "SUP007",
+      "nome": "Batterie AA/AAA (Multipack)",
+      "categoria": "Housekeeping",
+      "quantita_standard": 1,
+      "prezzo_stimato_eur": 8.5,
+      "fornitura_consigliato": "Amazon",
+      "note": "Per telecomandi TV, termostato clima e dispositivi vari"
+    },
+    {
+      "id": "SUP008",
+      "nome": "Spugne e Panni in Microfibra (Set multiuso)",
+      "categoria": "Housekeeping",
+      "quantita_standard": 1,
+      "prezzo_stimato_eur": 6.9,
+      "fornitura_consigliato": "Esselunga",
+      "note": "Ricambio ciclico necessario per garantire l'igiene"
+    },
+    {
+      "id": "SUP009",
+      "nome": "Set Asciugamani Bagno (Ricambio usura)",
+      "categoria": "Biancheria",
+      "quantita_standard": 1,
+      "prezzo_stimato_eur": 24.9,
+      "fornitura_consigliato": "Amazon",
+      "note": "Costo ciclico per sostituzione capi macchiati o logori"
+    },
+    {
+      "id": "SUP010",
+      "nome": "Set Lenzuola Matrimoniali (Ricambio usura)",
+      "categoria": "Biancheria",
+      "quantita_standard": 1,
+      "prezzo_stimato_eur": 34.9,
+      "fornitura_consigliato": "IKEA",
+      "note": "Costo ciclico per sostituzione capi macchiati o logori"
+    },
+    {
+      "id": "SUP011",
+      "nome": "Cialde Caffè (Box 100 pz)",
+      "categoria": "Housekeeping",
+      "quantita_standard": 1,
+      "prezzo_stimato_eur": 22.0,
+      "fornitura_consigliato": "Amazon",
+      "note": "Compatibili con la macchina Lavazza Jolie Evo dell'appartamento"
+    },
+    {
+      "id": "SUP012",
+      "nome": "Zucchero in bustine (Conf. 200 pz)",
+      "categoria": "Housekeeping",
+      "quantita_standard": 1,
+      "prezzo_stimato_eur": 4.5,
+      "fornitura_consigliato": "Esselunga",
+      "note": "Welcome kit di cortesia per la cucina"
+    },
+    {
+      "id": "SUP013",
+      "nome": "Tè in filtri (Scatola assortita 40 filtri)",
+      "categoria": "Housekeeping",
+      "quantita_standard": 1,
+      "prezzo_stimato_eur": 3.9,
+      "fornitura_consigliato": "Esselunga",
+      "note": "Welcome kit di cortesia per la cucina"
+    }
+  ],
+  "finances": [
+    {
+      "id": 1,
+      "date": "2024-06-30",
+      "description": "Condominio: Ordinaria 24/25 - Rata fp n. 1",
+      "category": "Ordinaria",
+      "amount_eur": 256.2,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 2,
+      "date": "2024-11-15",
+      "description": "Condominio: Ordinaria 24/25 - f.p. n. 2",
+      "category": "Ordinaria",
+      "amount_eur": 256.2,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 3,
+      "date": "2025-02-15",
+      "description": "Condominio: Ordinaria 24/25 - Rata n. 3 e saldo",
+      "category": "Ordinaria",
+      "amount_eur": 522.16,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 4,
+      "date": "2025-04-01",
+      "description": "Condominio: Ordinaria 24/25 - Rata n. 4",
+      "category": "Ordinaria",
+      "amount_eur": 395.77,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 5,
+      "date": "2025-03-20",
+      "description": "Condominio: Rimozione MCA (Amianto) R1",
+      "category": "Straordinaria",
+      "amount_eur": 285.33,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 6,
+      "date": "2025-06-15",
+      "description": "Condominio: Rimozione MCA (Amianto) R2",
+      "category": "Straordinaria",
+      "amount_eur": 285.33,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 7,
+      "date": "2025-06-15",
+      "description": "Condominio: Ordinaria 25/26 - Rata fp n. 1",
+      "category": "Ordinaria",
+      "amount_eur": 305.0,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 8,
+      "date": "2025-09-01",
+      "description": "Condominio: Ordinaria 25/26 - Rata fp n. 2",
+      "category": "Ordinaria",
+      "amount_eur": 305.0,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 9,
+      "date": "2025-12-15",
+      "description": "Condominio: Ordinaria 25/26 - Rata n. 3 e saldo (Versato)",
+      "category": "Ordinaria",
+      "amount_eur": 543.42,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 10,
+      "date": "2025-12-15",
+      "description": "Condominio: Ordinaria 25/26 - Rata n. 3 (Residuo aperto)",
+      "category": "Ordinaria",
+      "amount_eur": 6.99,
+      "status": "pending",
+      "type": "expense"
+    },
+    {
+      "id": 11,
+      "date": "2026-02-15",
+      "description": "Condominio: Ordinaria 25/26 - Rata n. 4",
+      "category": "Ordinaria",
+      "amount_eur": 318.2,
+      "status": "pending",
+      "type": "expense"
+    },
+    {
+      "id": 12,
+      "date": "2025-12-15",
+      "description": "Condominio: Terrazza 25/26 - Acconto lavori",
+      "category": "Straordinaria",
+      "amount_eur": 48.26,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 13,
+      "date": "2026-01-15",
+      "description": "Condominio: Terrazza 25/26 - Inizio lavori",
+      "category": "Straordinaria",
+      "amount_eur": 72.38,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 14,
+      "date": "2026-02-15",
+      "description": "Condominio: Terrazza 25/26 - SAL",
+      "category": "Straordinaria",
+      "amount_eur": 72.38,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 15,
+      "date": "2026-03-15",
+      "description": "Condominio: Terrazza 25/26 - Fine lavori",
+      "category": "Straordinaria",
+      "amount_eur": 48.26,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 16,
+      "date": "2026-05-31",
+      "description": "Condominio: Ordinaria 26/27 - Rata fp n. 1",
+      "category": "Ordinaria",
+      "amount_eur": 329.89,
+      "status": "pending",
+      "type": "expense"
+    },
+    {
+      "id": 17,
+      "date": "2026-01-04",
+      "description": "Acquisto Asset: Aspirapolvere BLACK+DECKER",
+      "category": "Asset",
+      "amount_eur": 49.0,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 18,
+      "date": "2026-02-09",
+      "description": "Acquisto Asset: Asse Vileda / Frullatore / Grucce",
+      "category": "Asset",
+      "amount_eur": 110.0,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 19,
+      "date": "2026-05-05",
+      "description": "A2A Luce (Feb-Mar 26)",
+      "category": "Utenze",
+      "amount_eur": 221.0,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 20,
+      "date": "2026-04-07",
+      "description": "A2A Gas (Dic 25-Feb 26)",
+      "category": "Utenze",
+      "amount_eur": 83.0,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 21,
+      "date": "2025-01-31",
+      "description": "Canone RAI 2025",
+      "category": "Tasse",
+      "amount_eur": 203.7,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 22,
+      "date": "2025-06-16",
+      "description": "IMU Acconto 2025",
+      "category": "Tasse",
+      "amount_eur": 334.0,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 23,
+      "date": "2025-12-16",
+      "description": "IMU Saldo 2025",
+      "category": "Tasse",
+      "amount_eur": 334.0,
+      "status": "paid",
+      "type": "expense"
+    },
+    {
+      "id": 24,
+      "date": "2025-12-05",
+      "description": "TARI 2025",
+      "category": "Tasse",
+      "amount_eur": 139.0,
+      "status": "paid",
+      "type": "expense"
+    }
+  ],
+  "bookings": [
+    {
+      "id": 108603411,
+      "guest": "Gabriela Stempka",
+      "check_in": "2025-08-25",
+      "nights": 2,
+      "pax": 1,
+      "source": "Airbnb",
+      "gross_eur": 143.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 0.0,
+      "cleaning_eur": 45.0
+    },
+    {
+      "id": 108845191,
+      "guest": "Flavio Nakakura",
+      "check_in": "2025-08-27",
+      "nights": 7,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 452.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 44.1,
+      "cleaning_eur": 45.0
+    },
+    {
+      "id": 107696481,
+      "guest": "Christie Swainston",
+      "check_in": "2025-09-04",
+      "nights": 3,
+      "pax": 1,
+      "source": "Airbnb",
+      "gross_eur": 441.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 0.0,
+      "cleaning_eur": 45.0
+    },
+    {
+      "id": 109488256,
+      "guest": "Flavio Nakakura",
+      "check_in": "2025-09-07",
+      "nights": 22,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 1267.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 88.2,
+      "cleaning_eur": 80.0
+    },
+    {
+      "id": 112211526,
+      "guest": "Edwin Agallanes",
+      "check_in": "2025-09-30",
+      "nights": 13,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 900.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 81.3,
+      "cleaning_eur": 45.0
+    },
+    {
+      "id": 113874751,
+      "guest": "Maja Janevska",
+      "check_in": "2025-10-16",
+      "nights": 10,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 826.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 63.0,
+      "cleaning_eur": 45.0
+    },
+    {
+      "id": 115489991,
+      "guest": "Irilla Santana Nobre Goncalves",
+      "check_in": "2025-10-26",
+      "nights": 21,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 1226.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 88.2,
+      "cleaning_eur": 80.0
+    },
+    {
+      "id": 115489992,
+      "guest": "Irilla Santana Nobre Goncalves",
+      "check_in": "2025-11-16",
+      "nights": 14,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 700.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 88.2,
+      "cleaning_eur": 45.0
+    },
+    {
+      "id": 119791626,
+      "guest": "Sara Dario",
+      "check_in": "2025-12-04",
+      "nights": 17,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 1026.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 88.2,
+      "cleaning_eur": 80.0
+    },
+    {
+      "id": 123607671,
+      "guest": "Sara Dario",
+      "check_in": "2026-01-12",
+      "nights": 14,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 1428.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 133.0,
+      "cleaning_eur": 45.0
+    },
+    {
+      "id": 125904941,
+      "guest": "Jessika de Miranda",
+      "check_in": "2026-02-09",
+      "nights": 27,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 1598.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 133.0,
+      "cleaning_eur": 80.0
+    },
+    {
+      "id": 214603781,
+      "guest": "Elena Ratti",
+      "check_in": "2026-03-13",
+      "nights": 9,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 720.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 85.5,
+      "cleaning_eur": 45.0
+    },
+    {
+      "id": 214603782,
+      "guest": "Marco Bellini",
+      "check_in": "2026-03-26",
+      "nights": 7,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 560.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 66.5,
+      "cleaning_eur": 45.0
+    },
+    {
+      "id": 214603783,
+      "guest": "Giulia Conti",
+      "check_in": "2026-04-06",
+      "nights": 9,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 711.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 85.5,
+      "cleaning_eur": 45.0
+    },
+    {
+      "id": 214603784,
+      "guest": "Luca Ferri",
+      "check_in": "2026-04-20",
+      "nights": 10,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 700.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 95.0,
+      "cleaning_eur": 45.0
+    },
+    {
+      "id": 214603785,
+      "guest": "Florencia Anabel Luduena Godoy",
+      "check_in": "2026-05-18",
+      "nights": 30,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 2060.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 133.0,
+      "cleaning_eur": 80.0
+    }
+  ],
+  "tickets": [
+    {
+      "id": 2510121,
+      "asset": "STR-009",
+      "title": "Silicone lavandino",
+      "status": "DONE",
+      "date": "2025-10-12",
+      "costo_lavoro": 40.0,
+      "costo_materiali": 29.0,
+      "consumables": "Include 12€ di consumabili"
+    },
+    {
+      "id": 2510122,
+      "asset": "STR-001",
+      "title": "Pitturare cucina soggiorno",
+      "status": "DONE",
+      "date": "2025-10-12",
+      "costo_lavoro": 180.0,
+      "costo_materiali": 165.0,
+      "consumables": "Include 69€ di consumabili"
+    },
+    {
+      "id": 2510161,
+      "asset": "STR-004",
+      "title": "Ripristino cassone tapparella",
+      "status": "DONE",
+      "date": "2025-10-16",
+      "costo_lavoro": 40.0,
+      "costo_materiali": 0.0
+    },
+    {
+      "id": 2510162,
+      "asset": "STR-001",
+      "title": "Tinteggiatura bagno",
+      "status": "DONE",
+      "date": "2025-10-16",
+      "costo_lavoro": 150.0,
+      "costo_materiali": 56.0,
+      "consumables": "Include 19€ di consumabili"
+    },
+    {
+      "id": 2510211,
+      "asset": "STR-004",
+      "title": "Siliconatura cornici finestre sale e tinteggiatura",
+      "status": "DONE",
+      "date": "2025-10-21",
+      "costo_lavoro": 169.0,
+      "costo_materiali": 44.0,
+      "consumables": "Include 16€ di consumabili"
+    }
+  ],
+  "structural_assets": [
+    {
+      "id": "STR-001",
+      "categoria": "Involucro",
+      "nome": "Pareti Interne",
+      "descrizione": "Intonaci e tinteggiatura smalto",
+      "stato_check": "Ripristino Ott 2025",
+      "life_years": 5
+    },
+    {
+      "id": "STR-002",
+      "categoria": "Involucro",
+      "nome": "Soffitti",
+      "descrizione": "Finitura muraria e pitturazioni",
+      "stato_check": "Monitoraggio crepe",
+      "life_years": 8
+    },
+    {
+      "id": "STR-003",
+      "categoria": "Involucro",
+      "nome": "Pavimenti",
+      "descrizione": "Gres Porcellanato e zoccolini",
+      "stato_check": "Verifica fughe",
+      "life_years": 15
+    },
+    {
+      "id": "STR-004",
+      "categoria": "Infissi",
+      "nome": "Infissi Esterni",
+      "descrizione": "PVC Doppio Vetro / Guarnizioni",
+      "stato_check": "Check isolamento",
+      "life_years": 30
+    },
+    {
+      "id": "STR-005",
+      "categoria": "Infissi",
+      "nome": "Porte Interne",
+      "descrizione": "Ante, telai e serrature",
+      "stato_check": "Lubrificazione cerniere",
+      "life_years": 20
+    },
+    {
+      "id": "STR-006",
+      "categoria": "Sicurezza",
+      "nome": "Porta Ingresso",
+      "descrizione": "Blindata Dierre / Cilindro Euro",
+      "stato_check": "Check spioncino",
+      "life_years": 40
+    },
+    {
+      "id": "STR-007",
+      "categoria": "Impianti",
+      "nome": "Imp. Elettrico",
+      "descrizione": "Quadro RCD, prese e frutti",
+      "stato_check": "Certificato Ott 2023",
+      "life_years": 20
+    },
+    {
+      "id": "STR-008",
+      "categoria": "Impianti",
+      "nome": "Imp. Idraulico",
+      "descrizione": "Tubazioni e attacchi cucina",
+      "stato_check": "Audit scarichi OK",
+      "life_years": 25
+    },
+    {
+      "id": "STR-009",
+      "categoria": "Bagno",
+      "nome": "Comp. Fissi",
+      "descrizione": "WC, lavabo e piatto doccia",
+      "stato_check": "Verifica miscelatori",
+      "life_years": 15
+    },
+    {
+      "id": "STR-010",
+      "categoria": "Sigilli",
+      "nome": "Siliconature",
+      "descrizione": "Sigillature bagno e cucina",
+      "stato_check": "RIUSO: Silicone disp.",
+      "life_years": 2
+    },
+    {
+      "id": "STR-011",
+      "categoria": "Clima",
+      "nome": "Riscaldamento",
+      "descrizione": "Centralizzato Techem / Valvole",
+      "stato_check": "Contabilizzato Feb 26",
+      "life_years": 20
+    },
+    {
+      "id": "STR-012",
+      "categoria": "Esterni",
+      "nome": "Balcone/Terrazzo",
+      "descrizione": "Pavimentazione e parapetti",
+      "stato_check": "Verifica scarico acque",
+      "life_years": 20
+    }
+  ],
+  "maintenance_presets": [
+    {
+      "id_preset": "P019",
+      "titolo": "Verifica impianto riscaldamento centralizzato",
+      "trade": "tecnico termico",
+      "durata_std_h": 1.0,
+      "costo_manodopera_eur_h": 45,
+      "costo_materiali_eur": 10,
+      "sku": "MT-HEAT-01",
+      "ricorrenza": "annual",
+      "priorita": "normal",
+      "asset_link": "Masotto Terrace View",
+      "note": "sincronizzare con amministratore."
+    },
+    {
+      "id_preset": "P020",
+      "titolo": "Inventario e marcatura asset",
+      "trade": "manutentore+admin",
+      "durata_std_h": 3.0,
+      "costo_manodopera_eur_h": 35,
+      "costo_materiali_eur": 25,
+      "sku": "MT-ASSET-01",
+      "ricorrenza": "annual",
+      "priorita": "normal",
+      "asset_link": "tutti",
+      "note": "collezionare seriali mancanti."
+    }
+  ]
+}
