@@ -23,6 +23,29 @@
         master = await res.json();
       }
 
+      // Optional overlay for single-booking updates/simulations.
+      // If present, patch bookings replace same-ID rows in the master list.
+      try {
+        const patchRes = await fetch(`masotto_bookings_patch.json?t=${Date.now()}`, { cache: 'no-store' });
+        if (patchRes.ok) {
+          const patch = await patchRes.json();
+          if (Array.isArray(patch.bookings)) {
+            const current = Array.isArray(master.bookings) ? master.bookings : [];
+            const byId = new Map(current.map(b => [String(b.id), b]));
+            for (const b of patch.bookings) {
+              if (b && b.id !== undefined && b.id !== null) byId.set(String(b.id), b);
+            }
+            master.bookings = Array.from(byId.values()).sort((a, b) => {
+              const da = new Date(a.check_in || a.checkin || 0).getTime();
+              const db = new Date(b.check_in || b.checkin || 0).getTime();
+              return da - db;
+            });
+          }
+        }
+      } catch (patchErr) {
+        console.warn('Booking patch merge skipped', patchErr);
+      }
+
       const map = {
         masotto_prop_data: 'property_master',
         masotto_assets_mobile_db: 'assets_mobile',
