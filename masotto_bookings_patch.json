@@ -11,6 +11,19 @@
       "commission_eur": 0.0,
       "city_tax_eur": 133.0,
       "cleaning_eur": 45.0
+    },
+    {
+      "id": 214603787,
+      "guest": "Prenotazione giugno - da incassare",
+      "check_in": "2026-06-01",
+      "nights": 21,
+      "pax": 1,
+      "source": "Diretta",
+      "gross_eur": 1500.0,
+      "commission_eur": 0.0,
+      "city_tax_eur": 133.0,
+      "cleaning_eur": 80.0,
+      "status": "da incassare"
     }
   ]
 }
