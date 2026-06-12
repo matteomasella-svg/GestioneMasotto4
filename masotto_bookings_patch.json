@@ -1,29 +1,27 @@
 {
   "bookings": [
-    {
-      "id": 214603786,
-      "guest": "Salone del Mobile - Ospite 1",
-      "check_in": "2026-04-14",
-      "nights": 7,
-      "pax": 2,
-      "source": "Diretta",
-      "gross_eur": 950.0,
-      "commission_eur": 0.0,
-      "city_tax_eur": 133.0,
-      "cleaning_eur": 45.0
-    },
-    {
-      "id": 214603787,
-      "guest": "Prenotazione giugno - da incassare",
-      "check_in": "2026-06-01",
-      "nights": 21,
-      "pax": 1,
-      "source": "Diretta",
-      "gross_eur": 1500.0,
-      "commission_eur": 0.0,
-      "city_tax_eur": 133.0,
-      "cleaning_eur": 80.0,
-      "status": "da incassare"
-    }
-  ]
+    {"id":123607671,"code":"123607671","guest":"123607671","check_in":"2026-01-12","nights":14,"pax":1,"source":"Diretta","gross_eur":800.0,"commission_eur":0.0,"city_tax_eur":133.0,"cleaning_eur":45.0,"status":"incassata","cedolare_base_eur":667.0,"cedolare_21_eur":140.07,"wise_movement_eur":622.0},
+    {"id":125904941,"code":"125904941","guest":"125904941","check_in":"2026-02-09","nights":21,"pax":1,"source":"Diretta","gross_eur":1320.0,"commission_eur":0.0,"city_tax_eur":133.0,"cleaning_eur":80.0,"status":"incassata","cedolare_base_eur":1187.0,"cedolare_21_eur":249.27,"wise_movement_eur":1107.0},
+    {"id":214603781,"code":"214603781","guest":"214603781","check_in":"2026-03-13","nights":9,"pax":1,"source":"Diretta","gross_eur":720.0,"commission_eur":0.0,"city_tax_eur":85.5,"cleaning_eur":45.0,"status":"incassata","cedolare_base_eur":634.5,"cedolare_21_eur":133.25,"wise_movement_eur":589.5},
+    {"id":214603782,"code":"214603782","guest":"214603782","check_in":"2026-03-26","nights":7,"pax":1,"source":"Diretta","gross_eur":560.0,"commission_eur":0.0,"city_tax_eur":66.5,"cleaning_eur":45.0,"status":"incassata","cedolare_base_eur":493.5,"cedolare_21_eur":103.64,"wise_movement_eur":448.5},
+    {"id":214603783,"code":"214603783","guest":"214603783","check_in":"2026-04-06","nights":9,"pax":1,"source":"Diretta","gross_eur":711.0,"commission_eur":0.0,"city_tax_eur":85.5,"cleaning_eur":45.0,"status":"incassata","cedolare_base_eur":625.5,"cedolare_21_eur":131.36,"wise_movement_eur":580.5},
+    {"id":214603786,"code":"214603786","guest":"214603786","check_in":"2026-04-14","nights":7,"pax":2,"source":"Diretta","gross_eur":950.0,"commission_eur":0.0,"city_tax_eur":133.0,"cleaning_eur":45.0,"status":"incassata","cedolare_base_eur":817.0,"cedolare_21_eur":171.57,"wise_movement_eur":772.0},
+    {"id":214603784,"code":"214603784","guest":"214603784","check_in":"2026-04-20","nights":10,"pax":1,"source":"Diretta","gross_eur":700.0,"commission_eur":0.0,"city_tax_eur":95.0,"cleaning_eur":45.0,"status":"incassata","cedolare_base_eur":605.0,"cedolare_21_eur":127.05,"wise_movement_eur":560.0},
+    {"id":214603785,"code":"214603785","guest":"214603785","check_in":"2026-05-08","nights":20,"pax":1,"source":"Diretta","gross_eur":1340.0,"commission_eur":0.0,"city_tax_eur":133.0,"cleaning_eur":80.0,"status":"incassata","cedolare_base_eur":1207.0,"cedolare_21_eur":253.47,"wise_movement_eur":1127.0},
+    {"id":214603787,"code":"214603787","guest":"214603787","check_in":"2026-06-01","nights":21,"pax":1,"source":"Diretta","gross_eur":1500.0,"commission_eur":0.0,"city_tax_eur":133.0,"cleaning_eur":80.0,"status":"da incassare","cedolare_base_eur":1367.0,"cedolare_21_eur":287.07,"wise_movement_eur":1287.0}
+  ],
+  "finance_adjustments": [
+    {"id":"CONDO-25-26-R3-INT","date":"2026-01-09","description":"Condominio A37 25/26 integrazione rata n.3 e saldo - saldata da Riccardo su altro conto","category":"Condominio","amount_eur":6.99,"status":"paid","type":"expense","paid_by":"Riccardo","account":"altro conto"},
+    {"id":"CONDO-25-26-R4","date":"2026-01-16","description":"Condominio A37 25/26 rata n.4 - saldata da Riccardo su altro conto","category":"Condominio","amount_eur":318.2,"status":"paid","type":"expense","paid_by":"Riccardo","account":"altro conto"},
+    {"id":"CONDO-26-27-R1-WISE","date":"2026-06-10","description":"Condominio A37 26/27 rata fp nr.1 saldata tramite bollettino da conto Wise","category":"Condominio","amount_eur":329.89,"status":"paid","type":"expense","paid_by":"Matteo","account":"Wise"},
+    {"id":"WISE-JESSICA-001","date":"2026-02-15","description":"Giroconto Wise verso conto Riccardo - quota Jessica 1/2","category":"Giroconto","amount_eur":550.0,"status":"paid","type":"transfer"},
+    {"id":"WISE-JESSICA-002","date":"2026-03-15","description":"Giroconto Wise verso conto Riccardo - quota Jessica 2/2","category":"Giroconto","amount_eur":550.0,"status":"paid","type":"transfer"},
+    {"id":"WISE-INS-2026","date":"2026-05-31","description":"Assicurazione appartamento 2026","category":"Assicurazione","amount_eur":195.0,"status":"paid","type":"expense"},
+    {"id":"WISE-INTERNET-2026-H1","date":"2026-06-30","description":"Internet Fastweb gennaio-giugno 2026 - 6 mesi x 29,95","category":"Internet","amount_eur":179.7,"status":"paid","type":"expense"},
+    {"id":"WISE-MAINT-LABOUR-2026","date":"2026-06-30","description":"Manutenzioni 2026 - lavoro/interventi","category":"Manutenzione","amount_eur":419.0,"status":"paid","type":"expense"},
+    {"id":"WISE-MAINT-MATERIALS-2026","date":"2026-06-30","description":"Materiali manutenzione stimati da internet - pitture, silicone, nastro, teli, rulli","category":"Manutenzione","amount_eur":170.0,"status":"estimated","type":"expense"},
+    {"id":"WISE-ASSETS-2026","date":"2026-02-09","description":"Acquisti asset 2026 - aspirapolvere, asse/accessori","category":"Asset","amount_eur":159.0,"status":"paid","type":"expense"},
+    {"id":"WISE-CONSUMABLES-2026","date":"2026-06-30","description":"Spese gestione consumabili stimate - detersivi e materiali vari","category":"Gestione","amount_eur":300.0,"status":"estimated","type":"expense"}
+  ],
+  "summary_2026": {"gross_total_eur":8601.0,"city_tax_total_eur":997.5,"cleaning_total_eur":510.0,"wise_movement_total_eur":7093.5,"cedolare_21_total_eur":1596.74,"incassate_gross_eur":7101.0,"incassate_city_tax_eur":864.5,"incassate_cleaning_eur":430.0,"incassate_wise_movement_eur":5806.5,"incassate_cedolare_21_eur":1309.67,"last_booking_pending_id":"214603787"}
 }
