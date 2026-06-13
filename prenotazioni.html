@@ -1,582 +1,70 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masotto - Prenotazioni Fiscale</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        :root { --bg-dark: #080c10; --panel-dark: #0f151a; --border: rgba(255,255,255,0.1); --accent-teal: #2dd4bf; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-dark); color: white; margin: 0; min-height: 100vh; overflow: auto !important; height: auto !important; }
-        
-        .main { flex: 1; padding: 2rem; background: radial-gradient(circle at top right, #112a2e 0%, #080c10 40%); min-height: 100vh; }
-        
-        .booking-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
-        @media (min-width: 768px) { .booking-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 1280px) { .booking-grid { grid-template-columns: repeat(3, 1fr); } }
-
-        .booking-card { background: rgba(15,21,26,0.9); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; position: relative; transition: 0.2s; cursor: pointer; display: flex; flex-direction: column; gap: 0.75rem; }
-        .booking-card:hover { transform: translateY(-3px); border-color: var(--accent-teal); background: #1a2430; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-
-        .badge-source { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; }
-        .source-airbnb { background: rgba(255, 56, 92, 0.15); color: #ff385c; border: 1px solid rgba(255, 56, 92, 0.3); }
-        .source-booking { background: rgba(0, 113, 194, 0.15); color: #3b82f6; border: 1px solid rgba(0, 113, 194, 0.3); }
-        .source-direct { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.3); }
-
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .status-past { background: #64748b; } .status-current { background: #2dd4bf; box-shadow: 0 0 8px #2dd4bf; } .status-future { background: #f59e0b; }
-
-        .receipt-box { background: rgba(0,0,0,0.4); border: 1px dashed rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; font-size: 0.75rem; display: flex; flex-direction: column; gap: 4px; }
-        .fin-row { display: flex; justify-content: space-between; align-items: center; }
-        .fin-lbl { color: #94a3b8; } .fin-val { font-family: monospace; font-weight: bold; }
-        .fin-sub { color: #ef4444; } .fin-tax { color: #f59e0b; } .fin-net { color: #2dd4bf; font-size: 0.95rem; font-weight: 900; }
-        .fin-divider { border-top: 1px solid rgba(255,255,255,0.05); margin: 2px 0; }
-
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; }
-        .modal-box { background: var(--panel-dark); border: 1px solid var(--accent-teal); width: 95%; max-width: 650px; padding: 2rem; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); max-height: 90vh; overflow-y: auto; }
-        .form-group { margin-bottom: 12px; }
-        label { display: block; color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
-        input, select { width: 100%; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; color: white; font-size: 0.9rem; }
-        .btn-primary { background: var(--accent-teal); color: #00282c; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; border: none;}
-        .btn-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; }
-
-        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-    </style>
-<style id="masotto-sidebar-css">
-:root{ --bg-dark:#0b1220; --border:rgba(255,255,255,.10); --brand:#004D54; --accent:#2dd4bf; }
-.ms-sidebar{ position:fixed; inset:0 auto 0 0; width:260px; background:rgba(15,23,42,.96); border-right:1px solid var(--border); padding:20px; z-index:50; overflow-y:auto; }
-.ms-main{margin-left:260px; min-height:100vh; display:flex; flex-direction:column;}
-@media (max-width: 900px){ .ms-sidebar{transform:translateX(-105%); transition:.2s;} .ms-sidebar.open{transform:translateX(0);} .ms-main{margin-left:0;} .ms-topbar{position:sticky; top:0; z-index:40; backdrop-filter: blur(10px); background:rgba(11,18,32,.75); border-bottom:1px solid var(--border);} }
-.ms-nav a{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:#94a3b8; font-weight:600; text-decoration:none; }
-.ms-nav a:hover{background:rgba(255,255,255,.05); color:#fff;} .ms-nav a.active{background:var(--brand); color:var(--accent); border-left:3px solid var(--accent);}
-.ms-chip{font:600 10px monospace; color:var(--accent); background:rgba(45,212,191,.10); border:1px solid rgba(45,212,191,.25); padding:2px 8px; border-radius:999px; display:inline-block;}
-</style>
-    <script src="masotto_db.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masotto - Prenotazioni Fiscale</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="masotto_db.js"></script>
+  <style>
+    :root{--bg-dark:#080c10;--panel-dark:#0f151a;--border:rgba(255,255,255,.1);--accent-teal:#2dd4bf;--brand:#004D54;--accent:#2dd4bf}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-dark);color:#fff;margin:0;min-height:100vh;overflow:auto!important;height:auto!important}
+    .main{flex:1;padding:2rem;background:radial-gradient(circle at top right,#112a2e 0%,#080c10 40%);min-height:100vh}
+    .booking-grid{display:grid;grid-template-columns:repeat(1,1fr);gap:1.5rem;margin-top:1.5rem}@media(min-width:768px){.booking-grid{grid-template-columns:repeat(2,1fr)}}@media(min-width:1280px){.booking-grid{grid-template-columns:repeat(3,1fr)}}
+    .booking-card{background:rgba(15,21,26,.9);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;transition:.2s;cursor:pointer;display:flex;flex-direction:column;gap:.75rem}.booking-card:hover{transform:translateY(-3px);border-color:var(--accent-teal);background:#1a2430;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+    .badge-source{font-size:.65rem;font-weight:800;text-transform:uppercase;padding:4px 8px;border-radius:6px;letter-spacing:.5px}.source-airbnb{background:rgba(255,56,92,.15);color:#ff385c;border:1px solid rgba(255,56,92,.3)}.source-booking{background:rgba(0,113,194,.15);color:#3b82f6;border:1px solid rgba(0,113,194,.3)}.source-direct{background:rgba(45,212,191,.15);color:#2dd4bf;border:1px solid rgba(45,212,191,.3)}
+    .status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}.status-past{background:#64748b}.status-current{background:#2dd4bf;box-shadow:0 0 8px #2dd4bf}.status-future{background:#f59e0b}
+    .receipt-box{background:rgba(0,0,0,.4);border:1px dashed rgba(255,255,255,.1);border-radius:8px;padding:10px;font-size:.75rem;display:flex;flex-direction:column;gap:4px}.fin-row{display:flex;justify-content:space-between;align-items:center}.fin-lbl{color:#94a3b8}.fin-val{font-family:monospace;font-weight:bold}.fin-sub{color:#ef4444}.fin-tax{color:#f59e0b}.fin-net{color:#2dd4bf;font-size:.95rem;font-weight:900}.fin-main{color:#fff;font-size:1rem;font-weight:900}.fin-divider{border-top:1px solid rgba(255,255,255,.05);margin:2px 0}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(4px);z-index:100;display:none;align-items:center;justify-content:center}.modal-box{background:var(--panel-dark);border:1px solid var(--accent-teal);width:95%;max-width:650px;padding:2rem;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto}.form-group{margin-bottom:12px}label{display:block;color:#94a3b8;font-size:.75rem;font-weight:700;text-transform:uppercase;margin-bottom:4px}input,select{width:100%;background:#1e293b;border:1px solid rgba(255,255,255,.1);padding:10px;border-radius:8px;color:white;font-size:.9rem}.btn-primary{background:var(--accent-teal);color:#00282c;padding:10px;border-radius:8px;font-weight:700;cursor:pointer;width:100%;border:none}.btn-danger{background:rgba(239,68,68,.15);border:1px solid #ef4444;color:#ef4444;padding:10px;border-radius:8px;font-weight:700;cursor:pointer;width:100%}
+    .ms-sidebar{position:fixed;inset:0 auto 0 0;width:260px;background:rgba(15,23,42,.96);border-right:1px solid var(--border);padding:20px;z-index:50;overflow-y:auto}.ms-main{margin-left:260px;min-height:100vh;display:flex;flex-direction:column}@media(max-width:900px){.ms-sidebar{transform:translateX(-105%);transition:.2s}.ms-sidebar.open{transform:translateX(0)}.ms-main{margin-left:0}.ms-topbar{position:sticky;top:0;z-index:40;backdrop-filter:blur(10px);background:rgba(11,18,32,.75);border-bottom:1px solid var(--border)}}.ms-nav a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:#94a3b8;font-weight:600;text-decoration:none}.ms-nav a:hover{background:rgba(255,255,255,.05);color:#fff}.ms-nav a.active{background:var(--brand);color:var(--accent);border-left:3px solid var(--accent)}.ms-chip{font:600 10px monospace;color:var(--accent);background:rgba(45,212,191,.10);border:1px solid rgba(45,212,191,.25);padding:2px 8px;border-radius:999px;display:inline-block}
+  </style>
 </head>
 <body>
-
-    <div>
-        <main class="main">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <div>
-                    <h2 class="text-3xl font-bold text-white">Prenotazioni & Fisco</h2>
-                    <div class="text-sm text-gray-400">Analisi scomposizione costi per singolo soggiorno.</div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <select id="yearFilter" onchange="renderBoard()" class="bg-[#1e293b] border border-white/10 text-white px-3 py-2 rounded-lg font-bold text-sm outline-none cursor-pointer">
-                        <option value="ALL">Tutto lo Storico</option>
-                        <option value="2026">Anno 2026</option>
-                        <option value="2025" selected>Anno 2025</option>
-                    </select>
-                    <button onclick="openModal()" class="bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition">
-                        <i data-lucide="plus-circle" class="w-5 h-5"></i> Nuova
-                    </button>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-3 border-t-4 border-t-white shadow-lg">
-                    <div class="text-[10px] font-bold text-gray-400 uppercase mb-1">1. Lordo Totale</div>
-                    <div class="text-xl font-bold text-white font-mono" id="kpi-gross">€ 0</div>
-                </div>
-                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-3 border-t-4 border-t-blue-400 shadow-lg">
-                    <div class="text-[10px] font-bold text-blue-400 uppercase mb-1">2. Pulizie (Uscite)</div>
-                    <div class="text-xl font-bold text-blue-400 font-mono" id="kpi-clean">€ 0</div>
-                </div>
-                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-3 border-t-4 border-t-purple-400 shadow-lg">
-                    <div class="text-[10px] font-bold text-purple-400 uppercase mb-1">3. City Tax Versata</div>
-                    <div class="text-xl font-bold text-purple-400 font-mono" id="kpi-tax">€ 0</div>
-                </div>
-                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-3 border-t-4 border-t-red-500 shadow-lg">
-                    <div class="text-[10px] font-bold text-red-500 uppercase mb-1" title="21% su (Lordo - City Tax)">4. Cedolare (21%)</div>
-                    <div class="text-xl font-bold text-red-500 font-mono" id="kpi-ced">€ 0</div>
-                </div>
-                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-3 border-t-4 border-t-teal-400 shadow-lg bg-teal-400/5">
-                    <div class="text-[10px] font-bold text-teal-400 uppercase mb-1">5. Netto Puro</div>
-                    <div class="text-xl font-bold text-teal-400 font-mono" id="kpi-net">€ 0</div>
-                </div>
-                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-3 border-t-4 border-t-yellow-500 shadow-lg">
-                    <div class="text-[10px] font-bold text-yellow-500 uppercase mb-1 flex justify-between">
-                        <span>Notti</span> <span>Occ.</span>
-                    </div>
-                    <div class="flex items-baseline justify-between">
-                        <div class="text-xl font-bold text-white font-mono" id="kpi-nights">0</div>
-                        <div class="text-lg font-bold text-yellow-500 font-mono" id="kpi-occ">0%</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 shadow-lg lg:col-span-2">
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Andamento Ricavi Mensili (Netto Puro vs Lordo)</h3>
-                    <div class="h-64 w-full">
-                        <canvas id="revenueChart"></canvas>
-                    </div>
-                </div>
-                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 shadow-lg">
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4"></i> Mix Canali (Notti Vendute)</h3>
-                    <div class="h-64 w-full flex justify-center">
-                        <canvas id="sourceChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <h3 class="text-lg font-bold text-white mb-2">Lista Prenotazioni</h3>
-            <div class="booking-grid" id="booking-grid"></div>
-        </main>
+  <div><main class="main">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+      <div><h2 class="text-3xl font-bold text-white">Prenotazioni & Fisco</h2><div class="text-sm text-gray-400">Ricevute: camera + pulizie come imponibile; city tax separata come partita di giro.</div></div>
+      <div class="flex items-center gap-3"><select id="yearFilter" onchange="renderBoard()" class="bg-[#1e293b] border border-white/10 text-white px-3 py-2 rounded-lg font-bold text-sm outline-none cursor-pointer"><option value="ALL">Tutto lo Storico</option><option value="2026">Anno 2026</option><option value="2025" selected>Anno 2025</option></select><button onclick="openModal()" class="bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition"><i data-lucide="plus-circle" class="w-5 h-5"></i> Nuova</button></div>
     </div>
-
-    <div id="bookingModal" class="modal">
-        <div class="modal-box">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-white flex items-center gap-2" id="modalTitle"><i data-lucide="calendar-check"></i> Dettaglio Fiscale</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
-            </div>
-            
-            <input type="hidden" id="b-id">
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-b border-white/10 pb-4 mb-4">
-                <div class="form-group"><label>Ospite (Referente)</label><input type="text" id="b-guest" placeholder="Nome Cognome"></div>
-                <div class="form-group">
-                    <label>Canale / Sorgente</label>
-                    <select id="b-source">
-                        <option value="Diretta">Diretta (Nessuna Comm.)</option>
-                        <option value="Airbnb">Airbnb</option>
-                        <option value="Booking.com">Booking.com</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-4 border-b border-white/10 pb-4 mb-4">
-                <div class="form-group"><label>Check-in</label><input type="date" id="b-checkin"></div>
-                <div class="form-group"><label>Notti</label><input type="number" id="b-nights" min="1" value="1" onchange="autoCalcCleaning()"></div>
-                <div class="form-group"><label>Persone (Pax)</label><input type="number" id="b-pax" min="1" value="1"></div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div class="form-group"><label>Incasso Lordo Totale (€)</label><input type="number" id="b-gross" step="0.01" placeholder="0.00"></div>
-                <div class="form-group"><label>City Tax Inclusa (€)</label><input type="number" id="b-tax" step="0.01" placeholder="0.00"></div>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4 mt-2 bg-white/5 p-3 rounded-lg border border-white/10">
-                <div class="form-group mb-0"><label>Commissioni OTA (€)</label><input type="number" id="b-comm" step="0.01" placeholder="0.00"></div>
-                <div class="form-group mb-0">
-                    <label class="text-teal-400">Costo Pulizie (€)</label>
-                    <input type="number" id="b-cleaning" step="0.01" placeholder="Auto: 45€ o 80€">
-                    <div class="text-[9px] text-gray-400 mt-1">Si auto-compila in base alle notti</div>
-                </div>
-            </div>
-
-            <div class="flex gap-3 mt-8">
-                <button onclick="saveBooking()" class="btn-primary flex-1">Salva e Calcola Netto</button>
-                <button id="btn-delete" onclick="deleteBooking()" class="btn-danger flex-1 hidden">Elimina</button>
-            </div>
-        </div>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+      <div class="bg-[#0f151a] border border-white/10 rounded-xl p-3 border-t-4 border-t-white shadow-lg"><div class="text-[10px] font-bold text-gray-400 uppercase mb-1">1. Imponibile Locazione</div><div class="text-xl font-bold text-white font-mono" id="kpi-gross">€ 0</div></div>
+      <div class="bg-[#0f151a] border border-white/10 rounded-xl p-3 border-t-4 border-t-blue-400 shadow-lg"><div class="text-[10px] font-bold text-blue-400 uppercase mb-1">2. Pulizie Incluse</div><div class="text-xl font-bold text-blue-400 font-mono" id="kpi-clean">€ 0</div></div>
+      <div class="bg-[#0f151a] border border-white/10 rounded-xl p-3 border-t-4 border-t-purple-400 shadow-lg"><div class="text-[10px] font-bold text-purple-400 uppercase mb-1">3. City Tax Giro</div><div class="text-xl font-bold text-purple-400 font-mono" id="kpi-tax">€ 0</div></div>
+      <div class="bg-[#0f151a] border border-white/10 rounded-xl p-3 border-t-4 border-t-red-500 shadow-lg"><div class="text-[10px] font-bold text-red-500 uppercase mb-1" title="21% su camera + pulizie">4. Cedolare (21%)</div><div class="text-xl font-bold text-red-500 font-mono" id="kpi-ced">€ 0</div></div>
+      <div class="bg-[#0f151a] border border-white/10 rounded-xl p-3 border-t-4 border-t-teal-400 shadow-lg bg-teal-400/5"><div class="text-[10px] font-bold text-teal-400 uppercase mb-1">5. Netto dopo cedolare</div><div class="text-xl font-bold text-teal-400 font-mono" id="kpi-net">€ 0</div></div>
+      <div class="bg-[#0f151a] border border-white/10 rounded-xl p-3 border-t-4 border-t-yellow-500 shadow-lg"><div class="text-[10px] font-bold text-yellow-500 uppercase mb-1 flex justify-between"><span>Notti</span><span>Occ.</span></div><div class="flex items-baseline justify-between"><div class="text-xl font-bold text-white font-mono" id="kpi-nights">0</div><div class="text-lg font-bold text-yellow-500 font-mono" id="kpi-occ">0%</div></div></div>
     </div>
-
-    <script>
-        let bookingsDB = [];
-        let chartInstanceRev = null;
-        let chartInstanceSrc = null;
-
-        function autoCalcCleaning() {
-            let nights = parseInt(document.getElementById('b-nights').value) || 1;
-            let cleaningField = document.getElementById('b-cleaning');
-            let currVal = parseFloat(cleaningField.value);
-            if (isNaN(currVal) || currVal === 45 || currVal === 80 || currVal === 0) {
-                cleaningField.value = nights < 15 ? 45.00 : 80.00;
-            }
-        }
-
-        function loadDB() {
-            let locDB = localStorage.getItem('masotto_booking_db');
-            if(!locDB || locDB === "undefined" || locDB === "[]") {
-                if(window.MASOTTO_DB && window.MASOTTO_DB.bookings) {
-                    bookingsDB = window.MASOTTO_DB.bookings;
-                    localStorage.setItem('masotto_booking_db', JSON.stringify(bookingsDB));
-                }
-            } else {
-                try { bookingsDB = JSON.parse(locDB); } catch(e) { bookingsDB = []; }
-            }
-            renderBoard();
-        }
-
-        function calculateDates(checkinStr, nights) {
-            let cin = new Date(checkinStr);
-            let cout = new Date(cin);
-            cout.setDate(cout.getDate() + parseInt(nights));
-            
-            const formatDate = (d) => {
-                let day = d.getDate().toString().padStart(2, '0');
-                let month = (d.getMonth() + 1).toString().padStart(2, '0');
-                let year = d.getFullYear().toString().substring(2);
-                return `${day}/${month}/${year}`;
-            };
-            return { in: formatDate(cin), out: formatDate(cout), coutDateObj: cout, cinDateObj: cin };
-        }
-
-        function getStatusStatus(cin, cout) {
-            let today = new Date();
-            today.setHours(0,0,0,0);
-            if (cout < today) return { lbl: 'Completato', class: 'status-past' };
-            if (cin <= today && cout >= today) return { lbl: 'In Casa', class: 'status-current' };
-            return { lbl: 'In Arrivo', class: 'status-future' };
-        }
-
-        function renderCharts(filteredBookings) {
-            const ctxRev = document.getElementById('revenueChart').getContext('2d');
-            const ctxSrc = document.getElementById('sourceChart').getContext('2d');
-
-            let sourceData = { 'Diretta': 0, 'Airbnb': 0, 'Booking.com': 0 };
-            let monthlyData = {
-                labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'],
-                gross: new Array(12).fill(0),
-                net: new Array(12).fill(0)
-            };
-
-            filteredBookings.forEach(b => {
-                let nights = parseInt(b.nights) || 1;
-                let src = b.source || 'Diretta';
-                if (!sourceData[src]) sourceData[src] = 0;
-                sourceData[src] += nights;
-
-                let date = new Date(b.check_in);
-                let month = date.getMonth(); 
-                
-                let gross = parseFloat(b.gross_eur) || 0;
-                let cityTax = parseFloat(b.city_tax_eur) || 0;
-                let comm = parseFloat(b.commission_eur) || 0;
-                let cleaning = parseFloat(b.cleaning_eur);
-                if (isNaN(cleaning)) cleaning = nights < 15 ? 45 : 80;
-                let imponibile = gross - cityTax;
-                let cedolare = imponibile * 0.21;
-                let net = imponibile - cedolare - comm - cleaning;
-
-                monthlyData.gross[month] += gross;
-                monthlyData.net[month] += net;
-            });
-
-            if (chartInstanceRev) chartInstanceRev.destroy();
-            chartInstanceRev = new Chart(ctxRev, {
-                type: 'bar',
-                data: {
-                    labels: monthlyData.labels,
-                    datasets: [
-                        { label: 'Netto Puro (€)', data: monthlyData.net, backgroundColor: '#2dd4bf', borderRadius: 4 },
-                        { label: 'Lordo (€)', data: monthlyData.gross, backgroundColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)', borderRadius: 4 }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8' } } }, plugins: { legend: { labels: { color: '#fff' } } } }
-            });
-
-            if (chartInstanceSrc) chartInstanceSrc.destroy();
-            chartInstanceSrc = new Chart(ctxSrc, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(sourceData),
-                    datasets: [{ data: Object.values(sourceData), backgroundColor: ['#2dd4bf', '#ff385c', '#3b82f6'], borderWidth: 0, hoverOffset: 4 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } } }
-            });
-        }
-
-        function getDaysPassedInYear(year) {
-            const today = new Date();
-            const currentYear = today.getFullYear();
-            if (year < currentYear) return 365;
-            else if (year === currentYear) {
-                const startOfYear = new Date(currentYear, 0, 1);
-                const diffTime = Math.abs(today - startOfYear);
-                return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-            }
-            return 1;
-        }
-
-        function renderBoard() {
-            const filter = document.getElementById('yearFilter').value;
-            const grid = document.getElementById('booking-grid');
-            grid.innerHTML = "";
-
-            let totGross = 0; let totCedolare = 0; let totNetPuro = 0; let totNights = 0; 
-            let totClean = 0; let totTax = 0;
-
-            let filtered = bookingsDB.filter(b => {
-                if(filter === 'ALL') return true;
-                let y = b.check_in ? b.check_in.substring(0,4) : "";
-                return y === filter;
-            });
-
-            filtered.sort((a, b) => new Date(b.check_in) - new Date(a.check_in));
-
-            filtered.forEach(b => {
-                let dates = calculateDates(b.check_in, b.nights);
-                let status = getStatusStatus(dates.cinDateObj, dates.coutDateObj);
-                
-                let gross = parseFloat(b.gross_eur) || 0;
-                let cityTax = parseFloat(b.city_tax_eur) || 0;
-                let comm = parseFloat(b.commission_eur) || 0;
-                let nights = parseInt(b.nights) || 1;
-                
-                let cleaning = parseFloat(b.cleaning_eur);
-                if (isNaN(cleaning)) cleaning = nights < 15 ? 45 : 80;
-
-                let imponibile = gross - cityTax;
-                let cedolare = imponibile * 0.21;
-                let netPuro = imponibile - cedolare - comm - cleaning;
-                
-                totGross += gross; totCedolare += cedolare; totNetPuro += netPuro; totNights += nights;
-                totClean += cleaning; totTax += cityTax;
-
-                let badgeClass = "source-direct";
-                let src = (b.source || '').toLowerCase();
-                if(src.includes('airbnb')) badgeClass = "source-airbnb";
-                else if(src.includes('booking')) badgeClass = "source-booking";
-
-                grid.innerHTML += `
-                <div class="booking-card" onclick="openModal(${b.id})">
-                    <div class="flex justify-between items-start">
-                        <div class="badge-source ${badgeClass}">${b.source}</div>
-                        <div class="text-xs text-gray-400 font-bold flex items-center"><span class="${status.class} status-dot"></span>${status.lbl}</div>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white leading-tight flex items-center gap-2"><i data-lucide="user" class="w-4 h-4 text-teal-400"></i> ${b.guest}</h3>
-                        <div class="text-sm text-gray-400 mt-1 flex items-center gap-2"><i data-lucide="calendar-range" class="w-4 h-4"></i> ${dates.in} <i data-lucide="arrow-right" class="w-3 h-3"></i> ${dates.out} <span class="ml-1 px-2 py-0.5 bg-white/10 rounded-md text-[10px]">${nights} Notti</span></div>
-                    </div>
-                    <div class="receipt-box mt-auto">
-                        <div class="fin-row"><span class="fin-lbl text-white">1. Lordo Incassato</span><span class="fin-val text-white">€ ${gross.toFixed(2)}</span></div>
-                        <div class="fin-row"><span class="fin-lbl text-blue-400">2. Spese Pulizia</span><span class="fin-val fin-sub">- € ${cleaning.toFixed(2)}</span></div>
-                        <div class="fin-row"><span class="fin-lbl text-purple-400">3. City Tax Versata</span><span class="fin-val fin-sub">- € ${cityTax.toFixed(2)}</span></div>
-                        <div class="fin-divider"></div>
-                        <div class="fin-row text-[0.65rem]"><span class="fin-lbl">Base Imponibile Cedolare</span><span class="fin-val text-gray-400">€ ${imponibile.toFixed(2)}</span></div>
-                        <div class="fin-row"><span class="fin-lbl text-red-400">4. Accantonamento (21%)</span><span class="fin-val fin-sub">- € ${cedolare.toFixed(2)}</span></div>
-                        ${comm > 0 ? `<div class="fin-row"><span class="fin-lbl">Commissioni OTA</span><span class="fin-val fin-sub">- € ${comm.toFixed(2)}</span></div>` : ''}
-                        <div class="fin-divider"></div>
-                        <div class="fin-row mt-1"><span class="fin-lbl text-teal-400 font-bold">5. NETTO IN TASCA</span><span class="fin-val fin-net">€ ${netPuro.toFixed(2)}</span></div>
-                    </div>
-                </div>`;
-            });
-            
-            let totalAvailableDays = 0;
-            if (filter === '2025') totalAvailableDays = 129;
-            else if (filter === '2026') totalAvailableDays = getDaysPassedInYear(2026);
-            else if (filter === 'ALL' || filter === 'all') totalAvailableDays = 129 + getDaysPassedInYear(new Date().getFullYear()); 
-            
-            let occRate = totalAvailableDays > 0 ? (totNights / totalAvailableDays) * 100 : 0;
-            if(occRate > 100) occRate = 100; 
-
-            document.getElementById('kpi-gross').innerText = `€ ${totGross.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
-            document.getElementById('kpi-clean').innerText = `€ ${totClean.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
-            document.getElementById('kpi-tax').innerText = `€ ${totTax.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
-            document.getElementById('kpi-ced').innerText = `€ ${totCedolare.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
-            document.getElementById('kpi-net').innerText = `€ ${totNetPuro.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
-            document.getElementById('kpi-nights').innerText = totNights;
-            document.getElementById('kpi-occ').innerText = `${occRate.toFixed(1)}%`;
-
-            renderCharts(filtered);
-            if(window.lucide) lucide.createIcons();
-        }
-
-        function openModal(id = null) {
-            document.getElementById('bookingModal').style.display = 'flex';
-            if (id) {
-                const b = bookingsDB.find(x => x.id === id || x.id === parseInt(id));
-                document.getElementById('modalTitle').innerHTML = `<i data-lucide="edit"></i> Modifica Prenotazione`;
-                document.getElementById('b-id').value = b.id;
-                document.getElementById('b-guest').value = b.guest || '';
-                document.getElementById('b-source').value = b.source || 'Diretta';
-                document.getElementById('b-checkin').value = b.check_in || '';
-                document.getElementById('b-nights').value = b.nights || 1;
-                document.getElementById('b-pax').value = b.pax || 1;
-                document.getElementById('b-gross').value = b.gross_eur || 0;
-                document.getElementById('b-comm').value = b.commission_eur || 0;
-                document.getElementById('b-tax').value = b.city_tax_eur || 0;
-                let clean = parseFloat(b.cleaning_eur);
-                if(isNaN(clean)) clean = (b.nights < 15) ? 45 : 80;
-                document.getElementById('b-cleaning').value = clean;
-                document.getElementById('btn-delete').classList.remove('hidden');
-            } else {
-                document.getElementById('modalTitle').innerHTML = `<i data-lucide="plus-circle"></i> Nuova Prenotazione`;
-                document.getElementById('b-id').value = '';
-                document.getElementById('b-guest').value = '';
-                document.getElementById('b-source').value = 'Diretta';
-                document.getElementById('b-checkin').value = new Date().toISOString().split('T')[0];
-                document.getElementById('b-nights').value = 1;
-                document.getElementById('b-pax').value = 1;
-                document.getElementById('b-gross').value = '';
-                document.getElementById('b-comm').value = '';
-                document.getElementById('b-tax').value = '';
-                document.getElementById('b-cleaning').value = 45;
-                document.getElementById('btn-delete').classList.add('hidden');
-            }
-            if(window.lucide) lucide.createIcons();
-        }
-
-        function saveBooking() {
-            const idStr = document.getElementById('b-id').value;
-            const guest = document.getElementById('b-guest').value;
-            if(!guest) { alert("Inserire il nome dell'ospite!"); return; }
-
-            const newBooking = {
-                id: idStr ? parseInt(idStr) : Date.now(),
-                guest: guest,
-                source: document.getElementById('b-source').value,
-                check_in: document.getElementById('b-checkin').value,
-                nights: parseInt(document.getElementById('b-nights').value) || 1,
-                pax: parseInt(document.getElementById('b-pax').value) || 1,
-                gross_eur: parseFloat(document.getElementById('b-gross').value) || 0,
-                commission_eur: parseFloat(document.getElementById('b-comm').value) || 0,
-                city_tax_eur: parseFloat(document.getElementById('b-tax').value) || 0,
-                cleaning_eur: parseFloat(document.getElementById('b-cleaning').value) || 0
-            };
-
-            if(idStr) {
-                const idx = bookingsDB.findIndex(x => x.id === parseInt(idStr));
-                if(idx > -1) bookingsDB[idx] = newBooking;
-            } else { bookingsDB.push(newBooking); }
-
-            localStorage.setItem('masotto_booking_db', JSON.stringify(bookingsDB));
-            renderBoard(); closeModal();
-        }
-
-        function deleteBooking() {
-            const id = document.getElementById('b-id').value;
-            if(!id) return;
-            if(confirm("Eliminare questa prenotazione?")) {
-                bookingsDB = bookingsDB.filter(x => x.id !== parseInt(id));
-                localStorage.setItem('masotto_booking_db', JSON.stringify(bookingsDB));
-                renderBoard(); closeModal();
-            }
-        }
-
-        function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
-        window.onload = loadDB;
-    </script>
-    
-<script id="masotto-sidebar">
-(function(){
-  const PAGES = [
-    ["index.html","Dashboard","layout-dashboard"],
-    ["ANAGRAFICA.html","Anagrafica","id-card"],
-    ["asset.html","Asset","boxes"],
-    ["audit.html","Audit","clipboard-check"],
-    ["manutenzione.html","Manutenzione","wrench"],
-    ["prenotazioni.html","Prenotazioni","calendar"],
-    ["FINANZE.html","Finanze","pie-chart"],
-    ["sicurezza.html","Sicurezza","shield"]
-  ];
-
-  function purgeOtherAlloggi(){
-    try{
-      const kill = ["nolo","suite","nest","studio","heritage","bassano","chavez","termopili"];
-      Object.keys(localStorage).forEach(k=>{
-        const lk = k.toLowerCase();
-        if(k.startsWith("masotto_")) return;
-        if(kill.some(t=>lk.includes(t))) localStorage.removeItem(k);
-      });
-    }catch(e){}
-  }
-
-  async function ensureMasterDB(force=false){
-    try{
-      let master = null;
-      if(window.MASOTTO_DB) master = window.MASOTTO_DB;
-      if(!master){
-        const res = await fetch("masotto_complete_database.json", {cache:"no-store"});
-        if(!res.ok) throw new Error("fetch failed");
-        master = await res.json();
-      }
-
-      const map = {
-        "masotto_prop_data": "property_master",
-        "masotto_assets_mobile_db": "assets_mobile",
-        "masotto_structural_assets_db": "structural_assets",
-        "masotto_finance_db": "finances",
-        "masotto_booking_db": "bookings",
-        "masotto_maint_db": "tickets",
-        "masotto_insurance_db": "insurance",
-        "masotto_utilities_db": "utilities",
-        "masotto_contacts_db": "contacts",
-        "masotto_maintenance_presets_db": "maintenance_presets"
-      };
-
-      purgeOtherAlloggi();
-
-      for(const [lsKey, section] of Object.entries(map)){
-        const existing = localStorage.getItem(lsKey);
-        const isEmpty = !existing || existing==="null" || existing==="[]" || existing==="{}";
-        if(force || isEmpty){
-          localStorage.setItem(lsKey, JSON.stringify(master[section] ?? []));
-        }
-      }
-      localStorage.setItem("active_property", "Masotto Terrace View");
-      return true;
-    }catch(e){
-      return false;
-    }
-  }
-
-  function mountSidebar(){
-  if (window.__MS_SIDEBAR_DONE && document.getElementById("msSidebar")) return;
-  try{ document.querySelectorAll("aside.sidebar, div.sidebar, #sidebar, [data-legacy-sidebar=\"1\"]").forEach(el=>el.remove()); document.querySelectorAll(".ms-sidebar").forEach(el=>{ if(el.id !== "msSidebar") el.remove(); }); }catch(e){}
-  if (document.getElementById("msSidebar")) { window.__MS_SIDEBAR_DONE = true; return; }
-
-  const path = (location.pathname.split("/").pop() || "index.html");
-    const nav = PAGES.map(([href,label,icon])=>{
-      const active = (href.toLowerCase() === path.toLowerCase()) ? "active" : "";
-      return `<a class="${active}" href="${href}"><i data-lucide="${icon}" class="w-4 h-4"></i><span>${label}</span></a>`;
-    }).join("");
-
-    const sidebar = document.createElement("aside");
-    sidebar.className="ms-sidebar";
-    sidebar.id="msSidebar";
-    sidebar.innerHTML = `
-      <div class="flex items-center gap-3 mb-6">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg"
-             style="background:linear-gradient(135deg,#004D54,#10b981)">2M</div>
-        <div>
-          <div class="text-white font-bold leading-tight">Masotto Terrace</div>
-          <div class="ms-chip">single-property mode</div>
-        </div>
-      </div>
-      <nav class="ms-nav space-y-1">${nav}</nav>
-      <div class="mt-6 p-3 rounded-xl" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);">
-        <button id="msSyncBtn" class="w-full text-xs font-bold px-3 py-2 rounded-lg transition hover:bg-teal-900"
-          style="background:rgba(45,212,191,.15);border:1px solid rgba(45,212,191,.35);color:#a7f3d0;">
-          <i data-lucide="refresh-cw" class="w-3 h-3 inline mr-1"></i> Sincronizza Dati
-        </button>
-      </div>
-    `;
-
-    const mainWrap = document.createElement("div");
-    mainWrap.className = "ms-main";
-    while(document.body.firstChild){ mainWrap.appendChild(document.body.firstChild); }
-    document.body.appendChild(sidebar);
-    document.body.appendChild(mainWrap);
-
-    const topbar = document.createElement("div");
-    topbar.className="ms-topbar p-3 flex items-center justify-between lg:hidden";
-    topbar.innerHTML = `
-      <button id="msToggle" class="px-3 py-2 rounded-lg text-white text-xs font-bold"
-        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);">
-        ☰ Menu
-      </button>
-      <div class="text-white font-bold text-sm">Masotto Terrace</div>
-      <div style="width:64px"></div>
-    `;
-    mainWrap.prepend(topbar);
-
-    document.getElementById("msToggle").addEventListener("click", ()=>{ sidebar.classList.toggle("open"); });
-    document.getElementById("msSyncBtn").addEventListener("click", async ()=>{ await ensureMasterDB(true); location.reload(); });
-  }
-
-  window.__ensureMasottoDB = ensureMasterDB;
-  document.addEventListener("DOMContentLoaded", async ()=>{ await ensureMasterDB(false); mountSidebar(); if(window.lucide && window.lucide.createIcons) window.lucide.createIcons(); });
-})();
-</script>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"><div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 shadow-lg lg:col-span-2"><h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Andamento ricavi imponibili e netto</h3><div class="h-64 w-full"><canvas id="revenueChart"></canvas></div></div><div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 shadow-lg"><h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4"></i> Mix Canali</h3><div class="h-64 w-full flex justify-center"><canvas id="sourceChart"></canvas></div></div></div>
+    <h3 class="text-lg font-bold text-white mb-2">Lista Prenotazioni</h3><div class="booking-grid" id="booking-grid"></div>
+  </main></div>
+  <div id="bookingModal" class="modal"><div class="modal-box"><div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-white flex items-center gap-2" id="modalTitle"><i data-lucide="calendar-check"></i> Dettaglio Fiscale</h3><button onclick="closeModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button></div><input type="hidden" id="b-id">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-b border-white/10 pb-4 mb-4"><div class="form-group"><label>Ospite</label><input type="text" id="b-guest"></div><div class="form-group"><label>Canale</label><select id="b-source"><option value="Diretta">Diretta</option><option value="Airbnb">Airbnb</option><option value="Booking.com">Booking.com</option></select></div></div>
+    <div class="grid grid-cols-3 gap-4"><div class="form-group"><label>Check-in</label><input type="date" id="b-checkin"></div><div class="form-group"><label>Notti</label><input type="number" id="b-nights" min="1" value="1" onchange="autoCalcCleaning()"></div><div class="form-group"><label>Persone</label><input type="number" id="b-pax" min="1" value="1"></div></div>
+    <div class="grid grid-cols-2 gap-4"><div class="form-group"><label>Costo camera (€)</label><input type="number" id="b-room" step="0.01"></div><div class="form-group"><label>Spese pulizia (€)</label><input type="number" id="b-cleaning" step="0.01"></div></div>
+    <div class="grid grid-cols-2 gap-4 mt-2 bg-white/5 p-3 rounded-lg border border-white/10"><div class="form-group mb-0"><label>City Tax (€) - Partita di giro</label><input type="number" id="b-tax" step="0.01"></div><div class="form-group mb-0"><label>Commissioni OTA (€)</label><input type="number" id="b-comm" step="0.01"></div></div>
+    <div class="text-[11px] text-gray-400 mt-3">La ricevuta mostra come cifra principale: costo camera + pulizie. La city tax resta sotto, separata, fuori dalla base cedolare.</div>
+    <div class="flex gap-3 mt-8"><button onclick="saveBooking()" class="btn-primary flex-1">Salva e Calcola</button><button id="btn-delete" onclick="deleteBooking()" class="btn-danger flex-1 hidden">Elimina</button></div>
+  </div></div>
+  <script>
+    let bookingsDB=[];let chartInstanceRev=null;let chartInstanceSrc=null;
+    const eur=n=>Number(n||0).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const round2=n=>Math.round((Number(n)||0)*100)/100;
+    function defaultCleaning(nights){return (Number(nights)||0)>14?80:45}
+    function normalizeBooking(b){const nights=parseInt(b.nights)||1;const cleaning=Number(b.cleaning_fee_eur??b.cleaning_eur??defaultCleaning(nights));let taxable=Number(b.taxable_gross_eur??b.gross_eur??0);let room=Number(b.room_amount_eur??b.camera_eur??0);if(!room){room=round2(taxable-cleaning)}if(!taxable){taxable=round2(room+cleaning)}const cityTax=Number(b.city_tax_eur||0);const comm=Number(b.commission_eur||0);return {...b,nights,room_amount_eur:room,cleaning_fee_eur:cleaning,taxable_gross_eur:taxable,cedolare_base_eur:taxable,receipt_total_display_eur:taxable,city_tax_eur:cityTax,gross_collected_eur:round2(taxable+cityTax),commission_eur:comm,city_tax_accounting:'partita_di_giro'};}
+    function autoCalcCleaning(){let nights=parseInt(document.getElementById('b-nights').value)||1;let f=document.getElementById('b-cleaning');let v=parseFloat(f.value);if(isNaN(v)||v===45||v===80||v===0)f.value=defaultCleaning(nights).toFixed(2)}
+    function loadDB(){let locDB=localStorage.getItem('masotto_booking_db');if(!locDB||locDB==='undefined'||locDB==='[]'){if(window.MASOTTO_DB&&window.MASOTTO_DB.bookings){bookingsDB=window.MASOTTO_DB.bookings.map(normalizeBooking);localStorage.setItem('masotto_booking_db',JSON.stringify(bookingsDB));}}else{try{bookingsDB=JSON.parse(locDB).map(normalizeBooking)}catch(e){bookingsDB=[]}}renderBoard()}
+    function calculateDates(checkinStr,nights){let cin=new Date(checkinStr);let cout=new Date(cin);cout.setDate(cout.getDate()+parseInt(nights||1));const f=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(2)}`;return{in:f(cin),out:f(cout),coutDateObj:cout,cinDateObj:cin}}
+    function getStatusStatus(cin,cout){let today=new Date();today.setHours(0,0,0,0);if(cout<today)return{lbl:'Completato',class:'status-past'};if(cin<=today&&cout>=today)return{lbl:'In Casa',class:'status-current'};return{lbl:'In Arrivo',class:'status-future'}}
+    function renderCharts(filteredBookings){const ctxRev=document.getElementById('revenueChart').getContext('2d');const ctxSrc=document.getElementById('sourceChart').getContext('2d');let sourceData={'Diretta':0,'Airbnb':0,'Booking.com':0};let monthlyData={labels:['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'],gross:new Array(12).fill(0),net:new Array(12).fill(0)};filteredBookings.forEach(raw=>{let b=normalizeBooking(raw);let src=b.source||'Diretta';if(!sourceData[src])sourceData[src]=0;sourceData[src]+=b.nights;let m=new Date(b.check_in).getMonth();let ced=b.cedolare_base_eur*.21;let net=b.taxable_gross_eur-ced-b.commission_eur;monthlyData.gross[m]+=b.taxable_gross_eur;monthlyData.net[m]+=net});if(chartInstanceRev)chartInstanceRev.destroy();chartInstanceRev=new Chart(ctxRev,{type:'bar',data:{labels:monthlyData.labels,datasets:[{label:'Netto dopo cedolare (€)',data:monthlyData.net,backgroundColor:'#2dd4bf',borderRadius:4},{label:'Imponibile locazione (€)',data:monthlyData.gross,backgroundColor:'rgba(255,255,255,.1)',borderWidth:1,borderColor:'rgba(255,255,255,.2)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#94a3b8'}},x:{grid:{display:false},ticks:{color:'#94a3b8'}}},plugins:{legend:{labels:{color:'#fff'}}}}});if(chartInstanceSrc)chartInstanceSrc.destroy();chartInstanceSrc=new Chart(ctxSrc,{type:'doughnut',data:{labels:Object.keys(sourceData),datasets:[{data:Object.values(sourceData),backgroundColor:['#2dd4bf','#ff385c','#3b82f6'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#fff'}}}}})}
+    function getDaysPassedInYear(year){const today=new Date();const cy=today.getFullYear();if(year<cy)return 365;if(year===cy){const s=new Date(cy,0,1);return Math.ceil(Math.abs(today-s)/(1000*60*60*24))}return 1}
+    function renderBoard(){const filter=document.getElementById('yearFilter').value;const grid=document.getElementById('booking-grid');grid.innerHTML='';let totGross=0,totCedolare=0,totNetPuro=0,totNights=0,totClean=0,totTax=0;let filtered=bookingsDB.map(normalizeBooking).filter(b=>filter==='ALL'||(b.check_in||'').substring(0,4)===filter);filtered.sort((a,b)=>new Date(b.check_in)-new Date(a.check_in));filtered.forEach(b=>{let dates=calculateDates(b.check_in,b.nights);let status=getStatusStatus(dates.cinDateObj,dates.coutDateObj);let cedolare=round2(b.cedolare_base_eur*.21);let netPuro=round2(b.taxable_gross_eur-cedolare-b.commission_eur);totGross+=b.taxable_gross_eur;totCedolare+=cedolare;totNetPuro+=netPuro;totNights+=b.nights;totClean+=b.cleaning_fee_eur;totTax+=b.city_tax_eur;let badgeClass='source-direct';let src=(b.source||'').toLowerCase();if(src.includes('airbnb'))badgeClass='source-airbnb';else if(src.includes('booking'))badgeClass='source-booking';grid.innerHTML+=`<div class="booking-card" onclick="openModal(${b.id})"><div class="flex justify-between items-start"><div class="badge-source ${badgeClass}">${b.source}</div><div class="text-xs text-gray-400 font-bold flex items-center"><span class="${status.class} status-dot"></span>${status.lbl}</div></div><div><h3 class="text-xl font-bold text-white leading-tight flex items-center gap-2"><i data-lucide="user" class="w-4 h-4 text-teal-400"></i> ${b.guest}</h3><div class="text-sm text-gray-400 mt-1 flex items-center gap-2"><i data-lucide="calendar-range" class="w-4 h-4"></i> ${dates.in} <i data-lucide="arrow-right" class="w-3 h-3"></i> ${dates.out} <span class="ml-1 px-2 py-0.5 bg-white/10 rounded-md text-[10px]">${b.nights} Notti</span></div></div><div class="receipt-box mt-auto"><div class="fin-row"><span class="fin-lbl">Costo camera</span><span class="fin-val">€ ${eur(b.room_amount_eur)}</span></div><div class="fin-row"><span class="fin-lbl text-blue-400">Spese di pulizia</span><span class="fin-val text-blue-400">€ ${eur(b.cleaning_fee_eur)}</span></div><div class="fin-divider"></div><div class="fin-row"><span class="fin-lbl text-white font-bold">TOTALE IMPONIBILE LOCAZIONE</span><span class="fin-val fin-main">€ ${eur(b.receipt_total_display_eur)}</span></div><div class="fin-row text-[0.65rem]"><span class="fin-lbl text-purple-400">City tax versata (partita di giro)</span><span class="fin-val text-purple-400">€ ${eur(b.city_tax_eur)}</span></div><div class="fin-row text-[0.65rem]"><span class="fin-lbl">Totale incassato incluso city tax</span><span class="fin-val text-gray-400">€ ${eur(b.gross_collected_eur)}</span></div><div class="fin-divider"></div><div class="fin-row"><span class="fin-lbl text-red-400">Accantonamento cedolare 21%</span><span class="fin-val fin-sub">- € ${eur(cedolare)}</span></div>${b.commission_eur>0?`<div class="fin-row"><span class="fin-lbl">Commissioni OTA</span><span class="fin-val fin-sub">- € ${eur(b.commission_eur)}</span></div>`:''}<div class="fin-row mt-1"><span class="fin-lbl text-teal-400 font-bold">NETTO DOPO CEDOLARE</span><span class="fin-val fin-net">€ ${eur(netPuro)}</span></div></div></div>`});let totalAvailableDays=filter==='2025'?129:(filter==='2026'?getDaysPassedInYear(2026):129+getDaysPassedInYear(new Date().getFullYear()));let occRate=totalAvailableDays>0?(totNights/totalAvailableDays)*100:0;if(occRate>100)occRate=100;document.getElementById('kpi-gross').innerText=`€ ${totGross.toLocaleString('it-IT',{minimumFractionDigits:0})}`;document.getElementById('kpi-clean').innerText=`€ ${totClean.toLocaleString('it-IT',{minimumFractionDigits:0})}`;document.getElementById('kpi-tax').innerText=`€ ${totTax.toLocaleString('it-IT',{minimumFractionDigits:0})}`;document.getElementById('kpi-ced').innerText=`€ ${totCedolare.toLocaleString('it-IT',{minimumFractionDigits:0})}`;document.getElementById('kpi-net').innerText=`€ ${totNetPuro.toLocaleString('it-IT',{minimumFractionDigits:0})}`;document.getElementById('kpi-nights').innerText=totNights;document.getElementById('kpi-occ').innerText=`${occRate.toFixed(1)}%`;renderCharts(filtered);if(window.lucide)lucide.createIcons()}
+    function openModal(id=null){document.getElementById('bookingModal').style.display='flex';if(id){const b=normalizeBooking(bookingsDB.find(x=>x.id===id||x.id===parseInt(id)));document.getElementById('modalTitle').innerHTML='<i data-lucide="edit"></i> Modifica Prenotazione';document.getElementById('b-id').value=b.id;document.getElementById('b-guest').value=b.guest||'';document.getElementById('b-source').value=b.source||'Diretta';document.getElementById('b-checkin').value=b.check_in||'';document.getElementById('b-nights').value=b.nights||1;document.getElementById('b-pax').value=b.pax||1;document.getElementById('b-room').value=b.room_amount_eur||0;document.getElementById('b-cleaning').value=b.cleaning_fee_eur||defaultCleaning(b.nights);document.getElementById('b-tax').value=b.city_tax_eur||0;document.getElementById('b-comm').value=b.commission_eur||0;document.getElementById('btn-delete').classList.remove('hidden')}else{document.getElementById('modalTitle').innerHTML='<i data-lucide="plus-circle"></i> Nuova Prenotazione';document.getElementById('b-id').value='';document.getElementById('b-guest').value='';document.getElementById('b-source').value='Diretta';document.getElementById('b-checkin').value=new Date().toISOString().split('T')[0];document.getElementById('b-nights').value=1;document.getElementById('b-pax').value=1;document.getElementById('b-room').value='';document.getElementById('b-cleaning').value=45;document.getElementById('b-tax').value='';document.getElementById('b-comm').value='';document.getElementById('btn-delete').classList.add('hidden')}if(window.lucide)lucide.createIcons()}
+    function saveBooking(){const idStr=document.getElementById('b-id').value;const guest=document.getElementById('b-guest').value;if(!guest){alert("Inserire il nome dell'ospite!");return}const nights=parseInt(document.getElementById('b-nights').value)||1;const room=Number(document.getElementById('b-room').value)||0;const cleaning=Number(document.getElementById('b-cleaning').value)||defaultCleaning(nights);const cityTax=Number(document.getElementById('b-tax').value)||0;const taxable=round2(room+cleaning);const newBooking=normalizeBooking({id:idStr?parseInt(idStr):Date.now(),guest,source:document.getElementById('b-source').value,check_in:document.getElementById('b-checkin').value,nights,pax:parseInt(document.getElementById('b-pax').value)||1,room_amount_eur:room,cleaning_fee_eur:cleaning,taxable_gross_eur:taxable,gross_eur:taxable,commission_eur:Number(document.getElementById('b-comm').value)||0,city_tax_eur:cityTax});if(idStr){const idx=bookingsDB.findIndex(x=>x.id===parseInt(idStr));if(idx>-1)bookingsDB[idx]=newBooking}else bookingsDB.push(newBooking);localStorage.setItem('masotto_booking_db',JSON.stringify(bookingsDB));renderBoard();closeModal()}
+    function deleteBooking(){const id=document.getElementById('b-id').value;if(!id)return;if(confirm('Eliminare questa prenotazione?')){bookingsDB=bookingsDB.filter(x=>x.id!==parseInt(id));localStorage.setItem('masotto_booking_db',JSON.stringify(bookingsDB));renderBoard();closeModal()}}
+    function closeModal(){document.getElementById('bookingModal').style.display='none'}window.onload=loadDB;
+  </script>
+  <script id="masotto-sidebar">(function(){const PAGES=[["index.html","Dashboard","layout-dashboard"],["ANAGRAFICA.html","Anagrafica","id-card"],["asset.html","Asset","boxes"],["audit.html","Audit","clipboard-check"],["manutenzione.html","Manutenzione","wrench"],["prenotazioni.html","Prenotazioni","calendar"],["finanze.html","Finanze","pie-chart"],["sicurezza.html","Sicurezza","shield"]];document.addEventListener('DOMContentLoaded',()=>{if(document.querySelector('.ms-sidebar'))return;const cur=location.pathname.split('/').pop()||'index.html';const side=document.createElement('aside');side.className='ms-sidebar';side.innerHTML='<div style="margin-bottom:18px"><div style="font-weight:900;color:white;font-size:18px">Masotto Control</div><span class="ms-chip">MASOTTO4</span></div><nav class="ms-nav">'+PAGES.map(p=>`<a class="${cur.toLowerCase()===p[0].toLowerCase()?'active':''}" href="${p[0]}"><i data-lucide="${p[2]}" style="width:18px;height:18px"></i>${p[1]}</a>`).join('')+'</nav>';document.body.prepend(side);const main=document.querySelector('.main');if(main)main.classList.add('ms-main');if(window.lucide)lucide.createIcons()})})();</script>
 </body>
 </html>
