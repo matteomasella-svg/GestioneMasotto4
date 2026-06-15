@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script src="masotto_db.js"></script>
+    <script src="ms_accounting.js"></script>
     
     <style>
         :root { --bg-dark: #080c10; --panel-dark: #0f151a; --border: rgba(255,255,255,0.1); --accent-teal: #2dd4bf; }
@@ -190,11 +191,13 @@
             if(!locFin || locFin === "undefined" || locFin === "[]") { financesDB = JSON.parse(JSON.stringify(masterDB.finances || [])); } 
             else { try { financesDB = JSON.parse(locFin); } catch(e) { financesDB = []; } }
             
-            financesDB = financesDB.map(f => ({
+            financesDB = financesDB.map(f => window.MS_ACCOUNTING ? MS_ACCOUNTING.normalizeFinanceRow(f) : ({
                 id: f.id, date: f.date, description: f.description || f.desc, category: f.category || f.cat || "Altro",
                 amount_eur: parseFloat(f.amount_eur !== undefined ? f.amount_eur : (f.amount || 0)), status: f.status || "paid",
                 type: f.type || (f.category === 'Entrata Extra' ? 'income' : 'expense')
             }));
+            bookingsDB = bookingsDB.map(b => window.MS_ACCOUNTING ? MS_ACCOUNTING.normalizeBooking(b) : b);
+            if(window.MS_ACCOUNTING){ financesDB = MS_ACCOUNTING.mergeBookingTransactions(financesDB, bookingsDB); }
 
             calculateKPIs();
             renderReceipts();
