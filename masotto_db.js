@@ -261,11 +261,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 91,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2023
+      "source": "2mdb_current_v43"
     },
     {
       "id": "UTL-0115",
@@ -273,11 +271,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 51,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2023
+      "source": "2mdb_current_v43"
     },
     {
       "id": "UTL-0116",
@@ -285,11 +281,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 50,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2023
+      "source": "2mdb_current_v43"
     },
     {
       "id": "UTL-0117",
@@ -297,11 +291,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 52,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2023
+      "source": "2mdb_current_v43"
     },
     {
       "id": "UTL-0118",
@@ -309,11 +301,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 53,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2024
+      "source": "2mdb_current_v43"
     },
     {
       "id": "UTL-0119",
@@ -321,11 +311,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 85,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2024
+      "source": "2mdb_current_v43"
     },
     {
       "id": "UTL-0120",
@@ -333,11 +321,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 100,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2024
+      "source": "2mdb_current_v43"
     },
     {
       "id": 1,
@@ -346,9 +332,7 @@ window.MASOTTO_DB = {
       "category": "Ordinaria",
       "amount_eur": 256.2,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2024
+      "type": "expense"
     },
     {
       "id": "UTL-0121",
@@ -356,11 +340,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 184,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2024
+      "source": "2mdb_current_v43"
     },
     {
       "id": "UTL-0122",
@@ -368,11 +350,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 141,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2024
+      "source": "2mdb_current_v43"
     },
     {
       "id": 2,
@@ -381,9 +361,7 @@ window.MASOTTO_DB = {
       "category": "Ordinaria",
       "amount_eur": 256.2,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2024
+      "type": "expense"
     },
     {
       "id": "UTL-0123",
@@ -391,11 +369,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 157,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2024
+      "source": "2mdb_current_v43"
     },
     {
       "id": 21,
@@ -404,9 +380,7 @@ window.MASOTTO_DB = {
       "category": "Tasse",
       "amount_eur": 203.7,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "type": "expense"
     },
     {
       "id": 3,
@@ -415,9 +389,7 @@ window.MASOTTO_DB = {
       "category": "Ordinaria",
       "amount_eur": 522.16,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "type": "expense"
     },
     {
       "id": "UTL-0005",
@@ -425,11 +397,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 192,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": "UTL-0001",
@@ -437,11 +407,9 @@ window.MASOTTO_DB = {
       "description": "utilities gas",
       "category": "Utenze",
       "amount_eur": 53,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": 5,
@@ -450,9 +418,7 @@ window.MASOTTO_DB = {
       "category": "Straordinaria",
       "amount_eur": 285.33,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "type": "expense"
     },
     {
       "id": 4,
@@ -461,9 +427,7 @@ window.MASOTTO_DB = {
       "category": "Ordinaria",
       "amount_eur": 395.77,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "type": "expense"
     },
     {
       "id": "UTL-0006",
@@ -471,11 +435,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 94,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": "REV-0055",
@@ -485,9 +447,7 @@ window.MASOTTO_DB = {
       "amount_eur": 658.22,
       "status": "paid",
       "type": "revenue",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": 6,
@@ -496,9 +456,7 @@ window.MASOTTO_DB = {
       "category": "Straordinaria",
       "amount_eur": 285.33,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "type": "expense"
     },
     {
       "id": 7,
@@ -507,9 +465,7 @@ window.MASOTTO_DB = {
       "category": "Ordinaria",
       "amount_eur": 305,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "type": "expense"
     },
     {
       "id": 22,
@@ -518,9 +474,7 @@ window.MASOTTO_DB = {
       "category": "Tasse",
       "amount_eur": 334,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Da verificare",
-      "fiscal_year": 2025
+      "type": "expense"
     },
     {
       "id": "UTL-0007",
@@ -528,11 +482,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 89,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": "UTL-0002",
@@ -540,11 +492,9 @@ window.MASOTTO_DB = {
       "description": "utilities gas",
       "category": "Utenze",
       "amount_eur": 54,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": "UTL-0008",
@@ -552,11 +502,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 195,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": "REV-0057",
@@ -566,9 +514,7 @@ window.MASOTTO_DB = {
       "amount_eur": 121.38,
       "status": "paid",
       "type": "revenue",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": 8,
@@ -577,9 +523,7 @@ window.MASOTTO_DB = {
       "category": "Ordinaria",
       "amount_eur": 305,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "type": "expense"
     },
     {
       "id": "UTL-0003",
@@ -587,11 +531,9 @@ window.MASOTTO_DB = {
       "description": "utilities gas",
       "category": "Utenze",
       "amount_eur": 68,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": "MNT-0019",
@@ -599,11 +541,9 @@ window.MASOTTO_DB = {
       "description": "Silicone lavandino",
       "category": "Manutenzione",
       "amount_eur": 57,
-      "status": "paid",
+      "status": "completato",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": "UTL-0009",
@@ -611,11 +551,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 103,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": "MNT-0010",
@@ -623,11 +561,9 @@ window.MASOTTO_DB = {
       "description": "Tinteggiatura bagno e parete soggiorno/cucina",
       "category": "Manutenzione",
       "amount_eur": 0,
-      "status": "paid",
+      "status": "unificato/archiviato",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": "MNT-0011",
@@ -635,11 +571,9 @@ window.MASOTTO_DB = {
       "description": "TINTEGGIATURA BAGNO",
       "category": "Manutenzione",
       "amount_eur": 0,
-      "status": "paid",
+      "status": "unificato/archiviato",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": "MNT-0020",
@@ -647,11 +581,9 @@ window.MASOTTO_DB = {
       "description": "Ripristino cassone tapparella",
       "category": "Manutenzione",
       "amount_eur": 40,
-      "status": "paid",
+      "status": "completato",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": "MNT-0021",
@@ -659,11 +591,9 @@ window.MASOTTO_DB = {
       "description": "Tinteggiatura bagno, cucina e soggiorno",
       "category": "Manutenzione",
       "amount_eur": 283,
-      "status": "paid",
+      "status": "completato",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": "MNT-0022",
@@ -671,11 +601,9 @@ window.MASOTTO_DB = {
       "description": "Siliconatura cornici finestre sale e tinteggiatura",
       "category": "Manutenzione",
       "amount_eur": 100,
-      "status": "paid",
+      "status": "completato",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": 24,
@@ -684,9 +612,7 @@ window.MASOTTO_DB = {
       "category": "Tasse",
       "amount_eur": 139,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Da verificare",
-      "fiscal_year": 2025
+      "type": "expense"
     },
     {
       "id": 9,
@@ -695,9 +621,7 @@ window.MASOTTO_DB = {
       "category": "Ordinaria",
       "amount_eur": 543.42,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "type": "expense"
     },
     {
       "id": 10,
@@ -705,10 +629,8 @@ window.MASOTTO_DB = {
       "description": "Condominio: Ordinaria 25/26 - Rata n. 3 (Residuo aperto)",
       "category": "Ordinaria",
       "amount_eur": 6.99,
-      "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "status": "pending",
+      "type": "expense"
     },
     {
       "id": 12,
@@ -717,9 +639,7 @@ window.MASOTTO_DB = {
       "category": "Straordinaria",
       "amount_eur": 48.26,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "type": "expense"
     },
     {
       "id": 23,
@@ -728,9 +648,7 @@ window.MASOTTO_DB = {
       "category": "Tasse",
       "amount_eur": 334,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Da verificare",
-      "fiscal_year": 2025
+      "type": "expense"
     },
     {
       "id": "UTL-0004",
@@ -738,11 +656,9 @@ window.MASOTTO_DB = {
       "description": "utilities gas",
       "category": "Utenze",
       "amount_eur": 87,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": "UTL-0010",
@@ -750,11 +666,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 137,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Wise",
-      "fiscal_year": 2025
+      "source": "2mdb_current_v43"
     },
     {
       "id": 17,
@@ -763,9 +677,7 @@ window.MASOTTO_DB = {
       "category": "Asset",
       "amount_eur": 49,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Da verificare",
-      "fiscal_year": 2026
+      "type": "expense"
     },
     {
       "id": "REV-0060",
@@ -775,9 +687,7 @@ window.MASOTTO_DB = {
       "amount_eur": 1428,
       "status": "paid",
       "type": "revenue",
-      "source": "2mdb_current_v43",
-      "payment_account": "Da verificare",
-      "fiscal_year": 2026
+      "source": "2mdb_current_v43"
     },
     {
       "id": 13,
@@ -786,9 +696,7 @@ window.MASOTTO_DB = {
       "category": "Straordinaria",
       "amount_eur": 72.38,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2026
+      "type": "expense"
     },
     {
       "id": 18,
@@ -797,9 +705,7 @@ window.MASOTTO_DB = {
       "category": "Asset",
       "amount_eur": 110,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Da verificare",
-      "fiscal_year": 2026
+      "type": "expense"
     },
     {
       "id": "UTL-0011",
@@ -807,11 +713,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 165,
-      "status": "paid",
+      "status": "domiciliata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Fineco",
-      "fiscal_year": 2026
+      "source": "2mdb_current_v43"
     },
     {
       "id": 11,
@@ -819,10 +723,8 @@ window.MASOTTO_DB = {
       "description": "Condominio: Ordinaria 25/26 - Rata n. 4",
       "category": "Ordinaria",
       "amount_eur": 318.2,
-      "status": "paid",
-      "type": "expense",
-      "payment_account": "Fineco",
-      "fiscal_year": 2026
+      "status": "pending",
+      "type": "expense"
     },
     {
       "id": 14,
@@ -831,9 +733,7 @@ window.MASOTTO_DB = {
       "category": "Straordinaria",
       "amount_eur": 72.38,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2026
+      "type": "expense"
     },
     {
       "id": 15,
@@ -842,9 +742,7 @@ window.MASOTTO_DB = {
       "category": "Straordinaria",
       "amount_eur": 48.26,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2026
+      "type": "expense"
     },
     {
       "id": 20,
@@ -853,9 +751,7 @@ window.MASOTTO_DB = {
       "category": "Utenze",
       "amount_eur": 83,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Fineco",
-      "fiscal_year": 2026
+      "type": "expense"
     },
     {
       "id": "UTL-0049",
@@ -863,11 +759,9 @@ window.MASOTTO_DB = {
       "description": "utilities gas",
       "category": "Utenze",
       "amount_eur": 83,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Fineco",
-      "fiscal_year": 2026
+      "source": "2mdb_current_v43"
     },
     {
       "id": 19,
@@ -876,9 +770,7 @@ window.MASOTTO_DB = {
       "category": "Utenze",
       "amount_eur": 221,
       "status": "paid",
-      "type": "expense",
-      "payment_account": "Fineco",
-      "fiscal_year": 2026
+      "type": "expense"
     },
     {
       "id": "UTL-0048",
@@ -886,11 +778,9 @@ window.MASOTTO_DB = {
       "description": "utilities electricity",
       "category": "Utenze",
       "amount_eur": 221,
-      "status": "paid",
+      "status": "pagata",
       "type": "expense",
-      "source": "2mdb_current_v43",
-      "payment_account": "Fineco",
-      "fiscal_year": 2026
+      "source": "2mdb_current_v43"
     },
     {
       "id": 16,
@@ -898,10 +788,8 @@ window.MASOTTO_DB = {
       "description": "Condominio: Ordinaria 26/27 - Rata fp n. 1",
       "category": "Ordinaria",
       "amount_eur": 329.89,
-      "status": "paid",
-      "type": "expense",
-      "payment_account": "Wise",
-      "fiscal_year": 2026
+      "status": "pending",
+      "type": "expense"
     }
   ],
   "bookings": [
@@ -1106,18 +994,12 @@ window.MASOTTO_DB = {
       "status": "DONE",
       "date": "2025-10-12",
       "costo_lavoro": 40,
-      "costo_materiali": 29,
-      "consumables": "Include 12€ di consumabili"
-    },
-    {
-      "id": 2510122,
-      "asset": "STR-001",
-      "title": "Pitturare cucina soggiorno",
-      "status": "DONE",
-      "date": "2025-10-12",
-      "costo_lavoro": 180,
-      "costo_materiali": 165,
-      "consumables": "Include 69€ di consumabili"
+      "costo_materiali": 17,
+      "costo_consumabili": 0,
+      "costo_attrezzatura": 0,
+      "totale_eur": 57,
+      "payment_account": "Wise",
+      "category": "Manutenzione"
     },
     {
       "id": 2510161,
@@ -1126,17 +1008,26 @@ window.MASOTTO_DB = {
       "status": "DONE",
       "date": "2025-10-16",
       "costo_lavoro": 40,
-      "costo_materiali": 0
+      "costo_materiali": 0,
+      "costo_consumabili": 0,
+      "costo_attrezzatura": 0,
+      "totale_eur": 40,
+      "payment_account": "Wise",
+      "category": "Manutenzione"
     },
     {
-      "id": 2510162,
+      "id": 2510122,
       "asset": "STR-001",
-      "title": "Tinteggiatura bagno",
+      "title": "Tinteggiatura bagno + cucina/soggiorno",
       "status": "DONE",
-      "date": "2025-10-16",
-      "costo_lavoro": 150,
-      "costo_materiali": 56,
-      "consumables": "Include 19€ di consumabili"
+      "date": "2025-10-12",
+      "costo_lavoro": 250,
+      "costo_materiali": 133,
+      "costo_consumabili": 0,
+      "costo_attrezzatura": 0,
+      "totale_eur": 383,
+      "payment_account": "Wise",
+      "category": "Manutenzione"
     },
     {
       "id": 2510211,
@@ -1144,9 +1035,13 @@ window.MASOTTO_DB = {
       "title": "Siliconatura cornici finestre sale e tinteggiatura",
       "status": "DONE",
       "date": "2025-10-21",
-      "costo_lavoro": 169,
-      "costo_materiali": 44,
-      "consumables": "Include 16€ di consumabili"
+      "costo_lavoro": 100,
+      "costo_materiali": 28,
+      "costo_consumabili": 0,
+      "costo_attrezzatura": 0,
+      "totale_eur": 128,
+      "payment_account": "Wise",
+      "category": "Manutenzione"
     }
   ],
   "structural_assets": [
@@ -1800,17 +1695,97 @@ window.MASOTTO_DB = {
     "source_canonical_database": "2mdb_current.json V43",
     "note": "Preservato database reale del repo; convertito masotto_db.js in window.MASOTTO_DB e integrati utility_bills, maintenance_tickets_v43, revenue_bookings_v43 e finances V43."
   },
-  "accounting_rules_v46": {
-    "bookings_source": "repo bookings are authoritative and must not be overwritten",
-    "receipt_date": "check_in",
-    "cedolare_base": "room/soggiorno + cleaning fee; city tax excluded",
-    "cleaning_fee": "45 EUR up to 14 nights, 80 EUR over 14 nights when missing",
-    "checkout_events": [
-      "cleaning expense",
-      "cedolare accrual per booking",
-      "city tax payable as pass-through when applicable"
-    ],
-    "utilities_status": "due utilities become paid/executed automatically",
-    "accounts": "Wise/Fineco/Fondo fiscale/Da verificare according to V46 rules"
+  "maintenance_tickets_v47": [
+    {
+      "id": 2510121,
+      "asset": "STR-009",
+      "title": "Silicone lavandino",
+      "status": "DONE",
+      "date": "2025-10-12",
+      "costo_lavoro": 40,
+      "costo_materiali": 17,
+      "costo_consumabili": 0,
+      "costo_attrezzatura": 0,
+      "totale_eur": 57,
+      "payment_account": "Wise",
+      "category": "Manutenzione"
+    },
+    {
+      "id": 2510161,
+      "asset": "STR-004",
+      "title": "Ripristino cassone tapparella",
+      "status": "DONE",
+      "date": "2025-10-16",
+      "costo_lavoro": 40,
+      "costo_materiali": 0,
+      "costo_consumabili": 0,
+      "costo_attrezzatura": 0,
+      "totale_eur": 40,
+      "payment_account": "Wise",
+      "category": "Manutenzione"
+    },
+    {
+      "id": 2510122,
+      "asset": "STR-001",
+      "title": "Tinteggiatura bagno + cucina/soggiorno",
+      "status": "DONE",
+      "date": "2025-10-12",
+      "costo_lavoro": 250,
+      "costo_materiali": 133,
+      "costo_consumabili": 0,
+      "costo_attrezzatura": 0,
+      "totale_eur": 383,
+      "payment_account": "Wise",
+      "category": "Manutenzione"
+    },
+    {
+      "id": 2510211,
+      "asset": "STR-004",
+      "title": "Siliconatura cornici finestre sale e tinteggiatura",
+      "status": "DONE",
+      "date": "2025-10-21",
+      "costo_lavoro": 100,
+      "costo_materiali": 28,
+      "costo_consumabili": 0,
+      "costo_attrezzatura": 0,
+      "totale_eur": 128,
+      "payment_account": "Wise",
+      "category": "Manutenzione"
+    }
+  ],
+  "accounting_rules_v47": {
+    "booking_rule": "receipt_date_checkin; taxable=stay_plus_cleaning; city_tax_separate; checkout_generates_cleaning_expense_and_cedolare_accrual",
+    "cleaning_fee": {
+      "nights_lte_14": 45,
+      "nights_gt_14": 80
+    },
+    "cedolare_rate": 0.21,
+    "accounts": {
+      "until_2025_12_31": "Wise except IMU/TARI",
+      "from_2026": {
+        "electricity": "Fineco",
+        "gas": "Fineco",
+        "internet": "Wise",
+        "insurance": "Wise",
+        "cleaning": "Wise",
+        "maintenance": "Wise",
+        "ordinary_consumables": "Wise",
+        "condominium": "Fineco"
+      }
+    },
+    "monthly_defaults": {
+      "internet": {
+        "amount_eur": 30,
+        "account": "Wise",
+        "category": "Utenze",
+        "description": "internet Fastweb mensile"
+      },
+      "ordinary_consumables": {
+        "amount_eur": 30,
+        "account": "Wise",
+        "category": "Gestione ordinaria",
+        "description": "consumabili gestione ordinaria"
+      }
+    }
   }
 };

@@ -82,9 +82,6 @@
                     <button onclick="exportDatabaseJS()" class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold px-4 py-2 rounded-lg flex items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.4)] transition" title="Scarica il file masotto_db.js aggiornato">
                         <i data-lucide="download" class="w-5 h-5"></i> Esporta DB (.js)
                     </button>
-                    <button onclick="syncFromJS()" class="bg-gray-800 hover:bg-gray-700 border border-white/20 text-white font-bold px-3 py-2 rounded-lg flex items-center gap-2 transition" title="Annulla modifiche non esportate">
-                        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Sincronizza
-                    </button>
                     <select id="yearFilter" onchange="renderBoard()" class="bg-[#1e293b] border border-white/10 text-white px-3 py-2 rounded-lg font-bold text-sm outline-none cursor-pointer">
                         <option value="ALL">Tutto lo Storico</option>
                         <option value="2026">Anno 2026</option>
@@ -99,7 +96,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
                 <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-emerald-500 shadow-lg">
                     <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="trending-up" class="w-3 h-3 inline"></i> Entrate (Lordo + Extra)</div>
                     <div class="text-2xl font-bold text-emerald-400 font-mono" id="kpi-in">€ 0</div>
@@ -116,11 +113,20 @@
                     </div>
                 </div>
                 <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-yellow-500 shadow-lg relative group">
-                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="clock" class="w-3 h-3 inline"></i> Accantonamenti / Aperto</div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="clock" class="w-3 h-3 inline"></i> Scadenze / Accantonato</div>
                     <div class="text-2xl font-bold text-yellow-400 font-mono" id="kpi-pending">€ 0</div>
                     <div class="absolute inset-0 bg-black/90 hidden group-hover:flex items-center justify-center text-[10px] text-gray-300 p-2 text-center rounded-xl z-10">
-                        Mostra cedolare accantonata e scadenze future non saldate. Le bollette scadute passano a Eseguito.
+                        Mostra l'accantonamento stimato della Cedolare Secca + Scadenze future non saldate.
                     </div>
+                </div>
+            
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-purple-500 shadow-lg">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="landmark" class="w-3 h-3 inline"></i> Cedolare Accantonata</div>
+                    <div class="text-2xl font-bold text-purple-400 font-mono" id="kpi-cedolare">€ 0</div>
+                </div>
+                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-sky-500 shadow-lg">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="zap" class="w-3 h-3 inline"></i> Utenze + Internet</div>
+                    <div class="text-2xl font-bold text-sky-400 font-mono" id="kpi-utenze">€ 0</div>
                 </div>
             </div>
 
@@ -188,6 +194,7 @@
                     <select id="e-status">
                         <option value="pending">DA PAGARE (Scadenza)</option>
                         <option value="paid">ESEGUITO / PAGATO</option>
+                        <option value="accrued">ACCANTONATO / FONDO FISCALE</option>
                     </select>
                 </div>
             </div>
@@ -195,15 +202,7 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="form-group"><label>Data Scadenza / Pagamento</label><input type="date" id="e-date"></div>
                 <div class="form-group"><label>Importo (€)</label><input type="number" id="e-amount" step="0.01" placeholder="0.00"></div>
-            </div>
-            <div class="form-group mt-4">
-                <label>Conto pagamento</label>
-                <select id="e-account">
-                    <option value="Wise">Wise</option>
-                    <option value="Fineco">Fineco</option>
-                    <option value="Fondo fiscale">Fondo fiscale</option>
-                    <option value="Da verificare">Da verificare</option>
-                </select>
+                <div class="form-group"><label>Conto pagamento</label><select id="e-account"><option value="Wise">Wise</option><option value="Fineco">Fineco</option><option value="Fondo fiscale">Fondo fiscale</option><option value="Da verificare">Da verificare</option></select></div>
             </div>
 
             <div class="flex gap-3 mt-8">
@@ -223,7 +222,7 @@
             </div>
             <div id="movements-print-area" class="overflow-y-auto" style="max-height: 70vh;">
                 <table class="w-full text-xs pl-table move-table">
-                    <thead class="sticky top-0 z-10 bg-[#0f151a] text-gray-400"><tr><th>Data</th><th>Descrizione</th><th>Categoria</th><th class="pl-val">Entrate (€)</th><th class="pl-val">Uscite (€)</th><th>Stato</th><th>Conto</th></tr></thead>
+                    <thead class="sticky top-0 z-10 bg-[#0f151a] text-gray-400"><tr><th>Data</th><th>Descrizione</th><th>Categoria</th><th class="pl-val">Entrate (€)</th><th class="pl-val">Uscite (€)</th><th>Stato</th></tr></thead>
                     <tbody id="movements-tbody" class="text-white"></tbody>
                 </table>
             </div>
@@ -288,9 +287,28 @@
             if(!locBook || locBook === "undefined" || locBook === "[]") { bookingsDB = JSON.parse(JSON.stringify(masterDB.bookings || [])); } 
             else { try { bookingsDB = JSON.parse(locBook); } catch(e) { bookingsDB = []; } }
             
-            bookingsDB = bookingsDB.map(b => window.MS_ACCOUNTING ? MS_ACCOUNTING.normalizeBooking(b) : b);
+            bookingsDB = bookingsDB.map(b => ({
+                id: b.id, guest: b.guest, check_in: b.check_in || b.checkin, nights: b.nights || 1,
+                gross_eur: parseFloat(b.gross_eur !== undefined ? b.gross_eur : (b.price || 0)),
+                commission_eur: parseFloat(b.commission_eur !== undefined ? b.commission_eur : (b.comm || 0)),
+                city_tax_eur: parseFloat(b.city_tax_eur !== undefined ? b.city_tax_eur : (b.tax || 0)),
+                cleaning_eur: parseFloat(b.cleaning_eur !== undefined ? b.cleaning_eur : (b.clean || 0)),
+                source: b.source || b.portal || "Diretta"
+            }));
 
-            financesDB = financesDB.map(f => window.MS_ACCOUNTING ? MS_ACCOUNTING.normalizeFinanceRow(f) : f);
+            financesDB = financesDB.map(f => ({
+                ...f,
+                id: f.id, date: f.date, description: f.description || f.desc, category: f.category || f.cat || "Altro",
+                amount_eur: parseFloat(f.amount_eur !== undefined ? f.amount_eur : (f.amount || f.expense || 0)), status: f.status || "paid",
+                related_year: f.related_year,
+                type: f.type || (f.category === 'Entrata Extra' ? 'income' : 'expense'),
+                payment_account: f.payment_account || f.account || ''
+            }));
+
+            if(window.MS_ACCOUNTING) {
+                financesDB = window.MS_ACCOUNTING.normalizeFinanceRows(financesDB, bookingsDB, new Date());
+                localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
+            }
 
             runAutomations();
             calculateClosingBalance2025(); 
@@ -298,12 +316,8 @@
         }
 
         function runAutomations() {
-            // V46: non modifica le prenotazioni. Genera solo movimenti contabili automatici
-            // da booking esistenti e normalizza stati/conti delle spese.
-            if (window.MS_ACCOUNTING) {
-                financesDB = MS_ACCOUNTING.mergeBookingTransactions(financesDB, bookingsDB);
-                localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
-            }
+            // V47: automazioni gestite da MS_ACCOUNTING.normalizeFinanceRows.
+            // Non genera più un unico accantonamento aggregato: crea pulizie e cedolare per ogni booking.
         }
 
         function calculateClosingBalance2025() {
@@ -355,19 +369,18 @@
 
         function getUnifiedMovements(filterYear) {
             let unified = [];
-            bookingsDB.forEach(b => {
-                if(filterYear === 'ALL' || (b.check_in && b.check_in.startsWith(filterYear))) {
-                    unified.push({ type: 'income', id: 'bk-' + b.id, date: b.check_in, desc: `Incasso Lordo: ${b.guest}`, cat: 'Prenotazione', inc: (window.MS_ACCOUNTING ? MS_ACCOUNTING.bookingTaxableBase(b) : (parseFloat(b.gross_eur)||0)), out: 0, status: 'paid', account: 'Wise' });
-                }
-            });
             financesDB.forEach(f => {
-                let showInYear = (f.related_year) ? f.related_year : (f.date ? f.date.substring(0,4) : '2025');
-                if(filterYear === 'ALL' || showInYear === filterYear) {
-                    if (f.type === 'income' || parseFloat(f.amount_eur) < 0) {
-                        unified.push({ type: 'income', id: f.id, date: f.date, desc: f.description, cat: f.category, inc: Math.abs(parseFloat(f.amount_eur)||0), out: 0, status: f.status, related_year: f.related_year, account: f.payment_account });
-                    } else {
-                        unified.push({ type: 'expense', id: f.id, date: f.date, desc: f.description, cat: f.category, inc: 0, out: (parseFloat(f.amount_eur)||0), status: f.status, related_year: f.related_year, account: f.payment_account });
-                    }
+                const fiscalYear = String(f.fiscal_year || f.related_year || (f.date ? f.date.substring(0,4) : '2025'));
+                if(filterYear !== 'ALL' && fiscalYear !== filterYear) return;
+                if((f.type || '').toLowerCase() === 'memo') return;
+                const rawStatus = f.status || 'paid';
+                const status = window.MS_ACCOUNTING ? window.MS_ACCOUNTING.statusCode(rawStatus) : rawStatus;
+                const amount = Math.abs(parseFloat(f.amount_eur !== undefined ? f.amount_eur : (f.expense || f.income || 0)) || 0);
+                const ttype = (f.type || '').toLowerCase();
+                if (ttype === 'income' || parseFloat(f.amount_eur) < 0) {
+                    unified.push({ type:'income', id:f.id, date:f.date, desc:f.description, cat:f.category, inc:amount, out:0, status, account:f.payment_account || f.account || 'Wise', related_year:f.related_year, fiscal_year:fiscal_year, autogenerated:!!f.is_auto_generated });
+                } else {
+                    unified.push({ type: status === 'accrued' ? 'accrual' : 'expense', id:f.id, date:f.date, desc:f.description, cat:f.category, inc:0, out:amount, status, account:f.payment_account || f.account || '', related_year:f.related_year, fiscal_year:fiscal_year, autogenerated:!!f.is_auto_generated });
                 }
             });
             unified.sort((a,b) => new Date(b.date) - new Date(a.date));
@@ -378,7 +391,7 @@
             const ctx = document.getElementById('catChart').getContext('2d');
             let catData = {};
             unifiedTransactions.forEach(t => {
-                if(t.type === 'expense' && t.out > 0) {
+                if(t.type === 'expense' && t.status === 'paid' && t.out > 0) {
                     let cat = t.cat || 'Altro';
                     if(!catData[cat]) catData[cat] = 0;
                     catData[cat] += t.out;
@@ -398,7 +411,7 @@
 
             let unifiedTransactions = getUnifiedMovements(filterYear);
             
-            let kpiIn = 0; let kpiOutPaid = 0; let kpiPending = 0; let kpiTotalExpensesForPL = 0;
+            let kpiIn = 0; let kpiOutPaid = 0; let kpiPending = 0; let kpiAccrued = 0; let kpiTotalExpensesForPL = 0; let kpiUtenze = 0;
             let bankIn = 0; let bankOut = 0; let excludedTaxes = 0;
 
             unifiedTransactions.forEach(t => {
@@ -411,23 +424,29 @@
                     
                     grid.innerHTML += `<div class="exp-card exp-income" onclick="openModal('${t.id}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="${getCatStyle(t.cat)}"><i data-lucide="arrow-down-left" class="w-3 h-3 inline"></i> ${t.cat}</span><span class="text-xs text-gray-400 font-mono">${dateFormatted}</span></div><div class="font-bold text-white text-lg">${t.desc}</div></div><div class="flex flex-col items-end gap-2"><div class="font-mono font-bold text-xl text-emerald-400">+ € ${t.inc.toFixed(2)}</div></div></div>`;
                 } else {
-                    kpiTotalExpensesForPL += t.out;
+                    if(t.status !== 'accrued') kpiTotalExpensesForPL += t.out;
+                    if((t.cat||'').toLowerCase().includes('utenze') && t.status === 'paid') kpiUtenze += t.out;
                     if(t.status === 'paid') {
                         kpiOutPaid += t.out;
                         if(t.date && t.date.startsWith('2025') && t.cat === 'Tasse' && (t.desc.toUpperCase().includes('IMU') || t.desc.toUpperCase().includes('TARI'))) { excludedTaxes += t.out; } else { bankOut += t.out; }
+                    } else if(t.status === 'accrued') {
+                        kpiAccrued += t.out;
                     } else {
                         kpiPending += t.out;
                     }
 
                     let cardClass = t.status === 'paid' ? 'exp-paid' : 'exp-pending';
-                    let btnHtml = t.status === 'paid' ? `<button onclick="toggleStatus(event, ${t.id})" class="btn-status btn-paid"><i data-lucide="check" class="w-3 h-3 inline"></i> Eseguito</button>` : `<button onclick="toggleStatus(event, ${t.id})" class="btn-status btn-pay"><i data-lucide="alert-circle" class="w-3 h-3 inline"></i> ${String(t.desc||'').toLowerCase().includes('cedolare') ? 'Accantonato' : 'Aperto'}</button>`;
-                    grid.innerHTML += `<div class="exp-card ${cardClass}" onclick="openModal('${t.id}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="${getCatStyle(t.cat)}">${t.cat}</span><span class="text-xs text-gray-400 font-mono">${dateFormatted}</span></div><div class="font-bold text-white text-lg">${t.desc}</div></div><div class="flex flex-col items-end gap-2"><div class="font-mono font-bold text-xl text-red-400">- € ${t.out.toFixed(2)}</div>${btnHtml}</div></div>`;
+                    let statusLabel = t.status === 'paid' ? 'Eseguito' : (t.status === 'accrued' ? 'Accantonato' : 'Aperto');
+                    let btnHtml = t.status === 'paid' ? `<button onclick="toggleStatus(event, '${t.id}')" class="btn-status btn-paid"><i data-lucide="check" class="w-3 h-3 inline"></i> Eseguito</button>` : `<button onclick="toggleStatus(event, '${t.id}')" class="btn-status btn-pay"><i data-lucide="alert-circle" class="w-3 h-3 inline"></i> ${statusLabel}</button>`;
+                    grid.innerHTML += `<div class="exp-card ${cardClass}" onclick="openModal('${t.id}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="${getCatStyle(t.cat)}">${t.cat}</span><span class="text-xs text-gray-400 font-mono">${dateFormatted}</span></div><div class="font-bold text-white text-lg">${t.desc}</div><div class="text-[10px] text-gray-500 mt-1">Conto: ${t.account || 'Da verificare'} ${t.autogenerated ? ' · automatico' : ''}</div></div><div class="flex flex-col items-end gap-2"><div class="font-mono font-bold text-xl text-red-400">- € ${t.out.toFixed(2)}</div>${btnHtml}</div></div>`;
                 }
             });
 
             document.getElementById('kpi-in').innerText = `€ ${kpiIn.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
             document.getElementById('kpi-out').innerText = `€ ${kpiOutPaid.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
             document.getElementById('kpi-pending').innerText = `€ ${kpiPending.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
+            const cedEl = document.getElementById('kpi-cedolare'); if(cedEl) cedEl.innerText = `€ ${kpiAccrued.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
+            const utEl = document.getElementById('kpi-utenze'); if(utEl) utEl.innerText = `€ ${kpiUtenze.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
             
             let utilePL = kpiIn - kpiTotalExpensesForPL;
             let plColor = utilePL >= 0 ? "text-white" : "text-red-400";
@@ -597,7 +616,7 @@
                         // Lancia in automatico la finestra di stampa del browser appena la pagina è caricata
                         window.onload = function() { window.print(); }
                     <\/script>
-                </body>
+</body>
                 </html>
             `);
             printWindow.document.close();
@@ -615,7 +634,7 @@
                     document.getElementById('e-status').value = e.status || 'pending';
                     document.getElementById('e-date').value = e.date || '';
                     document.getElementById('e-amount').value = e.amount_eur || '';
-                    if(document.getElementById('e-account')) document.getElementById('e-account').value = e.payment_account || (window.MS_ACCOUNTING ? MS_ACCOUNTING.getPaymentAccount(e) : 'Da verificare');
+                    const acc=document.getElementById('e-account'); if(acc) acc.value = e.payment_account || e.account || (window.MS_ACCOUNTING ? window.MS_ACCOUNTING.getPaymentAccount(e) : 'Da verificare');
                     document.getElementById('btn-delete').classList.remove('hidden');
                 }
             } else if (!id) {
@@ -626,7 +645,7 @@
                 document.getElementById('e-status').value = 'paid';
                 document.getElementById('e-date').value = new Date().toISOString().split('T')[0];
                 document.getElementById('e-amount').value = '';
-                if(document.getElementById('e-account')) document.getElementById('e-account').value = 'Wise';
+                const acc=document.getElementById('e-account'); if(acc) acc.value = 'Wise';
                 document.getElementById('btn-delete').classList.add('hidden');
             } else {
                 alert("Questa è un'entrata automatica legata a una prenotazione.");
@@ -648,13 +667,9 @@
                 description: desc, category: category,
                 status: document.getElementById('e-status').value, date: document.getElementById('e-date').value,
                 amount_eur: parseFloat(document.getElementById('e-amount').value) || 0,
-                type: type,
-                payment_account: document.getElementById('e-account') ? document.getElementById('e-account').value : undefined
+                payment_account: document.getElementById('e-account') ? document.getElementById('e-account').value : (window.MS_ACCOUNTING ? window.MS_ACCOUNTING.getPaymentAccount({date:document.getElementById('e-date').value,description:desc,category:category}) : 'Da verificare'),
+                type: document.getElementById('e-status').value === 'accrued' ? 'accrual' : type
             };
-            if(window.MS_ACCOUNTING){
-                newExp.status = MS_ACCOUNTING.normalizeStatus(newExp);
-                newExp.payment_account = newExp.payment_account || MS_ACCOUNTING.getPaymentAccount(newExp);
-            }
 
             if(idStr) {
                 const idx = financesDB.findIndex(x => x.id === parseInt(idStr));
@@ -698,7 +713,7 @@
                     <td><span class="${getCatStyle(t.cat)} text-[9px]">${t.cat}</span></td>
                     <td class="pl-val font-mono ${rowClassIn}">${t.inc > 0 ? '+ ' + t.inc.toFixed(2) : '-'}</td>
                     <td class="pl-val font-mono ${rowClassOut}">${t.out > 0 ? '- ' + t.out.toFixed(2) : '-'}</td>
-                    <td><span class="${badgeClassStatus} px-1.5 py-0.5 rounded text-[10px]">${labelStatus}</span></td><td class="text-gray-300">${t.account || ""}</td>
+                    <td><span class="${badgeClassStatus} px-1.5 py-0.5 rounded text-[10px]">${labelStatus}</span></td>
                 </tr>`;
             });
             document.getElementById('movementsModal').style.display = 'flex';
@@ -776,5 +791,6 @@
   document.addEventListener("DOMContentLoaded", async ()=>{ mountSidebar(); if(window.lucide && window.lucide.createIcons) window.lucide.createIcons(); });
 })();
 </script>
+    <script src="ms_core.js"></script>
 </body>
 </html>

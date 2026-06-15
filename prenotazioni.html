@@ -66,5 +66,6 @@
     function closeModal(){document.getElementById('bookingModal').style.display='none'}window.onload=loadDB;
   </script>
   <script id="masotto-sidebar">(function(){const PAGES=[["index.html","Dashboard","layout-dashboard"],["ANAGRAFICA.html","Anagrafica","id-card"],["asset.html","Asset","boxes"],["audit.html","Audit","clipboard-check"],["manutenzione.html","Manutenzione","wrench"],["prenotazioni.html","Prenotazioni","calendar"],["finanze.html","Finanze","pie-chart"],["sicurezza.html","Sicurezza","shield"]];document.addEventListener('DOMContentLoaded',()=>{if(document.querySelector('.ms-sidebar'))return;const cur=location.pathname.split('/').pop()||'index.html';const side=document.createElement('aside');side.className='ms-sidebar';side.innerHTML='<div style="margin-bottom:18px"><div style="font-weight:900;color:white;font-size:18px">Masotto Control</div><span class="ms-chip">MASOTTO4</span></div><nav class="ms-nav">'+PAGES.map(p=>`<a class="${cur.toLowerCase()===p[0].toLowerCase()?'active':''}" href="${p[0]}"><i data-lucide="${p[2]}" style="width:18px;height:18px"></i>${p[1]}</a>`).join('')+'</nav>';document.body.prepend(side);const main=document.querySelector('.main');if(main)main.classList.add('ms-main');if(window.lucide)lucide.createIcons()})})();</script>
+    <script src="ms_core.js"></script>
 </body>
 </html>
