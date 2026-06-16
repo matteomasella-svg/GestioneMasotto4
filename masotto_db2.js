@@ -118,7 +118,7 @@ window.MASOTTO_DB = {
     { "id": 115489992, "guest": "Irilla Santana", "check_in": "2025-11-12", "nights": 15, "pax": 1, "source": "Diretta", "gross_eur": 1000.00, "commission_eur": 0, "city_tax_eur": 88.20 },
     { "id": 119791626, "guest": "Sara Dario", "check_in": "2025-12-04", "nights": 17, "pax": 1, "source": "Diretta", "gross_eur": 1214.29, "commission_eur": 0, "city_tax_eur": 88.20 },
     { "id": 123607671, "guest": "Sara Dario", "check_in": "2026-01-12", "nights": 14, "pax": 1, "source": "Diretta", "gross_eur": 1000.00, "commission_eur": 0, "city_tax_eur": 88.20 },
-    { "id": 125904941, "guest": "Jessika de Miranda", "check_in": "2026-02-09", "nights": 30, "pax": 1, "source": "Diretta", "gross_eur": 1598.00, "commission_eur": 0, "city_tax_eur": 88.20 }
+    { "id": 125904941, "guest": "Jessika de Miranda", "check_in": "2026-02-09", "nights": 21, "pax": 1, "source": "Diretta", "gross_eur": 1320.00, "commission_eur": 0, "city_tax_eur": 133.00, "cleaning_eur": 80.00, "taxable_gross_eur": 1320.00 }
   ],
   "tickets": [
     { 

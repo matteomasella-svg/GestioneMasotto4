@@ -9,6 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="masotto_db.js"></script>
+    <script src="ms_core.js"></script>
   <style>
     :root{--bg-dark:#080c10;--panel-dark:#0f151a;--border:rgba(255,255,255,.1);--accent-teal:#2dd4bf;--brand:#004D54;--accent:#2dd4bf}
     body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-dark);color:#fff;margin:0;min-height:100vh;overflow:auto!important;height:auto!important}
@@ -52,7 +53,7 @@
     const eur=n=>Number(n||0).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
     const round2=n=>Math.round((Number(n)||0)*100)/100;
     function defaultCleaning(nights){return (Number(nights)||0)>14?80:45}
-    function normalizeBooking(b){const nights=parseInt(b.nights)||1;const cleaning=Number(b.cleaning_fee_eur??b.cleaning_eur??defaultCleaning(nights));let taxable=Number(b.taxable_gross_eur??b.gross_eur??0);let room=Number(b.room_amount_eur??b.camera_eur??0);if(!room){room=round2(taxable-cleaning)}if(!taxable){taxable=round2(room+cleaning)}const cityTax=Number(b.city_tax_eur||0);const comm=Number(b.commission_eur||0);return {...b,nights,room_amount_eur:room,cleaning_fee_eur:cleaning,taxable_gross_eur:taxable,cedolare_base_eur:taxable,receipt_total_display_eur:taxable,city_tax_eur:cityTax,gross_collected_eur:round2(taxable+cityTax),commission_eur:comm,city_tax_accounting:'partita_di_giro'};}
+    function normalizeBooking(b){const nights=parseInt(b.nights)||1;const cleaning=Number(b.cleaning_fee_eur??b.cleaning_eur??defaultCleaning(nights));let taxable=Number(b.taxable_gross_eur??b.cedolare_base_eur??b.receipt_total_display_eur??b.gross_eur??b.price??0);let room=Number(b.room_amount_eur??b.camera_eur??Math.max(0,taxable-cleaning));const cityTax=Number(b.city_tax_eur||0);const comm=Number(b.commission_eur||0);return {...b,nights,room_amount_eur:room,cleaning_fee_eur:cleaning,taxable_gross_eur:taxable,cedolare_base_eur:taxable,receipt_total_display_eur:taxable,city_tax_eur:cityTax,gross_collected_eur:round2(taxable+cityTax),commission_eur:comm,city_tax_accounting:'partita_di_giro'};}
     function autoCalcCleaning(){let nights=parseInt(document.getElementById('b-nights').value)||1;let f=document.getElementById('b-cleaning');let v=parseFloat(f.value);if(isNaN(v)||v===45||v===80||v===0)f.value=defaultCleaning(nights).toFixed(2)}
     function loadDB(){let locDB=localStorage.getItem('masotto_booking_db');if(!locDB||locDB==='undefined'||locDB==='[]'){if(window.MASOTTO_DB&&window.MASOTTO_DB.bookings){bookingsDB=window.MASOTTO_DB.bookings.map(normalizeBooking);localStorage.setItem('masotto_booking_db',JSON.stringify(bookingsDB));}}else{try{bookingsDB=JSON.parse(locDB).map(normalizeBooking)}catch(e){bookingsDB=[]}}renderBoard()}
     function calculateDates(checkinStr,nights){let cin=new Date(checkinStr);let cout=new Date(cin);cout.setDate(cout.getDate()+parseInt(nights||1));const f=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(2)}`;return{in:f(cin),out:f(cout),coutDateObj:cout,cinDateObj:cin}}
@@ -66,6 +67,5 @@
     function closeModal(){document.getElementById('bookingModal').style.display='none'}window.onload=loadDB;
   </script>
   <script id="masotto-sidebar">(function(){const PAGES=[["index.html","Dashboard","layout-dashboard"],["ANAGRAFICA.html","Anagrafica","id-card"],["asset.html","Asset","boxes"],["audit.html","Audit","clipboard-check"],["manutenzione.html","Manutenzione","wrench"],["prenotazioni.html","Prenotazioni","calendar"],["finanze.html","Finanze","pie-chart"],["sicurezza.html","Sicurezza","shield"]];document.addEventListener('DOMContentLoaded',()=>{if(document.querySelector('.ms-sidebar'))return;const cur=location.pathname.split('/').pop()||'index.html';const side=document.createElement('aside');side.className='ms-sidebar';side.innerHTML='<div style="margin-bottom:18px"><div style="font-weight:900;color:white;font-size:18px">Masotto Control</div><span class="ms-chip">MASOTTO4</span></div><nav class="ms-nav">'+PAGES.map(p=>`<a class="${cur.toLowerCase()===p[0].toLowerCase()?'active':''}" href="${p[0]}"><i data-lucide="${p[2]}" style="width:18px;height:18px"></i>${p[1]}</a>`).join('')+'</nav>';document.body.prepend(side);const main=document.querySelector('.main');if(main)main.classList.add('ms-main');if(window.lucide)lucide.createIcons()})})();</script>
-    <script src="ms_core.js"></script>
 </body>
 </html>

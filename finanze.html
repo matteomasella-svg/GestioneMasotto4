@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script src="masotto_db.js"></script>
+    <script src="ms_core.js"></script>
     
     <style>
         :root { --bg-dark: #080c10; --panel-dark: #0f151a; --border: rgba(255,255,255,0.1); --accent-teal: #2dd4bf; }
@@ -82,6 +83,15 @@
                     <button onclick="exportDatabaseJS()" class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold px-4 py-2 rounded-lg flex items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.4)] transition" title="Scarica il file masotto_db.js aggiornato">
                         <i data-lucide="download" class="w-5 h-5"></i> Esporta DB (.js)
                     </button>
+                    <button onclick="syncFromJS()" class="bg-gray-800 hover:bg-gray-700 border border-white/20 text-white font-bold px-3 py-2 rounded-lg flex items-center gap-2 transition" title="Annulla modifiche non esportate">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Sincronizza
+                    </button>
+                    <button onclick="generateAllReceiptsFinance()" class="bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-3 py-2 rounded-lg flex items-center gap-2 transition" title="Genera e stampa tutte le ricevute dell'anno selezionato">
+                        <i data-lucide="printer" class="w-4 h-4"></i> Ricevute anno
+                    </button>
+                    <button onclick="closeFiscalYearFinance()" class="bg-amber-500 hover:bg-amber-400 text-black font-bold px-3 py-2 rounded-lg flex items-center gap-2 transition" title="Calcola bilancio e storna la cedolare nel contatore accantonamenti">
+                        <i data-lucide="lock" class="w-4 h-4"></i> Bilancio fine anno
+                    </button>
                     <select id="yearFilter" onchange="renderBoard()" class="bg-[#1e293b] border border-white/10 text-white px-3 py-2 rounded-lg font-bold text-sm outline-none cursor-pointer">
                         <option value="ALL">Tutto lo Storico</option>
                         <option value="2026">Anno 2026</option>
@@ -96,7 +106,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-emerald-500 shadow-lg">
                     <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="trending-up" class="w-3 h-3 inline"></i> Entrate (Lordo + Extra)</div>
                     <div class="text-2xl font-bold text-emerald-400 font-mono" id="kpi-in">€ 0</div>
@@ -106,10 +116,10 @@
                     <div class="text-2xl font-bold text-red-400 font-mono" id="kpi-out">€ 0</div>
                 </div>
                 <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-white shadow-lg bg-white/5 relative group">
-                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="wallet" class="w-3 h-3 inline"></i> Utile Fiscale (P&L)</div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="wallet" class="w-3 h-3 inline"></i> Saldo operativo</div>
                     <div class="text-2xl font-bold text-white font-mono" id="kpi-pl">€ 0</div>
                     <div class="absolute inset-0 bg-black/90 hidden group-hover:flex items-center justify-center text-[10px] text-gray-300 p-2 text-center rounded-xl z-10">
-                        Include TUTTE le spese dell'anno: Fee Gestione, IMU, TARI, Accantonamenti Cedolare ecc.
+                        Non include accantonamenti cedolare come spese pagate. IMU/TARI sono fuori conto operativo.
                     </div>
                 </div>
                 <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-yellow-500 shadow-lg relative group">
@@ -118,15 +128,6 @@
                     <div class="absolute inset-0 bg-black/90 hidden group-hover:flex items-center justify-center text-[10px] text-gray-300 p-2 text-center rounded-xl z-10">
                         Mostra l'accantonamento stimato della Cedolare Secca + Scadenze future non saldate.
                     </div>
-                </div>
-            
-                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-purple-500 shadow-lg">
-                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="landmark" class="w-3 h-3 inline"></i> Cedolare Accantonata</div>
-                    <div class="text-2xl font-bold text-purple-400 font-mono" id="kpi-cedolare">€ 0</div>
-                </div>
-                <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-sky-500 shadow-lg">
-                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="zap" class="w-3 h-3 inline"></i> Utenze + Internet</div>
-                    <div class="text-2xl font-bold text-sky-400 font-mono" id="kpi-utenze">€ 0</div>
                 </div>
             </div>
 
@@ -139,18 +140,18 @@
                 <div class="space-y-6 sticky top-24 h-fit">
                     <div class="bg-[#0f151a] border border-white/10 rounded-xl p-5 shadow-xl border-l-4 border-l-blue-500">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2"><i data-lucide="building-2" class="w-4 h-4 text-blue-400"></i> Saldo Conto Corrente</h3>
+                            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2"><i data-lucide="building-2" class="w-4 h-4 text-blue-400"></i> Fondo cassa disponibile</h3>
                             <button onclick="openMovementsModal()" class="text-[10px] bg-blue-500 text-black px-2 py-1 rounded-md font-extrabold transition hover:bg-blue-400 flex items-center gap-1">
                                 <i data-lucide="list" class="w-3 h-3"></i> Movimenti
                             </button>
                         </div>
                         <div class="text-4xl font-bold font-mono text-blue-400 mb-2" id="box-saldo-conto">€ 0.00</div>
-                        <div class="text-[10px] text-gray-500 leading-tight">Include Fondo Cassa Iniziale (1.300€). Esclude esplicitamente IMU/TARI 2025 pagate da un altro conto.</div>
+                        <div class="text-[10px] text-gray-500 leading-tight">Fondo cassa operativo: l'anno successivo parte dal disponibile netto, non dal saldo banca prima degli accantonamenti.</div>
                         <div id="bank-summary-content" class="mt-4"></div>
                     </div>
 
                     <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 shadow-lg">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4"></i> Ripartizione Uscite Fiscale</h3>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4"></i> Ripartizione uscite operative</h3>
                         <div class="h-64 w-full flex justify-center">
                             <canvas id="catChart"></canvas>
                         </div>
@@ -179,12 +180,12 @@
                     <select id="e-cat">
                         <option value="Entrata Extra" class="bg-emerald-900 text-white font-bold">➕ ENTRATA EXTRA / RIMBORSO</option>
                         <option disabled>──────────</option>
-                        <option value="Fee Gestione" class="bg-purple-900 text-white font-bold" selected>➖ FEE GESTIONE / CONSULENZA 2M</option>
-                        <option disabled>──────────</option>
+                        
                         <option value="Utenze">Utenze (Luce, Gas, Internet)</option>
                         <option value="Tasse">Tasse (IMU, TARI, Cedolare, RAI)</option>
                         <option value="Ordinaria">Spese Condominiali Ordinarie</option>
-                        <option value="Straordinaria">Manutenzione / Straordinaria</option>
+                        <option value="Manutenzione">Manutenzioni alloggio</option>
+                        <option value="Straordinaria">Spese condominiali straordinarie</option>
                         <option value="Asset">Acquisto Asset / Mobili</option>
                         <option value="Pulizie">Pulizie Extra</option>
                         <option value="Altro">Altro (Uscita)</option>
@@ -194,7 +195,6 @@
                     <select id="e-status">
                         <option value="pending">DA PAGARE (Scadenza)</option>
                         <option value="paid">ESEGUITO / PAGATO</option>
-                        <option value="accrued">ACCANTONATO / FONDO FISCALE</option>
                     </select>
                 </div>
             </div>
@@ -202,7 +202,6 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="form-group"><label>Data Scadenza / Pagamento</label><input type="date" id="e-date"></div>
                 <div class="form-group"><label>Importo (€)</label><input type="number" id="e-amount" step="0.01" placeholder="0.00"></div>
-                <div class="form-group"><label>Conto pagamento</label><select id="e-account"><option value="Wise">Wise</option><option value="Fineco">Fineco</option><option value="Fondo fiscale">Fondo fiscale</option><option value="Da verificare">Da verificare</option></select></div>
             </div>
 
             <div class="flex gap-3 mt-8">
@@ -236,6 +235,45 @@
         
         const FUND_2025_INITIAL = 1300.00;
         let closingBalance2025 = 0; 
+
+        function getOpeningBalance(year) {
+            const y = String(year);
+            if (y === '2025') return FUND_2025_INITIAL;
+            const direct = localStorage.getItem('masotto_opening_balance_' + y);
+            if (direct !== null && direct !== '' && !isNaN(Number(direct))) return Number(direct);
+            const prev = String(Number(y) - 1);
+            try {
+                const reserve = JSON.parse(localStorage.getItem('masotto_accantonamento_' + prev) || 'null');
+                if (reserve && reserve.fondo_cassa_disponibile_eur !== undefined) return Number(reserve.fondo_cassa_disponibile_eur) || 0;
+                if (reserve && reserve.saldo_disponibile_eur !== undefined) return Number(reserve.saldo_disponibile_eur) || 0;
+            } catch(e) {}
+            if (y === '2026') return closingBalance2025 || 587.03;
+            return 0;
+        }
+
+        function upsertCarryForwardMovement(year, amount) {
+            const y = String(year);
+            const id = 'AUTO-OPENING-' + y;
+            const row = {
+                id,
+                date: y + '-01-01',
+                description: 'Fondo cassa iniziale ' + y + ' da chiusura anno precedente',
+                category: 'Riporto cassa',
+                type: 'memo',
+                amount_eur: Number(amount || 0),
+                income: 0,
+                expense: 0,
+                status: 'paid',
+                payment_account: 'Wise',
+                fiscal_year: y,
+                is_auto_generated: true,
+                notes: 'Movimento informativo: il valore viene usato come fondo iniziale dell anno, non come nuovo incasso.'
+            };
+            const idx = financesDB.findIndex(f => String(f.id) === id);
+            if (idx >= 0) financesDB[idx] = {...financesDB[idx], ...row};
+            else financesDB.push(row);
+            localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
+        }
 
         function exportDatabaseJS() {
             const master = window.MASOTTO_DB || {};
@@ -276,72 +314,97 @@
             }
         }
 
-        function loadDB() {
-            let masterDB = window.MASOTTO_DB || { finances: [], bookings: [] };
+        async function loadDB() {
+            // V48: caricamento robusto delle finanze.
+            // Non dipende da localStorage vuoto/stale e non tocca le prenotazioni del repo.
+            const masterDB = window.MASOTTO_DB || { finances: [], bookings: [] };
+            const parseLS = (key, fallback) => {
+                const raw = localStorage.getItem(key);
+                if(!raw || raw === "undefined" || raw === "null" || raw === "[]" || raw === "{}") return JSON.parse(JSON.stringify(fallback || []));
+                try {
+                    const parsed = JSON.parse(raw);
+                    if(Array.isArray(parsed) && parsed.length === 0) return JSON.parse(JSON.stringify(fallback || []));
+                    return parsed;
+                } catch(e) { return JSON.parse(JSON.stringify(fallback || [])); }
+            };
 
-            let locFin = localStorage.getItem('masotto_finance_db');
-            if(!locFin || locFin === "undefined" || locFin === "[]") { financesDB = JSON.parse(JSON.stringify(masterDB.finances || [])); } 
-            else { try { financesDB = JSON.parse(locFin); } catch(e) { financesDB = []; } }
+            financesDB = parseLS('masotto_finance_db', masterDB.finances || []);
+            bookingsDB = parseLS('masotto_booking_db', masterDB.bookings || []);
 
-            let locBook = localStorage.getItem('masotto_booking_db');
-            if(!locBook || locBook === "undefined" || locBook === "[]") { bookingsDB = JSON.parse(JSON.stringify(masterDB.bookings || [])); } 
-            else { try { bookingsDB = JSON.parse(locBook); } catch(e) { bookingsDB = []; } }
-            
-            bookingsDB = bookingsDB.map(b => ({
-                id: b.id, guest: b.guest, check_in: b.check_in || b.checkin, nights: b.nights || 1,
-                gross_eur: parseFloat(b.gross_eur !== undefined ? b.gross_eur : (b.price || 0)),
-                commission_eur: parseFloat(b.commission_eur !== undefined ? b.commission_eur : (b.comm || 0)),
-                city_tax_eur: parseFloat(b.city_tax_eur !== undefined ? b.city_tax_eur : (b.tax || 0)),
-                cleaning_eur: parseFloat(b.cleaning_eur !== undefined ? b.cleaning_eur : (b.clean || 0)),
-                source: b.source || b.portal || "Diretta"
-            }));
+            // Importante: NON rigenero né sovrascrivo le prenotazioni.
+            // Le normalizzo solo in memoria per calcolare ricevute, pulizie e cedolare.
+            const bookingCalc = bookingsDB.map(b => ({...b}));
+
+            financesDB = financesDB.filter(f => !String(f.description || f.desc || '').trim().toLowerCase().startsWith('bookings '));
 
             financesDB = financesDB.map(f => ({
                 ...f,
-                id: f.id, date: f.date, description: f.description || f.desc, category: f.category || f.cat || "Altro",
-                amount_eur: parseFloat(f.amount_eur !== undefined ? f.amount_eur : (f.amount || f.expense || 0)), status: f.status || "paid",
+                id: f.id,
+                date: f.date,
+                description: f.description || f.desc || '',
+                category: f.category || f.cat || 'Altro',
+                amount_eur: parseFloat(f.amount_eur !== undefined ? f.amount_eur : (f.amount || f.expense || f.income || 0)) || 0,
+                status: f.status || 'paid',
                 related_year: f.related_year,
                 type: f.type || (f.category === 'Entrata Extra' ? 'income' : 'expense'),
                 payment_account: f.payment_account || f.account || ''
             }));
 
-            if(window.MS_ACCOUNTING) {
-                financesDB = window.MS_ACCOUNTING.normalizeFinanceRows(financesDB, bookingsDB, new Date());
-                localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
+            if(window.MS_ACCOUNTING && typeof window.MS_ACCOUNTING.normalizeFinanceRows === 'function') {
+                financesDB = window.MS_ACCOUNTING.normalizeFinanceRows(financesDB, bookingCalc, new Date());
             }
 
+            if(!Array.isArray(financesDB) || financesDB.length === 0) {
+                console.warn('Finanze vuote: ripristino dal masotto_db.js');
+                financesDB = JSON.parse(JSON.stringify(masterDB.finances || []));
+            }
+
+            localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
+            // Salvo le prenotazioni solo se non erano già presenti: mai sovrascrittura forzata.
+            if(!localStorage.getItem('masotto_booking_db')) localStorage.setItem('masotto_booking_db', JSON.stringify(bookingsDB));
+
             runAutomations();
-            calculateClosingBalance2025(); 
+            calculateClosingBalance2025();
             renderBoard();
         }
 
         function runAutomations() {
-            // V47: automazioni gestite da MS_ACCOUNTING.normalizeFinanceRows.
-            // Non genera più un unico accantonamento aggregato: crea pulizie e cedolare per ogni booking.
+            // V49: tutte le righe automatiche per booking (ricevuta check-in, pulizie check-out,
+            // accantonamento cedolare per singola prenotazione e city tax separata) sono generate
+            // esclusivamente da MS_ACCOUNTING.normalizeFinanceRows().
+            // Questa funzione resta solo per compatibilita e NON aggiunge piu righe annuali aggregate
+            // o pulizie alla data sbagliata.
+            if(window.MS_ACCOUNTING && typeof window.MS_ACCOUNTING.normalizeFinanceRows === 'function') {
+                financesDB = window.MS_ACCOUNTING.normalizeFinanceRows(financesDB, bookingsDB, new Date());
+                localStorage.setItem('masotto_finance_db', JSON.stringify(financesDB));
+            }
         }
 
         function calculateClosingBalance2025() {
-            let b25 = bookingsDB.filter(b => b.check_in && b.check_in.startsWith('2025'));
-            let f25 = financesDB.filter(f => f.date && f.date.startsWith('2025') && f.status === 'paid');
-
-            let totEntrate = 0; 
-            b25.forEach(b => totEntrate += (parseFloat(b.gross_eur)||0));
-
+            let f25 = financesDB.filter(f => f.date && f.date.startsWith('2025'));
+            let totEntrate = 0;
             let totUsciteConto = 0;
+            let accCedolare = 0;
             f25.forEach(f => {
-                if (f.type === 'income') {
-                    totEntrate += (parseFloat(f.amount_eur)||0);
-                } else {
-                    let desc = f.description.toUpperCase();
+                const type = String(f.type||'').toLowerCase();
+                const amount = Math.abs(parseFloat(f.amount_eur)||0);
+                const desc = String(f.description||'').toUpperCase();
+                const status = String(f.status||'').toLowerCase();
+                if (type === 'income' && (status === 'paid' || status === 'eseguito')) {
+                    totEntrate += amount;
+                } else if(type === 'accrual' || desc.includes('ACCANTONAMENTO CEDOLARE')) {
+                    accCedolare += amount;
+                } else if(type !== 'memo' && (status === 'paid' || status === 'eseguito')) {
                     if(f.category === 'Tasse' && (desc.includes('IMU') || desc.includes('TARI'))) {
-                        // Ignorate dal conto
+                        // fuori dal conto Wise/Fineco operativo
                     } else {
-                        totUsciteConto += (parseFloat(f.amount_eur)||0);
+                        totUsciteConto += amount;
                     }
                 }
             });
-
-            closingBalance2025 = FUND_2025_INITIAL + totEntrate - totUsciteConto;
+            // Regola 2M: l'anno successivo parte dal fondo cassa disponibile,
+            // cioe' saldo banca meno accantonamenti fiscali aperti.
+            closingBalance2025 = FUND_2025_INITIAL + totEntrate - totUsciteConto - accCedolare;
         }
 
         function getCatStyle(cat) {
@@ -370,20 +433,22 @@
         function getUnifiedMovements(filterYear) {
             let unified = [];
             financesDB.forEach(f => {
-                const fiscalYear = String(f.fiscal_year || f.related_year || (f.date ? f.date.substring(0,4) : '2025'));
-                if(filterYear !== 'ALL' && fiscalYear !== filterYear) return;
-                if((f.type || '').toLowerCase() === 'memo') return;
-                const rawStatus = f.status || 'paid';
-                const status = window.MS_ACCOUNTING ? window.MS_ACCOUNTING.statusCode(rawStatus) : rawStatus;
-                const amount = Math.abs(parseFloat(f.amount_eur !== undefined ? f.amount_eur : (f.expense || f.income || 0)) || 0);
-                const ttype = (f.type || '').toLowerCase();
-                if (ttype === 'income' || parseFloat(f.amount_eur) < 0) {
-                    unified.push({ type:'income', id:f.id, date:f.date, desc:f.description, cat:f.category, inc:amount, out:0, status, account:f.payment_account || f.account || 'Wise', related_year:f.related_year, fiscal_year:fiscal_year, autogenerated:!!f.is_auto_generated });
-                } else {
-                    unified.push({ type: status === 'accrued' ? 'accrual' : 'expense', id:f.id, date:f.date, desc:f.description, cat:f.category, inc:0, out:amount, status, account:f.payment_account || f.account || '', related_year:f.related_year, fiscal_year:fiscal_year, autogenerated:!!f.is_auto_generated });
+                let fy = String(f.fiscal_year || f.related_year || (f.date ? f.date.substring(0,4) : '2025'));
+                if(filterYear === 'ALL' || fy === String(filterYear)) {
+                    const type = String(f.type || '').toLowerCase();
+                    const amount = Math.abs(parseFloat(f.amount_eur ?? f.income ?? f.expense ?? 0) || 0);
+                    if (type === 'income' || parseFloat(f.income||0) > 0) {
+                        unified.push({ type: 'income', id: f.id, date: f.date, desc: f.description, cat: f.category, inc: amount || Math.abs(parseFloat(f.income)||0), out: 0, status: f.status, related_year: f.related_year, payment_account: f.payment_account });
+                    } else if(type === 'memo') {
+                        unified.push({ type: 'memo', id: f.id, date: f.date, desc: f.description, cat: f.category, inc: 0, out: 0, memo_amount: amount, status: f.status, related_year: f.related_year, payment_account: f.payment_account });
+                    } else if(type === 'accrual' || String(f.description||'').toLowerCase().includes('accantonamento cedolare')) {
+                        unified.push({ type: 'accrual', id: f.id, date: f.date, desc: f.description, cat: f.category, inc: 0, out: amount || Math.abs(parseFloat(f.expense)||0), status: 'accrued', related_year: f.related_year, payment_account: f.payment_account });
+                    } else {
+                        unified.push({ type: 'expense', id: f.id, date: f.date, desc: f.description, cat: f.category, inc: 0, out: amount || Math.abs(parseFloat(f.expense)||0), status: f.status, related_year: f.related_year, payment_account: f.payment_account });
+                    }
                 }
             });
-            unified.sort((a,b) => new Date(b.date) - new Date(a.date));
+            unified.sort((a,b) => new Date(b.date||'1900-01-01') - new Date(a.date||'1900-01-01'));
             return unified;
         }
 
@@ -391,7 +456,7 @@
             const ctx = document.getElementById('catChart').getContext('2d');
             let catData = {};
             unifiedTransactions.forEach(t => {
-                if(t.type === 'expense' && t.status === 'paid' && t.out > 0) {
+                if(t.type === 'expense' && t.out > 0) {
                     let cat = t.cat || 'Altro';
                     if(!catData[cat]) catData[cat] = 0;
                     catData[cat] += t.out;
@@ -404,14 +469,43 @@
             });
         }
 
+
+        function getYearEndReserve(year) {
+            try { return JSON.parse(localStorage.getItem('masotto_accantonamento_' + year) || 'null'); } catch(e) { return null; }
+        }
+
+        function generateAllReceiptsFinance() {
+            const y = document.getElementById('yearFilter').value;
+            if(y === 'ALL') { alert('Seleziona un anno prima di generare le ricevute.'); return; }
+            if(window.MS_ACCOUNTING && window.MS_ACCOUNTING.printAllReceipts) {
+                window.MS_ACCOUNTING.printAllReceipts(y);
+            } else { alert('Motore ricevute non caricato.'); }
+        }
+
+        function closeFiscalYearFinance() {
+            const y = document.getElementById('yearFilter').value;
+            if(y === 'ALL') { alert('Seleziona un anno da chiudere.'); return; }
+            if(!window.MS_ACCOUNTING || !window.MS_ACCOUNTING.closeFiscalYear) { alert('Motore bilancio non caricato.'); return; }
+            const r = window.MS_ACCOUNTING.closeFiscalYear(y);
+            const nextYear = String(Number(y) + 1);
+            let available = Number((r.reserve && (r.reserve.fondo_cassa_disponibile_eur ?? r.reserve.saldo_disponibile_eur)) || 0);
+            if (y === '2025') available = 587.03;
+            localStorage.setItem('masotto_opening_balance_' + nextYear, String(available));
+            upsertCarryForwardMovement(nextYear, available);
+            if (y === '2025') closingBalance2025 = available;
+            renderBoard();
+            alert('Bilancio ' + y + ' chiuso. Fondo cassa iniziale ' + nextYear + ': € ' + available.toLocaleString('it-IT',{minimumFractionDigits:2}) + '. Ho scritto il movimento di riporto nei movimenti.');
+        }
+
         function renderBoard() {
             const filterYear = document.getElementById('yearFilter').value;
             const grid = document.getElementById('fin-grid');
             grid.innerHTML = "";
 
             let unifiedTransactions = getUnifiedMovements(filterYear);
+            if(unifiedTransactions.length === 0){ grid.innerHTML = '<div class="exp-card"><div><div class="font-bold text-white">Nessun movimento caricato</div><div class="text-xs text-gray-400">Premi Sincronizza tutto o svuota la cache locale del browser.</div></div></div>'; }
             
-            let kpiIn = 0; let kpiOutPaid = 0; let kpiPending = 0; let kpiAccrued = 0; let kpiTotalExpensesForPL = 0; let kpiUtenze = 0;
+            let kpiIn = 0; let kpiOutPaid = 0; let kpiPending = 0; let kpiTotalExpensesForPL = 0;
             let bankIn = 0; let bankOut = 0; let excludedTaxes = 0;
 
             unifiedTransactions.forEach(t => {
@@ -423,45 +517,59 @@
                     if(t.status === 'paid') bankIn += t.inc;
                     
                     grid.innerHTML += `<div class="exp-card exp-income" onclick="openModal('${t.id}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="${getCatStyle(t.cat)}"><i data-lucide="arrow-down-left" class="w-3 h-3 inline"></i> ${t.cat}</span><span class="text-xs text-gray-400 font-mono">${dateFormatted}</span></div><div class="font-bold text-white text-lg">${t.desc}</div></div><div class="flex flex-col items-end gap-2"><div class="font-mono font-bold text-xl text-emerald-400">+ € ${t.inc.toFixed(2)}</div></div></div>`;
+                } else if (t.type === 'memo') {
+                    const memoVal = Number(t.memo_amount || 0);
+                    grid.innerHTML += `<div class="exp-card" onclick="openModal('${t.id}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="badge-cat">${t.cat}</span><span class="text-xs text-gray-400 font-mono">${dateFormatted}</span></div><div class="font-bold text-white text-lg">${t.desc}</div></div><div class="flex flex-col items-end gap-2"><div class="font-mono font-bold text-xl text-blue-300">€ ${memoVal.toFixed(2)}</div><span class="text-[10px] text-blue-300">Riporto</span></div></div>`;
                 } else {
-                    if(t.status !== 'accrued') kpiTotalExpensesForPL += t.out;
-                    if((t.cat||'').toLowerCase().includes('utenze') && t.status === 'paid') kpiUtenze += t.out;
-                    if(t.status === 'paid') {
-                        kpiOutPaid += t.out;
-                        if(t.date && t.date.startsWith('2025') && t.cat === 'Tasse' && (t.desc.toUpperCase().includes('IMU') || t.desc.toUpperCase().includes('TARI'))) { excludedTaxes += t.out; } else { bankOut += t.out; }
-                    } else if(t.status === 'accrued') {
-                        kpiAccrued += t.out;
-                    } else {
+                    const isAccrual = t.type === 'accrual' || String(t.desc||'').toLowerCase().includes('accantonamento cedolare');
+                    const isNoContoTax = t.cat === 'Tasse' && (String(t.desc||'').toUpperCase().includes('IMU') || String(t.desc||'').toUpperCase().includes('TARI'));
+                    if(isAccrual) {
                         kpiPending += t.out;
+                    } else {
+                        kpiTotalExpensesForPL += t.out;
+                        if(t.status === 'paid') {
+                            kpiOutPaid += t.out;
+                            if(isNoContoTax) { excludedTaxes += t.out; } else { bankOut += t.out; }
+                        } else {
+                            kpiPending += t.out;
+                        }
                     }
 
-                    let cardClass = t.status === 'paid' ? 'exp-paid' : 'exp-pending';
-                    let statusLabel = t.status === 'paid' ? 'Eseguito' : (t.status === 'accrued' ? 'Accantonato' : 'Aperto');
-                    let btnHtml = t.status === 'paid' ? `<button onclick="toggleStatus(event, '${t.id}')" class="btn-status btn-paid"><i data-lucide="check" class="w-3 h-3 inline"></i> Eseguito</button>` : `<button onclick="toggleStatus(event, '${t.id}')" class="btn-status btn-pay"><i data-lucide="alert-circle" class="w-3 h-3 inline"></i> ${statusLabel}</button>`;
-                    grid.innerHTML += `<div class="exp-card ${cardClass}" onclick="openModal('${t.id}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="${getCatStyle(t.cat)}">${t.cat}</span><span class="text-xs text-gray-400 font-mono">${dateFormatted}</span></div><div class="font-bold text-white text-lg">${t.desc}</div><div class="text-[10px] text-gray-500 mt-1">Conto: ${t.account || 'Da verificare'} ${t.autogenerated ? ' · automatico' : ''}</div></div><div class="flex flex-col items-end gap-2"><div class="font-mono font-bold text-xl text-red-400">- € ${t.out.toFixed(2)}</div>${btnHtml}</div></div>`;
+                    let cardClass = (t.status === 'paid' && !isAccrual) ? 'exp-paid' : 'exp-pending';
+                    const safeId = JSON.stringify(t.id);
+                    const pendingLabel = isAccrual ? 'Accantonato' : 'Da Pagare';
+                    let btnHtml = (t.status === 'paid' && !isAccrual) ? `<button onclick="toggleStatus(event, ${safeId})" class="btn-status btn-paid"><i data-lucide="check" class="w-3 h-3 inline"></i> Pagato</button>` : `<button onclick="toggleStatus(event, ${safeId})" class="btn-status btn-pay"><i data-lucide="alert-circle" class="w-3 h-3 inline"></i> ${pendingLabel}</button>`;
+                    const amountColor = isAccrual ? 'text-yellow-400' : 'text-red-400';
+                    grid.innerHTML += `<div class="exp-card ${cardClass}" onclick="openModal(${safeId})"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="${getCatStyle(t.cat)}">${t.cat}</span><span class="text-xs text-gray-400 font-mono">${dateFormatted}</span></div><div class="font-bold text-white text-lg">${t.desc}</div></div><div class="flex flex-col items-end gap-2"><div class="font-mono font-bold text-xl ${amountColor}">- € ${t.out.toFixed(2)}</div>${btnHtml}</div></div>`;
                 }
             });
 
             document.getElementById('kpi-in').innerText = `€ ${kpiIn.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
             document.getElementById('kpi-out').innerText = `€ ${kpiOutPaid.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
             document.getElementById('kpi-pending').innerText = `€ ${kpiPending.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
-            const cedEl = document.getElementById('kpi-cedolare'); if(cedEl) cedEl.innerText = `€ ${kpiAccrued.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
-            const utEl = document.getElementById('kpi-utenze'); if(utEl) utEl.innerText = `€ ${kpiUtenze.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
             
             let utilePL = kpiIn - kpiTotalExpensesForPL;
             let plColor = utilePL >= 0 ? "text-white" : "text-red-400";
             document.getElementById('kpi-pl').innerText = `€ ${utilePL.toLocaleString('it-IT',{minimumFractionDigits:0})}`;
             document.getElementById('kpi-pl').className = `text-2xl font-bold font-mono ${plColor}`;
 
-            let startBal = filterYear === '2025' ? FUND_2025_INITIAL : (filterYear === '2026' ? closingBalance2025 : 0);
-            let saldoReale = startBal + bankIn - bankOut;
-            document.getElementById('box-saldo-conto').innerText = `€ ${saldoReale.toLocaleString('it-IT',{minimumFractionDigits:2})}`;
+            let startBal = filterYear === 'ALL' ? 0 : getOpeningBalance(filterYear);
+            let saldoPrimaAccantonamenti = startBal + bankIn - bankOut;
+            let reserve = filterYear !== 'ALL' ? getYearEndReserve(filterYear) : null;
+            let accantonamentoBloccato = 0;
+            if(filterYear !== 'ALL') {
+                accantonamentoBloccato = unifiedTransactions.filter(t => t.type === 'accrual' || String(t.desc||'').toLowerCase().includes('accantonamento cedolare')).reduce((a,t)=>a+Number(t.out||0),0);
+            }
+            let saldoDisponibile = saldoPrimaAccantonamenti - accantonamentoBloccato;
+            document.getElementById('box-saldo-conto').innerText = `€ ${saldoDisponibile.toLocaleString('it-IT',{minimumFractionDigits:2})}`;
             
             const summaryBox = document.getElementById('bank-summary-content');
             if(filterYear === 'ALL') {
                 summaryBox.innerHTML = '<div class="text-sm text-gray-400">Seleziona un anno specifico per calcolare il saldo esatto.</div>';
             } else {
-                let html = `<div class="bank-data-row"><span class="bank-lbl">${filterYear === '2025' ? 'Fondo Cassa Iniziale' : 'Riporto Saldo Precedente'}</span><span class="bank-val">€ ${startBal.toFixed(2)}</span></div><div class="bank-data-row"><span class="bank-lbl text-emerald-400">Incassi & Entrate (+)</span><span class="bank-val text-emerald-400">+ € ${bankIn.toFixed(2)}</span></div><div class="bank-data-row"><span class="bank-lbl text-red-400">Uscite Reali su Conto (-)</span><span class="bank-val text-red-400">- € ${bankOut.toFixed(2)}</span></div>`;
+                let html = `<div class="bank-data-row"><span class="bank-lbl">${filterYear === '2025' ? 'Fondo cassa iniziale' : 'Fondo cassa iniziale ' + filterYear + ' (netto accantonamenti precedenti)'}</span><span class="bank-val">€ ${startBal.toFixed(2)}</span></div><div class="bank-data-row"><span class="bank-lbl text-emerald-400">Incassi su conto (+)</span><span class="bank-val text-emerald-400">+ € ${bankIn.toFixed(2)}</span></div><div class="bank-data-row"><span class="bank-lbl text-red-400">Uscite reali su conto (-)</span><span class="bank-val text-red-400">- € ${bankOut.toFixed(2)}</span></div>`;
+                if(accantonamentoBloccato > 0) { html += `<div class="bank-data-row"><span class="bank-lbl text-yellow-400">Accantonamento cedolare ${filterYear}</span><span class="bank-val text-yellow-400">- € ${accantonamentoBloccato.toFixed(2)}</span></div>`; }
+                html += `<div class="bank-data-row"><span class="bank-lbl text-blue-300">Fondo cassa disponibile</span><span class="bank-val text-blue-300">€ ${saldoDisponibile.toFixed(2)}</span></div>`;
                 if(filterYear === '2025' && excludedTaxes > 0) { html += `<div class="bank-data-row border-none opacity-60 text-xs italic"><span class="bank-lbl">Tasse escluse dal conto (IMU/TARI)</span><span class="bank-val text-yellow-500">- € ${excludedTaxes.toFixed(2)}</span></div>`; }
                 summaryBox.innerHTML = html;
             }
@@ -498,15 +606,20 @@
                     tEntrate += t.inc;
                     detailedRowsHTML += `<tr><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${dateFormatted}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${t.desc}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${t.cat}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px; text-align:right; font-family:monospace; color:#10b981;">+ € ${t.inc.toFixed(2)}</td></tr>`;
                 } else if (t.type === 'expense') {
-                    totUscite += t.out;
-                    if(!speseAggregato[t.cat]) speseAggregato[t.cat] = 0;
-                    speseAggregato[t.cat] += t.out;
-                    detailedRowsHTML += `<tr><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${dateFormatted}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${t.desc}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${t.cat}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px; text-align:right; font-family:monospace; color:#ef4444;">- € ${t.out.toFixed(2)}</td></tr>`;
+                    const isNoContoTax = t.cat === 'Tasse' && (String(t.desc||'').toUpperCase().includes('IMU') || String(t.desc||'').toUpperCase().includes('TARI'));
+                    if(!isNoContoTax) {
+                        totUscite += t.out;
+                        if(!speseAggregato[t.cat]) speseAggregato[t.cat] = 0;
+                        speseAggregato[t.cat] += t.out;
+                    }
+                    detailedRowsHTML += `<tr><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${dateFormatted}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${t.desc}${isNoContoTax?' (fuori conto)':''}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${t.cat}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px; text-align:right; font-family:monospace; color:#ef4444;">- € ${t.out.toFixed(2)}</td></tr>`;
+                } else if (t.type === 'accrual') {
+                    detailedRowsHTML += `<tr><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${dateFormatted}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${t.desc} (accantonamento, non spesa pagata)</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px;">${t.cat}</td><td style="padding:8px; border-bottom:1px solid #e2e8f0; font-size:12px; text-align:right; font-family:monospace; color:#d97706;">- € ${t.out.toFixed(2)}</td></tr>`;
                 }
             });
 
             // Calcolo Saldo Finale (Inclusivo del fondo per replicare il tuo PDF)
-            let startBal = filter === '2025' ? FUND_2025_INITIAL : 0;
+            let startBal = filter === 'ALL' ? 0 : getOpeningBalance(filter);
             let utileNetto = tEntrate - totUscite;
             let saldoFinaleLordo = startBal + utileNetto;
             let plColor = utileNetto >= 0 ? "#10b981" : "#ef4444";
@@ -559,8 +672,8 @@
                     <h2>1) Executive summary</h2>
                     <ul style="font-size: 15px; padding-left: 20px;">
                         <li><strong>Fondo iniziale:</strong> € ${startBal.toLocaleString('it-IT',{minimumFractionDigits:2})}</li>
-                        <li><strong>Saldo operativo netto dell'esercizio (Utile/Perdita):</strong> <span style="color: ${plColor}; font-weight: bold;">€ ${utileNetto.toLocaleString('it-IT',{minimumFractionDigits:2})}</span></li>
-                        <li><strong>Saldo Finale Teorico (Cassa + Risultato):</strong> € ${saldoFinaleLordo.toLocaleString('it-IT',{minimumFractionDigits:2})}</li>
+                        <li><strong>Saldo operativo netto su conto:</strong> <span style="color: ${plColor}; font-weight: bold;">€ ${utileNetto.toLocaleString('it-IT',{minimumFractionDigits:2})}</span></li>
+                        <li><strong>Fondo cassa disponibile finale:</strong> € ${saldoFinaleLordo.toLocaleString('it-IT',{minimumFractionDigits:2})}</li>
                     </ul>
 
                     <h2>2) Numeri chiave (KPI) - Periodo ${yearLabel}</h2>
@@ -616,7 +729,7 @@
                         // Lancia in automatico la finestra di stampa del browser appena la pagina è caricata
                         window.onload = function() { window.print(); }
                     <\/script>
-</body>
+                </body>
                 </html>
             `);
             printWindow.document.close();
@@ -634,18 +747,16 @@
                     document.getElementById('e-status').value = e.status || 'pending';
                     document.getElementById('e-date').value = e.date || '';
                     document.getElementById('e-amount').value = e.amount_eur || '';
-                    const acc=document.getElementById('e-account'); if(acc) acc.value = e.payment_account || e.account || (window.MS_ACCOUNTING ? window.MS_ACCOUNTING.getPaymentAccount(e) : 'Da verificare');
                     document.getElementById('btn-delete').classList.remove('hidden');
                 }
             } else if (!id) {
                 document.getElementById('modalTitle').innerHTML = `<i data-lucide="plus-circle"></i> Nuovo Movimento`;
                 document.getElementById('e-id').value = '';
                 document.getElementById('e-desc').value = '';
-                document.getElementById('e-cat').value = 'Fee Gestione'; 
+                document.getElementById('e-cat').value = 'Manutenzione'; 
                 document.getElementById('e-status').value = 'paid';
                 document.getElementById('e-date').value = new Date().toISOString().split('T')[0];
                 document.getElementById('e-amount').value = '';
-                const acc=document.getElementById('e-account'); if(acc) acc.value = 'Wise';
                 document.getElementById('btn-delete').classList.add('hidden');
             } else {
                 alert("Questa è un'entrata automatica legata a una prenotazione.");
@@ -667,8 +778,7 @@
                 description: desc, category: category,
                 status: document.getElementById('e-status').value, date: document.getElementById('e-date').value,
                 amount_eur: parseFloat(document.getElementById('e-amount').value) || 0,
-                payment_account: document.getElementById('e-account') ? document.getElementById('e-account').value : (window.MS_ACCOUNTING ? window.MS_ACCOUNTING.getPaymentAccount({date:document.getElementById('e-date').value,description:desc,category:category}) : 'Da verificare'),
-                type: document.getElementById('e-status').value === 'accrued' ? 'accrual' : type
+                type: type
             };
 
             if(idStr) {
@@ -725,7 +835,7 @@
             document.getElementById('movementsModal').style.display = 'none'; 
         }
 
-        window.onload = loadDB;
+        document.addEventListener('DOMContentLoaded', () => { loadDB(); });
     </script>
     
 <script id="masotto-sidebar">
@@ -791,6 +901,5 @@
   document.addEventListener("DOMContentLoaded", async ()=>{ mountSidebar(); if(window.lucide && window.lucide.createIcons) window.lucide.createIcons(); });
 })();
 </script>
-    <script src="ms_core.js"></script>
 </body>
 </html>
