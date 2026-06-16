@@ -899,16 +899,31 @@ window.MASOTTO_DB = {
       "receipt_total_display_eur": 1320.0,
       "gross_collected_eur": 1453.0,
       "city_tax_accounting": "partita_di_giro",
-      "receipt_note": "Lordo/base cedolare 1320 già comprensivo di pulizie; 1100 incassati direttamente da Riccardo in due tranche da 550; city tax 133 separata.",
+      "receipt_note": "Lordo/base cedolare 1320 già comprensivo di pulizie; city tax 133 separata. Contabilità Wise: entrata 1320 e due uscite a Riccardo da 550.",
       "check_out": "2026-03-02",
       "cedolare_21_eur": 277.2,
-      "wise_movement_eur": 220.0,
-      "riccardo_direct_eur": 1100.0,
+      "wise_movement_eur": 1320.0,
+      "riccardo_direct_eur": 0.0,
       "payment_split": {
-        "wise_eur": 220.0,
-        "riccardo_direct_eur": 1100.0,
+        "wise_eur": 1320.0,
+        "riccardo_reimbursement_eur": 1100.0,
         "city_tax_eur": 133.0
-      }
+      },
+      "room_amount_eur": 1240.0,
+      "cleaning_fee_eur": 80.0,
+      "riccardo_reimbursement_eur": 1100.0,
+      "riccardo_reimbursements": [
+        {
+          "date": "2026-02-09",
+          "amount_eur": 550.0,
+          "description": "Giroconto a Riccardo - Jessika tranche 1/2"
+        },
+        {
+          "date": "2026-03-02",
+          "amount_eur": 550.0,
+          "description": "Giroconto a Riccardo - Jessika tranche 2/2"
+        }
+      ]
     },
     {
       "id": 214603781,
@@ -1680,7 +1695,7 @@ window.MASOTTO_DB = {
     "source_canonical_database": "2mdb_current.json V43",
     "note": "Preservato database reale del repo; convertito masotto_db.js in window.MASOTTO_DB e integrati utility_bills, maintenance_tickets_v43, revenue_bookings_v43 e finances V43.",
     "version": "v56_cash_accrual_fix",
-    "updated_note": "Rimosse righe ghost bookings airbnb/diretta; apertura 2026 da fondo cassa disponibile; Jessika split Wise/Riccardo."
+    "updated_note": "Rimosse righe ghost bookings airbnb/diretta; apertura 2026 da liquidita disponibile; Jessika split Wise/Riccardo."
   },
   "maintenance_tickets_v47": [
     {
@@ -1781,9 +1796,9 @@ window.MASOTTO_DB = {
     "city_tax_rule": "city_tax_eur sempre separata, fuori imponibile cedolare, partita di giro",
     "year_end_close": "genera tutte le ricevute e il bilancio per anno senza modificare le prenotazioni",
     "cedolare_rate": 0.21,
-    "cash_opening_rule": "L anno successivo parte dal fondo cassa disponibile, non dal saldo banca prima degli accantonamenti.",
-    "year_end_rule": "Fondo cassa disponibile = fondo iniziale + incassi su conto - uscite reali su conto - accantonamenti fiscali aperti.",
+    "cash_opening_rule": "L anno successivo parte dal liquidita disponibile, non dal saldo banca prima degli accantonamenti.",
+    "year_end_rule": "Liquidita disponibile = fondo iniziale + incassi su conto - uscite reali su conto - accantonamenti fiscali aperti.",
     "accrual_rule": "Cedolare accantonata riduce la disponibilità gestionale. Quando viene versata, esce come pagamento tasse e chiude il debito fiscale.",
-    "jessika_125904941": "Base cedolare 1320; pulizie incluse 80; city tax 133 separata; 1100 incassati direttamente da Riccardo; impatto Wise sulla base cedolare 220."
+    "jessika_125904941": "Base cedolare 1320; pulizie incluse 80; city tax 133 separata; entrata Wise 1320; rimborso/giroconto Riccardo 550+550 in uscita."
   }
 };

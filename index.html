@@ -129,7 +129,18 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div id="dashboard-receipt-toolbar" class="mb-4 bg-teal-500/10 border border-teal-400/30 rounded-xl p-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                    <div class="text-sm font-black text-teal-300 uppercase tracking-wide">Ricevute turistiche</div>
+                    <div class="text-xs text-gray-400">Genera/stampa tutte le ricevute dell'anno selezionato.</div>
+                </div>
+                <button onclick="generateAllReceiptsForYear()" class="bg-teal-400 hover:bg-teal-300 text-black font-black px-5 py-3 rounded-lg flex items-center justify-center gap-2 transition shadow-lg">
+                    <i data-lucide="printer" class="w-5 h-5"></i> Stampa ricevute anno
+                </button>
+            </div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 <div class="lg:col-span-2 bg-[#0f151a] border border-white/10 rounded-xl p-5 shadow-xl">
                     <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
@@ -376,68 +387,10 @@
         // GENERATORE RICEVUTA PDF NATIVO CON FIRMA GRAFICA
         // =========================================================
         function generateReceiptPDF(bookingId) {
-            const b = bookingsDB.find(x => x.id == bookingId);
-            if (!b) return;
-            const eur = v => (Number(v)||0).toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
-            const addDays = (dateStr, days) => { const d = new Date(dateStr + 'T00:00:00'); d.setDate(d.getDate() + Number(days||0)); return d; };
-            const checkinStr = b.check_in || b.checkin || b.checkIn;
-            const checkinDate = new Date(checkinStr + 'T00:00:00');
-            const nights = Number(b.nights || 1);
-            const checkoutDate = addDays(checkinStr, nights);
-            const dateInFmt = checkinDate.toLocaleDateString('it-IT');
-            const dateOutFmt = checkoutDate.toLocaleDateString('it-IT');
-            const receiptDateFmt = dateInFmt; // REGOLA 2M: data ricevuta = check-in
-
-            const cleaning = window.MS_ACCOUNTING ? window.MS_ACCOUNTING.bookingCleaning(b) : Number(b.cleaning_fee_eur ?? b.cleaning_eur ?? (nights > 14 ? 80 : 45));
-            const imponibileCedolare = window.MS_ACCOUNTING ? window.MS_ACCOUNTING.bookingTaxable(b) : Number(b.taxable_gross_eur ?? b.cedolare_base_eur ?? b.receipt_total_display_eur ?? b.gross_eur ?? b.price ?? 0);
-            const soggiorno = Math.max(0, Number(b.room_amount_eur ?? b.camera_eur ?? (imponibileCedolare - cleaning)));
-            const cityTax = Number(b.city_tax_eur ?? b.tax ?? 0);
-            const totaleIncassato = Math.round((imponibileCedolare + cityTax) * 100) / 100;
-
-            let propName = propertyInfo.name || "Masotto Terrace View";
-            let propAddress = propertyInfo.address || "Via Privata Umberto Masotto 4, Milano";
-            let propOwner = propertyInfo.owner || "Riccardo Armati";
-            let propCIR = propertyInfo.cir || "015146-LNI-09408";
-
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <!DOCTYPE html><html><head>
-                    <title>Ricevuta_${String(b.guest||'Ospite').replace(/\s+/g, '_')}_${b.id}</title>
-                    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
-                    <style>
-                        body { font-family: Helvetica, Arial, sans-serif; color:#111827; padding:40px; margin:0 auto; max-width:800px; line-height:1.6; }
-                        .header { display:flex; justify-content:space-between; border-bottom:2px solid #004D54; padding-bottom:20px; margin-bottom:40px; }
-                        .title { font-size:28px; font-weight:900; color:#004D54; margin:0; }
-                        .subtitle { font-size:12px; color:#64748b; font-weight:bold; text-transform:uppercase; letter-spacing:1px;}
-                        .info-grid { display:flex; justify-content:space-between; margin-bottom:40px; }
-                        .info-box { background:#f8fafc; border:1px solid #e2e8f0; padding:20px; border-radius:8px; width:45%; }
-                        h3 { margin-top:0; font-size:14px; color:#004D54; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px;}
-                        p { margin:5px 0; font-size:13px; } table { width:100%; border-collapse:collapse; margin-top:20px; }
-                        th { background:#f1f5f9; color:#334155; font-size:12px; text-transform:uppercase; padding:12px; text-align:left; border-bottom:2px solid #cbd5e1; }
-                        td { padding:12px; border-bottom:1px solid #e2e8f0; font-size:14px; }
-                        .val { text-align:right; font-family:monospace; } .total-row td { font-weight:bold; font-size:16px; background:#f8fafc; border-top:2px solid #004D54; }
-                        .separate td { color:#7c3aed; font-size:13px; background:#faf5ff; }
-                        .footer { margin-top:60px; font-size:10px; color:#64748b; text-align:center; border-top:1px solid #e2e8f0; padding-top:20px; }
-                        .signature { margin-top:60px; display:flex; justify-content:flex-end; }
-                        .signature-box { width:250px; text-align:center; border-top:1px dotted #111827; padding-top:10px; font-size:12px;}
-                        .firma-grafica { font-family:'Caveat', cursive; font-size:38px; color:#0f172a; line-height:.8; display:block; margin-bottom:10px; transform:rotate(-3deg); }
-                        @media print { body { padding:0; } @page { margin:2cm; } }
-                    </style></head><body>
-                    <div class="header"><div><div class="subtitle">Ricevuta Locazione Breve Turistica</div><div class="title">RICEVUTA DI PAGAMENTO</div><p style="margin-top:10px;font-weight:bold;color:#475569;">N. Rif: <span style="font-family:monospace;">${b.id}</span></p><p style="margin:0;color:#475569;">Data emissione: ${receiptDateFmt}</p></div><div style="text-align:right;"><h2 style="margin:0;color:#004D54;font-size:20px;">${propName}</h2><p>${propAddress}</p><p>Proprietario: ${propOwner}</p><p>CIR: ${propCIR}</p></div></div>
-                    <div class="info-grid"><div class="info-box"><h3>Dati Ospite</h3><p><strong>Nome:</strong> ${b.guest||''}</p><p><strong>Ospiti totali:</strong> ${b.pax||1}</p></div><div class="info-box"><h3>Dettagli Soggiorno</h3><p><strong>Check-in:</strong> ${dateInFmt}</p><p><strong>Check-out:</strong> ${dateOutFmt}</p><p><strong>Totale Notti:</strong> ${nights}</p></div></div>
-                    <table><thead><tr><th>Descrizione</th><th class="val">Importo</th></tr></thead><tbody>
-                    <tr><td>Soggiorno e servizi accessori incluse pulizie (${nights} notti)</td><td class="val">€ ${eur(imponibileCedolare)}</td></tr>
-                    <tr><td style="font-size:12px;color:#64748b;">Di cui pulizie comprese nella base cedolare</td><td class="val" style="font-size:12px;color:#64748b;">€ ${eur(cleaning)}</td></tr>
-                    <tr class="total-row"><td style="text-align:right;">IMPONIBILE CEDOLARE SECCA</td><td class="val" style="color:#004D54;">€ ${eur(imponibileCedolare)}</td></tr>
-                    <tr class="separate"><td>Imposta di soggiorno riscossa per conto del Comune di Milano - fuori imponibile</td><td class="val">€ ${eur(cityTax)}</td></tr>
-                    <tr><td style="text-align:right;"><strong>Totale incassato incluso tassa soggiorno</strong></td><td class="val"><strong>€ ${eur(totaleIncassato)}</strong></td></tr>
-                    </tbody></table>
-                    <div style="margin-top:30px;font-size:12px;color:#475569;"><p><strong>Nota contabile:</strong> l'imponibile cedolare è dato da prezzo soggiorno + pulizie. La tassa di soggiorno è indicata separatamente come partita di giro, riscossa e riversata al Comune.</p></div>
-                    <div class="signature"><div class="signature-box"><span style="color:#64748b;font-size:10px;text-transform:uppercase;">Firma del Locatore</span><br><span class="firma-grafica">${propOwner}</span><br><strong style="font-size:12px;">${propOwner}</strong></div></div>
-                    <div class="footer">Documento generato dal Sistema Gestionale 2M Apartments. Copia per l'ospite.</div>
-                    <script>window.onload=function(){setTimeout(()=>{window.print();},500);}<\/script>
-                </body></html>`);
-            printWindow.document.close();
+            if (window.MS_ACCOUNTING && typeof window.MS_ACCOUNTING.printReceipt === 'function') {
+                return window.MS_ACCOUNTING.printReceipt(bookingId);
+            }
+            alert('Motore ricevute non caricato: verifica ms_core.js');
         }
 
         window.onload = loadDashboard;

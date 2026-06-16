@@ -32,19 +32,34 @@
       "status": "incassata",
       "cedolare_base_eur": 1320.0,
       "cedolare_21_eur": 277.2,
-      "wise_movement_eur": 220.0,
+      "wise_movement_eur": 1320.0,
       "check_out": "2026-03-02",
       "taxable_gross_eur": 1320.0,
       "receipt_total_display_eur": 1320.0,
       "gross_collected_eur": 1453.0,
-      "riccardo_direct_eur": 1100.0,
+      "riccardo_direct_eur": 0.0,
       "city_tax_accounting": "partita_di_giro",
       "payment_split": {
-        "wise_eur": 220.0,
-        "riccardo_direct_eur": 1100.0,
+        "wise_eur": 1320.0,
+        "riccardo_reimbursement_eur": 1100.0,
         "city_tax_eur": 133.0
       },
-      "receipt_note": "Lordo/base cedolare 1320 già comprensivo di pulizie; 1100 incassati direttamente da Riccardo in due tranche da 550; city tax 133 separata."
+      "receipt_note": "Lordo/base cedolare 1320 già comprensivo di pulizie; city tax 133 separata. Contabilità Wise: entrata 1320 e due uscite a Riccardo da 550.",
+      "room_amount_eur": 1240.0,
+      "cleaning_fee_eur": 80.0,
+      "riccardo_reimbursement_eur": 1100.0,
+      "riccardo_reimbursements": [
+        {
+          "date": "2026-02-09",
+          "amount_eur": 550.0,
+          "description": "Giroconto a Riccardo - Jessika tranche 1/2"
+        },
+        {
+          "date": "2026-03-02",
+          "amount_eur": 550.0,
+          "description": "Giroconto a Riccardo - Jessika tranche 2/2"
+        }
+      ]
     },
     {
       "id": 214603781,
@@ -277,24 +292,26 @@
     "gross_total_eur": 8601.0,
     "city_tax_total_eur": 997.5,
     "cleaning_total_eur": 510.0,
-    "wise_movement_total_eur": 7093.5,
+    "wise_movement_total_eur": 7306.5,
     "cedolare_21_total_eur": 1596.74,
     "incassate_gross_eur": 7101.0,
     "incassate_city_tax_eur": 864.5,
     "incassate_cleaning_eur": 430.0,
     "incassate_wise_movement_eur": 5806.5,
     "incassate_cedolare_21_eur": 1309.67,
-    "last_booking_pending_id": "214603787"
+    "last_booking_pending_id": "214603787",
+    "riccardo_reimbursement_eur": 1100.0,
+    "note_jessika": "Jessika: entrata Wise 1320, poi due uscite Wise verso Riccardo da 550."
   },
   "finances": [],
   "accounting_rules": {
-    "cash_opening_rule": "L anno successivo parte dal fondo cassa disponibile, non dal saldo banca prima degli accantonamenti.",
-    "year_end_rule": "Fondo cassa disponibile = fondo iniziale + incassi su conto - uscite reali su conto - accantonamenti fiscali aperti.",
+    "cash_opening_rule": "L anno successivo parte dal liquidita disponibile, non dal saldo banca prima degli accantonamenti.",
+    "year_end_rule": "Liquidita disponibile = fondo iniziale + incassi su conto - uscite reali su conto - accantonamenti fiscali aperti.",
     "accrual_rule": "Cedolare accantonata riduce la disponibilità gestionale. Quando viene versata, esce come pagamento tasse e chiude il debito fiscale.",
     "jessika_125904941": "Base cedolare 1320; pulizie incluse 80; city tax 133 separata; 1100 incassati direttamente da Riccardo; impatto Wise sulla base cedolare 220."
   },
   "metadata": {
     "version": "v56_cash_accrual_fix",
-    "updated_note": "Rimosse righe ghost bookings airbnb/diretta; apertura 2026 da fondo cassa disponibile; Jessika split Wise/Riccardo."
+    "updated_note": "Rimosse righe ghost bookings airbnb/diretta; apertura 2026 da liquidita disponibile; Jessika split Wise/Riccardo."
   }
 }

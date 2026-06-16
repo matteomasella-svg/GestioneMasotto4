@@ -87,7 +87,7 @@
                         <i data-lucide="refresh-cw" class="w-4 h-4"></i> Sincronizza
                     </button>
                     <button onclick="generateAllReceiptsFinance()" class="bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-3 py-2 rounded-lg flex items-center gap-2 transition" title="Genera e stampa tutte le ricevute dell'anno selezionato">
-                        <i data-lucide="printer" class="w-4 h-4"></i> Ricevute anno
+                        <i data-lucide="printer" class="w-4 h-4"></i> Stampa ricevute anno
                     </button>
                     <button onclick="closeFiscalYearFinance()" class="bg-amber-500 hover:bg-amber-400 text-black font-bold px-3 py-2 rounded-lg flex items-center gap-2 transition" title="Calcola bilancio e storna la cedolare nel contatore accantonamenti">
                         <i data-lucide="lock" class="w-4 h-4"></i> Bilancio fine anno
@@ -106,7 +106,18 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            
+            <div class="mb-4 bg-teal-500/10 border border-teal-400/30 rounded-xl p-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3" id="receipt-print-toolbar">
+                <div>
+                    <div class="text-sm font-black text-teal-300 uppercase tracking-wide">Ricevute turistiche</div>
+                    <div class="text-xs text-gray-400">Stampa in una volta tutte le ricevute dell'anno selezionato. Pulsante ripristinato in V64.</div>
+                </div>
+                <button onclick="generateAllReceiptsFinance()" class="bg-teal-400 hover:bg-teal-300 text-black font-black px-5 py-3 rounded-lg flex items-center justify-center gap-2 transition shadow-lg">
+                    <i data-lucide="printer" class="w-5 h-5"></i> Stampa ricevute anno
+                </button>
+            </div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-emerald-500 shadow-lg">
                     <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="trending-up" class="w-3 h-3 inline"></i> Entrate (Lordo + Extra)</div>
                     <div class="text-2xl font-bold text-emerald-400 font-mono" id="kpi-in">€ 0</div>
@@ -116,17 +127,17 @@
                     <div class="text-2xl font-bold text-red-400 font-mono" id="kpi-out">€ 0</div>
                 </div>
                 <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-white shadow-lg bg-white/5 relative group">
-                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="wallet" class="w-3 h-3 inline"></i> Saldo operativo</div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="wallet" class="w-3 h-3 inline"></i> Risultato operativo</div>
                     <div class="text-2xl font-bold text-white font-mono" id="kpi-pl">€ 0</div>
                     <div class="absolute inset-0 bg-black/90 hidden group-hover:flex items-center justify-center text-[10px] text-gray-300 p-2 text-center rounded-xl z-10">
                         Non include accantonamenti cedolare come spese pagate. IMU/TARI sono fuori conto operativo.
                     </div>
                 </div>
                 <div class="bg-[#0f151a] border border-white/10 rounded-xl p-4 border-t-4 border-t-yellow-500 shadow-lg relative group">
-                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="clock" class="w-3 h-3 inline"></i> Scadenze / Accantonato</div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i data-lucide="clock" class="w-3 h-3 inline"></i> Accantonamenti / scadenze</div>
                     <div class="text-2xl font-bold text-yellow-400 font-mono" id="kpi-pending">€ 0</div>
                     <div class="absolute inset-0 bg-black/90 hidden group-hover:flex items-center justify-center text-[10px] text-gray-300 p-2 text-center rounded-xl z-10">
-                        Mostra l'accantonamento stimato della Cedolare Secca + Scadenze future non saldate.
+                        Mostra gli accantonamenti fiscali aperti e le scadenze future non saldate.
                     </div>
                 </div>
             </div>
@@ -140,13 +151,13 @@
                 <div class="space-y-6 sticky top-24 h-fit">
                     <div class="bg-[#0f151a] border border-white/10 rounded-xl p-5 shadow-xl border-l-4 border-l-blue-500">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2"><i data-lucide="building-2" class="w-4 h-4 text-blue-400"></i> Fondo cassa disponibile</h3>
+                            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2"><i data-lucide="building-2" class="w-4 h-4 text-blue-400"></i> Liquidità disponibile</h3>
                             <button onclick="openMovementsModal()" class="text-[10px] bg-blue-500 text-black px-2 py-1 rounded-md font-extrabold transition hover:bg-blue-400 flex items-center gap-1">
                                 <i data-lucide="list" class="w-3 h-3"></i> Movimenti
                             </button>
                         </div>
                         <div class="text-4xl font-bold font-mono text-blue-400 mb-2" id="box-saldo-conto">€ 0.00</div>
-                        <div class="text-[10px] text-gray-500 leading-tight">Fondo cassa operativo: l'anno successivo parte dal disponibile netto, non dal saldo banca prima degli accantonamenti.</div>
+                        <div class="text-[10px] text-gray-500 leading-tight">Liquidità realmente utilizzabile dopo aver separato gli accantonamenti fiscali.</div>
                         <div id="bank-summary-content" class="mt-4"></div>
                     </div>
 
@@ -257,7 +268,7 @@
             const row = {
                 id,
                 date: y + '-01-01',
-                description: 'Fondo cassa iniziale ' + y + ' da chiusura anno precedente',
+                description: 'Disponibile iniziale ' + y + ' da chiusura anno precedente',
                 category: 'Riporto cassa',
                 type: 'memo',
                 amount_eur: Number(amount || 0),
@@ -402,7 +413,7 @@
                     }
                 }
             });
-            // Regola 2M: l'anno successivo parte dal fondo cassa disponibile,
+            // Regola 2M: l'anno successivo parte dal disponibile disponibile,
             // cioe' saldo banca meno accantonamenti fiscali aperti.
             closingBalance2025 = FUND_2025_INITIAL + totEntrate - totUsciteConto - accCedolare;
         }
@@ -475,11 +486,16 @@
         }
 
         function generateAllReceiptsFinance() {
-            const y = document.getElementById('yearFilter').value;
+            const yf = document.getElementById('yearFilter');
+            const y = yf ? yf.value : '2025';
             if(y === 'ALL') { alert('Seleziona un anno prima di generare le ricevute.'); return; }
             if(window.MS_ACCOUNTING && window.MS_ACCOUNTING.printAllReceipts) {
                 window.MS_ACCOUNTING.printAllReceipts(y);
-            } else { alert('Motore ricevute non caricato.'); }
+            } else if (typeof generateReceiptPDF === 'function') {
+                alert('Motore stampa massiva non caricato. Usa la stampa singola dalle prenotazioni.');
+            } else {
+                alert('Motore ricevute non caricato: verifica che ms_core.js sia presente nello ZIP.');
+            }
         }
 
         function closeFiscalYearFinance() {
@@ -494,7 +510,7 @@
             upsertCarryForwardMovement(nextYear, available);
             if (y === '2025') closingBalance2025 = available;
             renderBoard();
-            alert('Bilancio ' + y + ' chiuso. Fondo cassa iniziale ' + nextYear + ': € ' + available.toLocaleString('it-IT',{minimumFractionDigits:2}) + '. Ho scritto il movimento di riporto nei movimenti.');
+            alert('Bilancio ' + y + ' chiuso. Disponibile iniziale ' + nextYear + ': € ' + available.toLocaleString('it-IT',{minimumFractionDigits:2}) + '. Ho scritto il movimento di riporto nei movimenti.');
         }
 
         function renderBoard() {
@@ -557,19 +573,34 @@
             let saldoPrimaAccantonamenti = startBal + bankIn - bankOut;
             let reserve = filterYear !== 'ALL' ? getYearEndReserve(filterYear) : null;
             let accantonamentoBloccato = 0;
+            let accantonamentoFonte = 'movimenti';
             if(filterYear !== 'ALL') {
-                accantonamentoBloccato = unifiedTransactions.filter(t => t.type === 'accrual' || String(t.desc||'').toLowerCase().includes('accantonamento cedolare')).reduce((a,t)=>a+Number(t.out||0),0);
+                const txAcc = unifiedTransactions.filter(t => t.type === 'accrual' || String(t.desc||'').toLowerCase().includes('accantonamento cedolare')).reduce((a,t)=>a+Number(t.out||0),0);
+                if(reserve && (reserve.tax_reserve_eur !== undefined || reserve.amount_eur !== undefined || reserve.saldo_disponibile_eur !== undefined)) {
+                    accantonamentoBloccato = Number(reserve.tax_reserve_eur ?? reserve.amount_eur ?? 0) || 0;
+                    accantonamentoFonte = 'contatore annuale';
+                } else {
+                    accantonamentoBloccato = txAcc;
+                }
             }
             let saldoDisponibile = saldoPrimaAccantonamenti - accantonamentoBloccato;
+            if(reserve && reserve.carry_forward_cash_eur !== undefined) {
+                saldoDisponibile = Number(reserve.carry_forward_cash_eur) || saldoDisponibile;
+            }
             document.getElementById('box-saldo-conto').innerText = `€ ${saldoDisponibile.toLocaleString('it-IT',{minimumFractionDigits:2})}`;
             
             const summaryBox = document.getElementById('bank-summary-content');
             if(filterYear === 'ALL') {
                 summaryBox.innerHTML = '<div class="text-sm text-gray-400">Seleziona un anno specifico per calcolare il saldo esatto.</div>';
             } else {
-                let html = `<div class="bank-data-row"><span class="bank-lbl">${filterYear === '2025' ? 'Fondo cassa iniziale' : 'Fondo cassa iniziale ' + filterYear + ' (netto accantonamenti precedenti)'}</span><span class="bank-val">€ ${startBal.toFixed(2)}</span></div><div class="bank-data-row"><span class="bank-lbl text-emerald-400">Incassi su conto (+)</span><span class="bank-val text-emerald-400">+ € ${bankIn.toFixed(2)}</span></div><div class="bank-data-row"><span class="bank-lbl text-red-400">Uscite reali su conto (-)</span><span class="bank-val text-red-400">- € ${bankOut.toFixed(2)}</span></div>`;
-                if(accantonamentoBloccato > 0) { html += `<div class="bank-data-row"><span class="bank-lbl text-yellow-400">Accantonamento cedolare ${filterYear}</span><span class="bank-val text-yellow-400">- € ${accantonamentoBloccato.toFixed(2)}</span></div>`; }
-                html += `<div class="bank-data-row"><span class="bank-lbl text-blue-300">Fondo cassa disponibile</span><span class="bank-val text-blue-300">€ ${saldoDisponibile.toFixed(2)}</span></div>`;
+                let html = `<div class="bank-data-row"><span class="bank-lbl text-emerald-400">Incassi su conto (+)</span><span class="bank-val text-emerald-400">+ € ${bankIn.toFixed(2)}</span></div><div class="bank-data-row"><span class="bank-lbl text-red-400">Uscite reali su conto (-)</span><span class="bank-val text-red-400">- € ${bankOut.toFixed(2)}</span></div>`;
+                if(accantonamentoBloccato > 0) {
+                    const statoAcc = reserve && reserve.tax_reserve_status ? String(reserve.tax_reserve_status).replace('_',' ') : 'da versare';
+                    html += `<div class="bank-data-row"><span class="bank-lbl text-yellow-400">Accantonamento cedolare ${filterYear} <span class="text-[10px] text-yellow-300/70">(${accantonamentoFonte}, ${statoAcc})</span></span><span class="bank-val text-yellow-400">€ ${accantonamentoBloccato.toFixed(2)}</span></div>`;
+                    if(reserve && !reserve.f24_paid) { html += `<div class="bank-data-row border-none text-[10px] text-yellow-300/80"><span class="bank-lbl">F24 cedolare</span><span class="bank-val">da caricare / da versare</span></div>`; }
+                    if(reserve && reserve.f24_paid) { html += `<div class="bank-data-row border-none text-[10px] text-emerald-300/80"><span class="bank-lbl">F24 cedolare</span><span class="bank-val">pagato</span></div>`; }
+                }
+                html += `<div class="bank-data-row"><span class="bank-lbl text-blue-300">Liquidità disponibile</span><span class="bank-val text-blue-300">€ ${saldoDisponibile.toFixed(2)}</span></div>`;
                 if(filterYear === '2025' && excludedTaxes > 0) { html += `<div class="bank-data-row border-none opacity-60 text-xs italic"><span class="bank-lbl">Tasse escluse dal conto (IMU/TARI)</span><span class="bank-val text-yellow-500">- € ${excludedTaxes.toFixed(2)}</span></div>`; }
                 summaryBox.innerHTML = html;
             }
@@ -671,9 +702,9 @@
 
                     <h2>1) Executive summary</h2>
                     <ul style="font-size: 15px; padding-left: 20px;">
-                        <li><strong>Fondo iniziale:</strong> € ${startBal.toLocaleString('it-IT',{minimumFractionDigits:2})}</li>
-                        <li><strong>Saldo operativo netto su conto:</strong> <span style="color: ${plColor}; font-weight: bold;">€ ${utileNetto.toLocaleString('it-IT',{minimumFractionDigits:2})}</span></li>
-                        <li><strong>Fondo cassa disponibile finale:</strong> € ${saldoFinaleLordo.toLocaleString('it-IT',{minimumFractionDigits:2})}</li>
+                        <li><strong>Liquidità iniziale:</strong> € ${startBal.toLocaleString('it-IT',{minimumFractionDigits:2})}</li>
+                        <li><strong>Risultato operativo netto su conto:</strong> <span style="color: ${plColor}; font-weight: bold;">€ ${utileNetto.toLocaleString('it-IT',{minimumFractionDigits:2})}</span></li>
+                        <li><strong>Liquidità disponibile finale:</strong> € ${saldoFinaleLordo.toLocaleString('it-IT',{minimumFractionDigits:2})}</li>
                     </ul>
 
                     <h2>2) Numeri chiave (KPI) - Periodo ${yearLabel}</h2>
