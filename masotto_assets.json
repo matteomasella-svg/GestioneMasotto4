@@ -15,14 +15,14 @@
       "unit_cost_eur": 41.04,
       "installed_quantity": 1,
       "allocated_purchase_cost_eur": 41.04,
-      "installation_labor_estimated_eur": 25.00,
-      "installed_cost_estimated_eur": 66.04,
+      "installation_labor_eur": 25.00,
+      "installed_cost_eur": 66.04,
       "status": "installed",
       "cost_quality": {
-        "purchase_cost": "documented",
-        "installation_labor": "estimated"
+        "purchase_cost": "documented_receipt",
+        "installation_labor": "documented_user_confirmation"
       },
-      "note": "La ricevuta riporta due cassaforti identiche da 41,04 EUR ciascuna, ma l'utente conferma che a Masotto ne e stata installata una sola. Alla proprieta viene quindi attribuito un solo costo unitario."
+      "note": "La ricevuta riporta due cassaforti identiche da 41,04 EUR ciascuna, ma l'utente conferma che a Masotto ne e stata installata una sola. Alla proprieta viene attribuito un solo costo unitario. Manodopera di installazione registrata come costo documentato su conferma dell'utente."
     },
     {
       "id": "CURTAINS-ROD-2026",
@@ -34,24 +34,25 @@
       "support_eur": 10.90,
       "washer_eur": 2.05,
       "materials_total_eur": 85.83,
-      "installation_labor_estimated_eur": 35.00,
-      "installed_cost_estimated_eur": 120.83,
+      "installation_labor_eur": 35.00,
+      "installed_cost_eur": 120.83,
       "status": "installed",
       "cost_quality": {
-        "materials": "documented_from_receipt_image",
-        "installation_labor": "estimated"
+        "materials": "documented_receipt_image",
+        "installation_labor": "documented_user_confirmation"
       },
-      "note": "Il costo completo del sistema tende include 2 tende, bastone, supporto metallico e rondella. La manodopera e stimata separatamente."
+      "note": "Il costo completo del sistema tende include 2 tende, bastone, supporto metallico e rondella. Manodopera di installazione registrata come costo documentato su conferma dell'utente."
     }
   ],
   "installation_labor_summary": {
-    "safe_estimated_eur": 25.00,
-    "curtains_estimated_eur": 35.00,
-    "total_estimated_eur": 60.00,
-    "status": "estimated_not_documented_as_paid"
+    "safe_eur": 25.00,
+    "curtains_eur": 35.00,
+    "total_eur": 60.00,
+    "status": "documented",
+    "source": "user_confirmation"
   },
   "metadata": {
-    "version": "v1_assets_installation",
+    "version": "v2_assets_installation_documented",
     "updated_at": "2026-08-19"
   }
 }
