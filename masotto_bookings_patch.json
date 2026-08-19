@@ -249,7 +249,75 @@
       "category": "Internet",
       "amount_eur": 179.7,
       "status": "paid",
-      "type": "expense"
+      "type": "expense",
+      "months": 6,
+      "monthly_eur": 29.95,
+      "period_start": "2026-01-01",
+      "period_end": "2026-06-30"
+    },
+    {
+      "id": "LUCE-526508136902",
+      "date": "2026-05-31",
+      "date_basis": "billing_period_end_not_payment_date",
+      "description": "Fornitura Luce 6045433825 - bolletta 526508136902 - periodo 01/04/2026-31/05/2026",
+      "category": "Energia elettrica",
+      "amount_eur": 143.0,
+      "status": "paid",
+      "type": "expense",
+      "invoice_number": "526508136902",
+      "supply_number": "6045433825",
+      "period_start": "2026-04-01",
+      "period_end": "2026-05-31",
+      "payment_date": null,
+      "source_status": "Pagata"
+    },
+    {
+      "id": "LUCE-526505225168",
+      "date": "2026-03-31",
+      "date_basis": "billing_period_end_not_payment_date",
+      "description": "Fornitura Luce 6045433825 - bolletta 526505225168 - periodo 01/02/2026-31/03/2026",
+      "category": "Energia elettrica",
+      "amount_eur": 221.0,
+      "status": "paid",
+      "type": "expense",
+      "invoice_number": "526505225168",
+      "supply_number": "6045433825",
+      "period_start": "2026-02-01",
+      "period_end": "2026-03-31",
+      "payment_date": null,
+      "source_status": "Pagata"
+    },
+    {
+      "id": "LUCE-526501962046",
+      "date": "2026-01-31",
+      "date_basis": "billing_period_end_not_payment_date",
+      "description": "Fornitura Luce 6045433825 - bolletta 526501962046 - periodo 01/12/2025-31/01/2026",
+      "category": "Energia elettrica",
+      "amount_eur": 165.0,
+      "status": "paid",
+      "type": "expense",
+      "invoice_number": "526501962046",
+      "supply_number": "6045433825",
+      "period_start": "2025-12-01",
+      "period_end": "2026-01-31",
+      "payment_date": null,
+      "source_status": "Pagata"
+    },
+    {
+      "id": "LUCE-525517682443",
+      "date": "2025-11-30",
+      "date_basis": "billing_period_end_not_payment_date",
+      "description": "Fornitura Luce 6045433825 - bolletta 525517682443 - periodo 01/10/2025-30/11/2025",
+      "category": "Energia elettrica",
+      "amount_eur": 137.0,
+      "status": "paid",
+      "type": "expense",
+      "invoice_number": "525517682443",
+      "supply_number": "6045433825",
+      "period_start": "2025-10-01",
+      "period_end": "2025-11-30",
+      "payment_date": null,
+      "source_status": "Pagata"
     },
     {
       "id": "WISE-MAINT-LABOUR-2026",
@@ -301,6 +369,10 @@
     "incassate_cedolare_21_eur": 1309.67,
     "last_booking_pending_id": "214603787",
     "riccardo_reimbursement_eur": 1100.0,
+    "internet_paid_eur": 179.7,
+    "electricity_paid_reconciled_eur": 666.0,
+    "utilities_paid_reconciled_eur": 845.7,
+    "note_utilities": "Luce: 4 bollette documentate come pagate, totale 666 euro. Il documento non riporta le date effettive di pagamento; i campi date delle bollette usano la fine del periodo di fornitura e sono marcati date_basis. Internet: Fastweb gennaio-giugno 2026, 6 x 29,95 = 179,70 euro.",
     "note_jessika": "Jessika: entrata Wise 1320, poi due uscite Wise verso Riccardo da 550."
   },
   "finances": [],
@@ -311,7 +383,8 @@
     "jessika_125904941": "Base cedolare 1320; pulizie incluse 80; city tax 133 separata; 1100 incassati direttamente da Riccardo; impatto Wise sulla base cedolare 220."
   },
   "metadata": {
-    "version": "v56_cash_accrual_fix",
-    "updated_note": "Rimosse righe ghost bookings airbnb/diretta; apertura 2026 da liquidita disponibile; Jessika split Wise/Riccardo."
+    "version": "v57_utilities_reconciliation",
+    "updated_note": "Aggiornate utenze: internet Fastweb H1 2026 confermato; 4 bollette luce pagate riconciliate per 666 euro senza inventare date effettive di pagamento.",
+    "updated_at": "2026-08-19"
   }
 }
