@@ -1,0 +1,135 @@
+{
+  "property": "Masotto A37",
+  "unit": "A37",
+  "holder": "ARMATI RICCARDO",
+  "source": "Prospetti area riservata amministratore Giani & Cantarini forniti dall'utente",
+  "reconciliation_status": "complete_for_listed_managements",
+  "total_reconciled_eur": 2745.96,
+  "outstanding_eur": 0.0,
+  "managements": [
+    {
+      "id": "RIP-CALORE-2023-2024",
+      "name": "Ripartitori di calore",
+      "period": "27/11/2023 - 30/04/2024",
+      "due_eur": 125.52,
+      "paid_eur": 125.52,
+      "balance_eur": 0.0,
+      "status": "paid",
+      "installments": [
+        {
+          "description": "Rata ripartitori di calore",
+          "due_date": "2023-12-05",
+          "amount_eur": 125.52,
+          "payment_date": "2023-12-13",
+          "paid_eur": 125.52,
+          "balance_eur": 0.0,
+          "status": "paid"
+        }
+      ]
+    },
+    {
+      "id": "AMIANTO-2025",
+      "name": "Rimozione amianto",
+      "period": "01/01/2025 - 31/12/2025",
+      "due_eur": 570.66,
+      "paid_eur": 570.66,
+      "balance_eur": 0.0,
+      "status": "paid",
+      "installments": [
+        {
+          "description": "Rata 1 - Rimozione MCA",
+          "due_date": "2025-03-20",
+          "amount_eur": 285.33,
+          "payment_date": "2025-03-21",
+          "paid_eur": 285.33,
+          "balance_eur": 0.0,
+          "status": "paid"
+        },
+        {
+          "description": "Rata 2 - Rimozione MCA",
+          "due_date": "2025-06-15",
+          "amount_eur": 285.33,
+          "payment_date": "2025-06-15",
+          "paid_eur": 285.33,
+          "balance_eur": 0.0,
+          "status": "paid"
+        }
+      ]
+    },
+    {
+      "id": "TERRAZZA-2025-2026",
+      "name": "Rifacimento terrazza",
+      "period": "04/11/2025 - 31/05/2026",
+      "due_eur": 241.28,
+      "paid_eur": 241.28,
+      "balance_eur": 0.0,
+      "status": "paid",
+      "installments": [],
+      "note": "Totale riconciliato come saldato; dettaglio rate non fornito nel prospetto incollato in questa conversazione."
+    },
+    {
+      "id": "ORD-2025-2026",
+      "name": "Ordinaria 2025/2026",
+      "period": "01/05/2025 - 30/04/2026",
+      "due_eur": 1478.61,
+      "paid_eur": 1478.61,
+      "balance_eur": 0.0,
+      "status": "paid",
+      "installments": [
+        {
+          "description": "Integrazione rata n.3 e saldo",
+          "payment_date": "2026-01-09",
+          "amount_eur": 6.99,
+          "paid_eur": 6.99,
+          "status": "paid",
+          "paid_by": "Riccardo",
+          "account": "altro conto",
+          "source_link_id": "CONDO-25-26-R3-INT"
+        },
+        {
+          "description": "Rata n.4",
+          "payment_date": "2026-01-16",
+          "amount_eur": 318.2,
+          "paid_eur": 318.2,
+          "status": "paid",
+          "paid_by": "Riccardo",
+          "account": "altro conto",
+          "source_link_id": "CONDO-25-26-R4"
+        }
+      ],
+      "note": "Totale gestione riconciliato come saldato. Le due rate sopra sono quelle già presenti nel file finanziario 2026; le altre rate storiche sono incluse nel totale ma non duplicate come movimenti 2026."
+    },
+    {
+      "id": "ORD-2026-2027-R1",
+      "name": "Ordinaria 2026/2027 - Rata FP n.1",
+      "period": "01/05/2026 - 30/04/2027",
+      "due_eur": 329.89,
+      "paid_eur": 329.89,
+      "balance_eur": 0.0,
+      "status": "paid_regular",
+      "installments": [
+        {
+          "description": "Rata FP n.1 2026/2027",
+          "due_date": "2026-05-31",
+          "amount_eur": 329.89,
+          "payment_date": "2026-06-10",
+          "paid_eur": 329.89,
+          "balance_eur": 0.0,
+          "status": "paid",
+          "paid_by": "Matteo",
+          "account": "Wise",
+          "source_link_id": "CONDO-26-27-R1-WISE"
+        }
+      ],
+      "portal_status": "Situazione dei pagamenti regolare. Nessuna rata è scaduta.",
+      "payments_to_post_eur": 0.0,
+      "administrator_last_update": "2026-06-15T13:58:13+02:00"
+    }
+  ],
+  "accounting_note": "Questo file e una riconciliazione condominiale canonica. I totali storici non devono essere sommati nuovamente ai movimenti di cassa gia presenti in masotto_bookings_patch.json; per il cash-flow usare solo i movimenti effettivi dell'anno di competenza.",
+  "metadata": {
+    "version": "v1_condominium_reconciliation",
+    "updated_at": "2026-08-19",
+    "currency": "EUR"
+  }
+}
