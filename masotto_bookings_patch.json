@@ -8,7 +8,10 @@
     {"id":214603786,"code":"214603786","guest":"214603786","check_in":"2026-04-14","nights":7,"pax":2,"source":"Diretta","gross_eur":950.0,"commission_eur":0.0,"city_tax_eur":133.0,"cleaning_eur":45.0,"status":"incassata","cedolare_base_eur":817.0,"cedolare_21_eur":171.57,"wise_movement_eur":772.0},
     {"id":214603784,"code":"214603784","guest":"214603784","check_in":"2026-04-20","nights":10,"pax":1,"source":"Diretta","gross_eur":700.0,"commission_eur":0.0,"city_tax_eur":95.0,"cleaning_eur":45.0,"status":"incassata","cedolare_base_eur":605.0,"cedolare_21_eur":127.05,"wise_movement_eur":560.0},
     {"id":214603785,"code":"214603785","guest":"214603785","check_in":"2026-05-08","nights":20,"pax":1,"source":"Diretta","gross_eur":1340.0,"commission_eur":0.0,"city_tax_eur":133.0,"cleaning_eur":80.0,"status":"incassata","cedolare_base_eur":1207.0,"cedolare_21_eur":253.47,"wise_movement_eur":1127.0},
+    {"id":139766042,"code":"139766042","guest":"Florencia Anabel Luduena Godoy","check_in":"2026-05-18","check_in_time":"15:00","check_out":"2026-06-17","check_out_time":"11:00","nights":30,"pax":1,"source":"Prenotazione diretta","status":"completed","stay_price_eur":900.0,"stay_price_cap_eur":900.0,"source_price_eur":2060.0,"source_price_excess_over_cap_eur":1160.0,"source_paid":"No","source_status":"Prenotato","financial_summary_inclusion":"excluded_pending_price_decomposition","note":"Importato da BookingList-2026-08-19-2.xlsx. Il prezzo soggiorno è limitato a 900 EUR per regola canonica; l'importo originale del file è preservato separatamente e non riclassificato senza ulteriore documentazione."},
     {"id":214603787,"code":"214603787","guest":"214603787","check_in":"2026-06-01","nights":21,"pax":1,"source":"Diretta","gross_eur":1500.0,"commission_eur":0.0,"city_tax_eur":133.0,"cleaning_eur":80.0,"status":"da incassare","cedolare_base_eur":1367.0,"cedolare_21_eur":287.07,"wise_movement_eur":1287.0},
+    {"id":143724634,"code":"143724634","guest":"Daniel Arnoud Knottenbelt","check_in":"2026-06-17","check_in_time":"15:00","check_out":"2026-07-18","check_out_time":"11:00","nights":31,"pax":1,"source":"Prenotazione diretta","status":"completed","stay_price_eur":900.0,"stay_price_cap_eur":900.0,"source_price_eur":2698.1,"source_price_excess_over_cap_eur":1798.1,"source_paid":"No","source_status":"Prenotato","financial_summary_inclusion":"excluded_pending_price_decomposition","note":"Importato da BookingList-2026-08-19-2.xlsx. Il prezzo soggiorno è limitato a 900 EUR per regola canonica; l'importo originale del file è preservato separatamente e non riclassificato senza ulteriore documentazione."},
+    {"id":149963841,"code":"149963841","guest":"Florencia Anabel Luduena Godoy","check_in":"2026-08-12","check_in_time":"15:00","check_out":"2026-09-02","check_out_time":"11:00","nights":21,"pax":1,"source":"Prenotazione diretta","status":"in_house","stay_price_eur":900.0,"stay_price_cap_eur":900.0,"source_price_eur":1635.0,"source_price_excess_over_cap_eur":735.0,"source_paid":"No","source_status":"Prenotato","financial_summary_inclusion":"excluded_pending_price_decomposition","note":"Importato da BookingList-2026-08-19-2.xlsx. Ospite attualmente in soggiorno al 19/08/2026. Il prezzo soggiorno è limitato a 900 EUR per regola canonica; l'importo originale del file è preservato separatamente e non riclassificato senza ulteriore documentazione."},
     {"id":"HMQT2BK3BJ","code":"HMQT2BK3BJ","guest":"Hanna Rissanen","check_in":"2026-09-02","check_in_time":"15:00","check_out":"2026-09-06","check_out_time":"11:00","nights":4,"pax":2,"source":"Airbnb","listing":"Masotto Terrace City View","status":"confirmed_upcoming","guest_nightly_total_eur":428.51,"cleaning_eur":45.0,"city_tax_eur":76.0,"guest_total_eur":549.51,"accommodation_gross_eur":473.51,"host_room_amount_before_price_correction_eur":527.91,"price_correction_eur":-99.4,"host_service_fee_eur":73.39,"host_service_fee_rate":0.155,"expected_host_payout_eur":400.12,"commission_eur":73.39,"payout_status":"pending","city_tax_accounting":"partita_di_giro","note":"Prenotazione Airbnb confermata. Non considerare il payout come incassato fino alla contabilizzazione effettiva Airbnb."}
   ],
   "finance_adjustments": [
@@ -56,7 +59,12 @@
     "airbnb_upcoming_city_tax_eur":76.0,
     "airbnb_upcoming_host_fee_eur":73.39,
     "airbnb_upcoming_expected_payout_eur":400.12,
+    "imported_missing_stays_count":3,
+    "imported_missing_stays_stay_price_total_eur":2700.0,
+    "imported_missing_stays_source_price_total_eur":6393.1,
+    "imported_missing_stays_financial_summary_status":"excluded_pending_price_decomposition",
     "note_utilities":"Luce: 4 bollette documentate come pagate, totale 666 euro; bolletta 526511236534 da 170 euro in scadenza 07/09/2026. Gas: 3 bollette documentate come pagate, totale 252 euro. Internet: Fastweb gennaio-giugno 2026, totale 179,70 euro.",
+    "note_imported_stays":"Importati 3 soggiorni mancanti dal BookingList del 19/08/2026. Per regola canonica il prezzo soggiorno è limitato a 900 EUR per singolo soggiorno. Gli importi originali del gestionale sono conservati come source_price_eur ma non confluiscono nei totali finanziari finché non viene definita la composizione dell'eccedenza.",
     "note_airbnb_upcoming":"Hanna Rissanen, HMQT2BK3BJ, 02/09/2026-06/09/2026, 4 notti, 2 adulti. Totale ospite 549,51 incl. city tax 76; accommodation+cleaning 473,51; host fee 73,39; payout atteso 400,12 non ancora contabilizzato.",
     "note_jessika":"Jessika: entrata Wise 1320, poi due uscite Wise verso Riccardo da 550."
   },
@@ -65,11 +73,13 @@
     "cash_opening_rule":"L anno successivo parte dal liquidita disponibile, non dal saldo banca prima degli accantonamenti.",
     "year_end_rule":"Liquidita disponibile = fondo iniziale + incassi su conto - uscite reali su conto - accantonamenti fiscali aperti.",
     "accrual_rule":"Cedolare accantonata riduce la disponibilità gestionale. Quando viene versata, esce come pagamento tasse e chiude il debito fiscale.",
+    "max_stay_price_eur":900.0,
+    "max_stay_price_rule":"Il prezzo soggiorno non deve mai superare 900 EUR. Se una fonte riporta un importo superiore, il prezzo soggiorno viene limitato a 900 EUR e l'importo sorgente resta separato per riconciliazione.",
     "jessika_125904941":"Base cedolare 1320; pulizie incluse 80; city tax 133 separata; 1100 incassati direttamente da Riccardo; impatto Wise sulla base cedolare 220."
   },
   "metadata": {
-    "version":"v59_hanna_airbnb_gas",
-    "updated_note":"Aggiunta prenotazione Airbnb Hanna Rissanen come confermata futura e riconciliate 3 bollette gas pagate per 252 euro.",
+    "version":"v60_missing_stays_price_cap",
+    "updated_note":"Importati 3 soggiorni mancanti dal BookingList e applicata regola canonica prezzo soggiorno massimo 900 EUR.",
     "updated_at":"2026-08-19"
   }
 }
