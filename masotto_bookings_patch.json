@@ -8,7 +8,8 @@
     {"id":214603786,"code":"214603786","guest":"214603786","check_in":"2026-04-14","nights":7,"pax":2,"source":"Diretta","gross_eur":950.0,"commission_eur":0.0,"city_tax_eur":133.0,"cleaning_eur":45.0,"status":"incassata","cedolare_base_eur":817.0,"cedolare_21_eur":171.57,"wise_movement_eur":772.0},
     {"id":214603784,"code":"214603784","guest":"214603784","check_in":"2026-04-20","nights":10,"pax":1,"source":"Diretta","gross_eur":700.0,"commission_eur":0.0,"city_tax_eur":95.0,"cleaning_eur":45.0,"status":"incassata","cedolare_base_eur":605.0,"cedolare_21_eur":127.05,"wise_movement_eur":560.0},
     {"id":214603785,"code":"214603785","guest":"214603785","check_in":"2026-05-08","nights":20,"pax":1,"source":"Diretta","gross_eur":1340.0,"commission_eur":0.0,"city_tax_eur":133.0,"cleaning_eur":80.0,"status":"incassata","cedolare_base_eur":1207.0,"cedolare_21_eur":253.47,"wise_movement_eur":1127.0},
-    {"id":214603787,"code":"214603787","guest":"214603787","check_in":"2026-06-01","nights":21,"pax":1,"source":"Diretta","gross_eur":1500.0,"commission_eur":0.0,"city_tax_eur":133.0,"cleaning_eur":80.0,"status":"da incassare","cedolare_base_eur":1367.0,"cedolare_21_eur":287.07,"wise_movement_eur":1287.0}
+    {"id":214603787,"code":"214603787","guest":"214603787","check_in":"2026-06-01","nights":21,"pax":1,"source":"Diretta","gross_eur":1500.0,"commission_eur":0.0,"city_tax_eur":133.0,"cleaning_eur":80.0,"status":"da incassare","cedolare_base_eur":1367.0,"cedolare_21_eur":287.07,"wise_movement_eur":1287.0},
+    {"id":"HMQT2BK3BJ","code":"HMQT2BK3BJ","guest":"Hanna Rissanen","check_in":"2026-09-02","check_in_time":"15:00","check_out":"2026-09-06","check_out_time":"11:00","nights":4,"pax":2,"source":"Airbnb","listing":"Masotto Terrace City View","status":"confirmed_upcoming","guest_nightly_total_eur":428.51,"cleaning_eur":45.0,"city_tax_eur":76.0,"guest_total_eur":549.51,"accommodation_gross_eur":473.51,"host_room_amount_before_price_correction_eur":527.91,"price_correction_eur":-99.4,"host_service_fee_eur":73.39,"host_service_fee_rate":0.155,"expected_host_payout_eur":400.12,"commission_eur":73.39,"payout_status":"pending","city_tax_accounting":"partita_di_giro","note":"Prenotazione Airbnb confermata. Non considerare il payout come incassato fino alla contabilizzazione effettiva Airbnb."}
   ],
   "finance_adjustments": [
     {"id":"CONDO-25-26-R3-INT","date":"2026-01-09","description":"Condominio A37 25/26 integrazione rata n.3 e saldo - saldata da Riccardo su altro conto","category":"Condominio","amount_eur":6.99,"status":"paid","type":"expense","paid_by":"Riccardo","account":"altro conto"},
@@ -23,6 +24,9 @@
     {"id":"LUCE-526501962046","date":"2026-01-31","date_basis":"billing_period_end_not_payment_date","description":"Fornitura Luce 6045433825 - bolletta 526501962046 - periodo 01/12/2025-31/01/2026","category":"Energia elettrica","amount_eur":165.0,"status":"paid","type":"expense","invoice_number":"526501962046","supply_number":"6045433825","period_start":"2025-12-01","period_end":"2026-01-31","payment_date":null,"source_status":"Pagata"},
     {"id":"LUCE-525517682443","date":"2025-11-30","date_basis":"billing_period_end_not_payment_date","description":"Fornitura Luce 6045433825 - bolletta 525517682443 - periodo 01/10/2025-30/11/2025","category":"Energia elettrica","amount_eur":137.0,"status":"paid","type":"expense","invoice_number":"525517682443","supply_number":"6045433825","period_start":"2025-10-01","period_end":"2025-11-30","payment_date":null,"source_status":"Pagata"},
     {"id":"LUCE-526511236534","date":"2026-08-17","description":"Fornitura Luce 6045433825 - bolletta 526511236534 - periodo 01/06/2026-31/07/2026","category":"Energia elettrica","amount_eur":170.0,"invoice_total_eur":170.83,"status":"pending","type":"expense","invoice_number":"526511236534","supply_number":"6045433825","period_start":"2026-06-01","period_end":"2026-07-31","due_date":"2026-09-07","payment_method":"Addebito diretto Fineco","payment_date":null,"source_status":"Da pagare","consumption_kwh":362},
+    {"id":"GAS-526508892157","date":"2026-05-31","date_basis":"billing_period_end_not_payment_date","description":"Fornitura Gas 6045405179 - bolletta 526508892157 - periodo 01/01/2026-31/05/2026","category":"Gas","amount_eur":82.0,"status":"paid","type":"expense","invoice_number":"526508892157","supply_number":"6045405179","period_start":"2026-01-01","period_end":"2026-05-31","payment_date":null,"source_status":"Pagata"},
+    {"id":"GAS-526503947832","date":"2026-02-28","date_basis":"billing_period_end_not_payment_date","description":"Fornitura Gas 6045405179 - bolletta 526503947832 - periodo 01/12/2025-28/02/2026","category":"Gas","amount_eur":83.0,"status":"paid","type":"expense","invoice_number":"526503947832","supply_number":"6045405179","period_start":"2025-12-01","period_end":"2026-02-28","payment_date":null,"source_status":"Pagata"},
+    {"id":"GAS-525517695371","date":"2025-11-30","date_basis":"billing_period_end_not_payment_date","description":"Fornitura Gas 6045405179 - bolletta 525517695371 - periodo 01/06/2025-30/11/2025","category":"Gas","amount_eur":87.0,"status":"paid","type":"expense","invoice_number":"525517695371","supply_number":"6045405179","period_start":"2025-06-01","period_end":"2025-11-30","payment_date":null,"source_status":"Pagata"},
     {"id":"WISE-MAINT-LABOUR-2026","date":"2026-06-30","description":"Manutenzioni 2026 - lavoro/interventi","category":"Manutenzione","amount_eur":419.0,"status":"paid","type":"expense"},
     {"id":"WISE-MAINT-MATERIALS-2026","date":"2026-06-30","description":"Materiali manutenzione stimati da internet - pitture, silicone, nastro, teli, rulli","category":"Manutenzione","amount_eur":170.0,"status":"estimated","type":"expense"},
     {"id":"WISE-ASSETS-2026","date":"2026-02-09","description":"Acquisti asset 2026 - aspirapolvere, asse/accessori","category":"Asset","amount_eur":159.0,"status":"paid","type":"expense"},
@@ -44,9 +48,16 @@
     "internet_paid_eur":179.7,
     "electricity_paid_reconciled_eur":666.0,
     "electricity_pending_eur":170.0,
-    "utilities_paid_reconciled_eur":845.7,
+    "gas_paid_reconciled_eur":252.0,
+    "utilities_paid_reconciled_eur":1097.7,
     "utilities_pending_eur":170.0,
-    "note_utilities":"Luce: 4 bollette documentate come pagate, totale 666 euro. Nuova bolletta 526511236534 del 17/08/2026, periodo giugno-luglio 2026, 170 euro da pagare entro 07/09/2026 tramite addebito diretto Fineco. Internet: Fastweb gennaio-giugno 2026, 6 x 29,95 = 179,70 euro.",
+    "airbnb_upcoming_confirmed_count":1,
+    "airbnb_upcoming_accommodation_gross_eur":473.51,
+    "airbnb_upcoming_city_tax_eur":76.0,
+    "airbnb_upcoming_host_fee_eur":73.39,
+    "airbnb_upcoming_expected_payout_eur":400.12,
+    "note_utilities":"Luce: 4 bollette documentate come pagate, totale 666 euro; bolletta 526511236534 da 170 euro in scadenza 07/09/2026. Gas: 3 bollette documentate come pagate, totale 252 euro. Internet: Fastweb gennaio-giugno 2026, totale 179,70 euro.",
+    "note_airbnb_upcoming":"Hanna Rissanen, HMQT2BK3BJ, 02/09/2026-06/09/2026, 4 notti, 2 adulti. Totale ospite 549,51 incl. city tax 76; accommodation+cleaning 473,51; host fee 73,39; payout atteso 400,12 non ancora contabilizzato.",
     "note_jessika":"Jessika: entrata Wise 1320, poi due uscite Wise verso Riccardo da 550."
   },
   "finances": [],
@@ -57,8 +68,8 @@
     "jessika_125904941":"Base cedolare 1320; pulizie incluse 80; city tax 133 separata; 1100 incassati direttamente da Riccardo; impatto Wise sulla base cedolare 220."
   },
   "metadata": {
-    "version":"v58_pending_electricity",
-    "updated_note":"Aggiunta bolletta luce A2A 526511236534 da pagare: 170 euro, scadenza 07/09/2026. Gas non aggiornato in assenza di prospetto gas distinguibile nei file caricati.",
+    "version":"v59_hanna_airbnb_gas",
+    "updated_note":"Aggiunta prenotazione Airbnb Hanna Rissanen come confermata futura e riconciliate 3 bollette gas pagate per 252 euro.",
     "updated_at":"2026-08-19"
   }
 }
