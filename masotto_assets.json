@@ -1,0 +1,57 @@
+{
+  "property": "Masotto Terrace City View",
+  "assets": [
+    {
+      "id": "SAFE-YALE-YSV200DB2-2026",
+      "category": "Sicurezza",
+      "asset_type": "Cassaforte",
+      "brand": "YALE",
+      "model": "YSV/200/DB2",
+      "asin": "B0B4BJ4D63",
+      "purchase_date": "2026-06-24",
+      "order_contract": "408-9303888-3714761",
+      "invoice_quantity": 2,
+      "invoice_total_eur": 82.08,
+      "unit_cost_eur": 41.04,
+      "installed_quantity": 1,
+      "allocated_purchase_cost_eur": 41.04,
+      "installation_labor_estimated_eur": 25.00,
+      "installed_cost_estimated_eur": 66.04,
+      "status": "installed",
+      "cost_quality": {
+        "purchase_cost": "documented",
+        "installation_labor": "estimated"
+      },
+      "note": "La ricevuta riporta due cassaforti identiche da 41,04 EUR ciascuna, ma l'utente conferma che a Masotto ne e stata installata una sola. Alla proprieta viene quindi attribuito un solo costo unitario."
+    },
+    {
+      "id": "CURTAINS-ROD-2026",
+      "category": "Arredo",
+      "asset_type": "Sistema tende",
+      "purchase_date": "2026-07-18",
+      "curtains_eur": 59.98,
+      "rod_eur": 12.90,
+      "support_eur": 10.90,
+      "washer_eur": 2.05,
+      "materials_total_eur": 85.83,
+      "installation_labor_estimated_eur": 35.00,
+      "installed_cost_estimated_eur": 120.83,
+      "status": "installed",
+      "cost_quality": {
+        "materials": "documented_from_receipt_image",
+        "installation_labor": "estimated"
+      },
+      "note": "Il costo completo del sistema tende include 2 tende, bastone, supporto metallico e rondella. La manodopera e stimata separatamente."
+    }
+  ],
+  "installation_labor_summary": {
+    "safe_estimated_eur": 25.00,
+    "curtains_estimated_eur": 35.00,
+    "total_estimated_eur": 60.00,
+    "status": "estimated_not_documented_as_paid"
+  },
+  "metadata": {
+    "version": "v1_assets_installation",
+    "updated_at": "2026-08-19"
+  }
+}
