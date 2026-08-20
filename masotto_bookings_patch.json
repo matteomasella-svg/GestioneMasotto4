@@ -12,6 +12,8 @@
     {"id":214603787,"code":"214603787","guest":"214603787","check_in":"2026-06-01","nights":21,"pax":1,"source":"Diretta","gross_eur":1500.0,"commission_eur":0.0,"city_tax_eur":133.0,"cleaning_eur":80.0,"status":"da incassare","cedolare_base_eur":1367.0,"cedolare_21_eur":287.07,"wise_movement_eur":1287.0},
     {"id":143724634,"code":"143724634","guest":"Daniel Arnoud Knottenbelt","check_in":"2026-06-17","check_in_time":"15:00","check_out":"2026-07-18","check_out_time":"11:00","nights":31,"pax":1,"source":"Prenotazione diretta","status":"completed","stay_price_eur":900.0,"stay_price_cap_eur":900.0,"cleaning_eur":80.0,"city_tax_eur":133.0,"city_tax_nights":14,"city_tax_rate_eur":9.5,"gross_eur":1113.0,"cedolare_base_eur":980.0,"cedolare_21_eur":205.8,"cedolare_status":"accrual_calculated","city_tax_accounting":"partita_di_giro","source_price_eur":2698.1,"source_price_excess_over_cap_eur":1798.1,"source_paid":"No","source_status":"Prenotato","financial_summary_inclusion":"excluded_from_cash_until_payment_reconciled","note":"Importato da BookingList-2026-08-19-2.xlsx. Limite soggiorno 900 EUR applicato solo a questo import. Pulizie 80 EUR per soggiorno >14 notti. Tassa di soggiorno 14 notti x 9,50 = 133 EUR. Cedolare 21% su soggiorno + pulizie = 980 EUR, accantonamento 205,80 EUR."},
     {"id":149963841,"code":"149963841","guest":"Florencia Anabel Luduena Godoy","check_in":"2026-08-12","check_in_time":"15:00","check_out":"2026-09-02","check_out_time":"11:00","nights":21,"pax":1,"source":"Prenotazione diretta","status":"in_house","stay_price_eur":900.0,"stay_price_cap_eur":900.0,"cleaning_eur":80.0,"city_tax_eur":133.0,"city_tax_nights":14,"city_tax_rate_eur":9.5,"gross_eur":1113.0,"cedolare_base_eur":980.0,"cedolare_21_eur":205.8,"cedolare_status":"accrual_calculated","city_tax_accounting":"partita_di_giro","source_price_eur":1635.0,"source_price_excess_over_cap_eur":735.0,"source_paid":"No","source_status":"Prenotato","financial_summary_inclusion":"excluded_from_cash_until_payment_reconciled","note":"Importato da BookingList-2026-08-19-2.xlsx. Ospite in soggiorno al 19/08/2026. Limite soggiorno 900 EUR applicato solo a questo import. Pulizie 80 EUR per soggiorno >14 notti. Tassa di soggiorno 14 notti x 9,50 = 133 EUR. Cedolare 21% su soggiorno + pulizie = 980 EUR, accantonamento 205,80 EUR."},
+    {"id":"HM5SSYCHNW","code":"HM5SSYCHNW","guest":"Gabriela Stempka","check_in":"2025-08-25","check_out":"2025-08-27","nights":2,"source":"Airbnb","listing":"Masotto Terrace View","status":"completed","gross_eur":143.0,"commission_eur":21.42,"city_tax_eur":25.2,"payout_eur":121.38,"payout_status":"paid","city_tax_accounting":"partita_di_giro","note":"Prenotazione Airbnb storica già documentata; aggiunta in riconciliazione senza modificare i totali 2026."},
+    {"id":"HMAT5Y9JTC","code":"HMAT5Y9JTC","guest":"Christie Swainston","check_in":"2025-09-04","check_out":"2025-09-07","nights":3,"source":"Airbnb","listing":"Masotto Terrace View","status":"completed","gross_eur":441.0,"commission_eur":66.15,"city_tax_eur":18.9,"payout_eur":374.85,"payout_status":"paid","city_tax_accounting":"partita_di_giro","note":"Prenotazione Airbnb storica già documentata; aggiunta in riconciliazione senza modificare i totali 2026."},
     {"id":"HMQT2BK3BJ","code":"HMQT2BK3BJ","guest":"Hanna Rissanen","check_in":"2026-09-02","check_in_time":"15:00","check_out":"2026-09-06","check_out_time":"11:00","nights":4,"pax":2,"source":"Airbnb","listing":"Masotto Terrace City View","status":"confirmed_upcoming","guest_nightly_total_eur":428.51,"cleaning_eur":45.0,"city_tax_eur":76.0,"guest_total_eur":549.51,"accommodation_gross_eur":473.51,"host_room_amount_before_price_correction_eur":527.91,"price_correction_eur":-99.4,"host_service_fee_eur":73.39,"host_service_fee_rate":0.155,"expected_host_payout_eur":400.12,"commission_eur":73.39,"payout_status":"pending","city_tax_accounting":"partita_di_giro","note":"Prenotazione Airbnb confermata. Non considerare il payout come incassato fino alla contabilizzazione effettiva Airbnb."}
   ],
   "finance_adjustments": [
@@ -73,6 +75,15 @@
     "note_airbnb_upcoming":"Hanna Rissanen, HMQT2BK3BJ, 02/09/2026-06/09/2026, 4 notti, 2 adulti. Totale ospite 549,51 incl. city tax 76; accommodation+cleaning 473,51; host fee 73,39; payout atteso 400,12 non ancora contabilizzato.",
     "note_jessika":"Jessika: entrata Wise 1320, poi due uscite Wise verso Riccardo da 550."
   },
+  "summary_airbnb_historical": {
+    "count":2,
+    "gross_eur":584.0,
+    "commission_eur":87.57,
+    "city_tax_eur":44.1,
+    "payout_eur":496.23,
+    "period":"2025",
+    "note":"Gabriela Stempka e Christie Swainston; storico separato dai totali 2026."
+  },
   "finances": [],
   "accounting_rules": {
     "cash_opening_rule":"L anno successivo parte dal liquidita disponibile, non dal saldo banca prima degli accantonamenti.",
@@ -86,8 +97,8 @@
     "jessika_125904941":"Base cedolare 1320; pulizie incluse 80; city tax 133 separata; 1100 incassati direttamente da Riccardo; impatto Wise sulla base cedolare 220."
   },
   "metadata": {
-    "version":"v62_imported_stays_tax_cleaning_cedolare",
-    "updated_note":"Calcolate per i tre soggiorni importati tassa di soggiorno, pulizie e accantonamento cedolare secca 21%, senza alterare le prenotazioni preesistenti.",
-    "updated_at":"2026-08-19"
+    "version":"v63_airbnb_history_reconciled",
+    "updated_note":"Aggiunte le prenotazioni Airbnb storiche documentate di Gabriela Stempka e Christie Swainston, mantenendo Hanna Rissanen e senza modificare i totali 2026.",
+    "updated_at":"2026-08-20"
   }
 }
