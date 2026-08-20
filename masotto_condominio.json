@@ -2,35 +2,178 @@
   "property": "Masotto A37",
   "unit": "A37",
   "holder": "ARMATI RICCARDO",
-  "source": "Prospetti area riservata amministratore Giani & Cantarini forniti dall'utente",
+  "source": "Prospetti area riservata amministratore Giani & Cantarini / miocondominio.eu forniti dall'utente",
   "reconciliation_status": "complete_for_listed_managements",
-  "total_reconciled_eur": 2745.96,
+  "portal_current_status": "Situazione dei pagamenti regolare. Nessuna rata è scaduta.",
+  "payments_to_post_eur": 0.0,
   "outstanding_eur": 0.0,
+  "total_reconciled_eur": 2745.96,
   "managements": [
     {
       "id": "RIP-CALORE-2023-2024",
       "name": "Ripartitori di calore",
-      "period": "27/11/2023 - 30/04/2024",
+      "period_start": "2023-11-27",
+      "period_end": "2024-04-30",
       "due_eur": 125.52,
       "paid_eur": 125.52,
       "balance_eur": 0.0,
-      "status": "paid",
-      "installments": [{"description":"Rata ripartitori di calore","due_date":"2023-12-05","amount_eur":125.52,"payment_date":"2023-12-13","paid_eur":125.52,"balance_eur":0.0,"status":"paid"}]
-    },
-    {
-      "id":"AMIANTO-2025","name":"Rimozione amianto","period":"01/01/2025 - 31/12/2025","due_eur":570.66,"paid_eur":570.66,"balance_eur":0.0,"status":"paid",
-      "installments":[
-        {"description":"Rata 1 - Rimozione MCA","due_date":"2025-03-20","amount_eur":285.33,"payment_date":"2025-03-21","paid_eur":285.33,"balance_eur":0.0,"status":"paid"},
-        {"description":"Rata 2 - Rimozione MCA","due_date":"2025-06-15","amount_eur":285.33,"payment_date":"2025-06-15","paid_eur":285.33,"balance_eur":0.0,"status":"paid"}
+      "overdue_eur": 0.0,
+      "payments_to_post_eur": 0.0,
+      "status": "paid_regular",
+      "portal_status": "Situazione dei pagamenti regolare. Nessuna rata è scaduta.",
+      "installments": [
+        {
+          "description": "Rata ripartitori di calore",
+          "due_date": "2023-12-05",
+          "amount_eur": 125.52,
+          "paid_eur": 125.52,
+          "payment_date": "2023-12-13",
+          "balance_eur": 0.0,
+          "overdue_eur": 0.0,
+          "status": "paid"
+        }
       ]
     },
-    {"id":"TERRAZZA-2025-2026","name":"Rifacimento terrazza","period":"04/11/2025 - 31/05/2026","due_eur":241.28,"paid_eur":241.28,"balance_eur":0.0,"status":"paid","installments":[],"note":"Totale riconciliato come saldato; dettaglio rate non fornito nel prospetto incollato in questa conversazione."},
-    {"id":"ORD-2025-2026","name":"Ordinaria 2025/2026","period":"01/05/2025 - 30/04/2026","due_eur":1478.61,"paid_eur":1478.61,"balance_eur":0.0,"status":"paid","installments":[
-      {"description":"Integrazione rata n.3 e saldo","payment_date":"2026-01-09","amount_eur":6.99,"paid_eur":6.99,"status":"paid","paid_by":"Riccardo","account":"altro conto","source_link_id":"CONDO-25-26-R3-INT"},
-      {"description":"Rata n.4","payment_date":"2026-01-16","amount_eur":318.2,"paid_eur":318.2,"status":"paid","paid_by":"Riccardo","account":"altro conto","source_link_id":"CONDO-25-26-R4"}
-    ],"note":"Totale gestione riconciliato come saldato. Le due rate sopra sono quelle già presenti nel file finanziario 2026; le altre rate storiche sono incluse nel totale ma non duplicate come movimenti 2026."},
-    {"id":"ORD-2026-2027-R1","name":"Ordinaria 2026/2027 - Rata FP n.1","period":"01/05/2026 - 30/04/2027","due_eur":329.89,"paid_eur":329.89,"balance_eur":0.0,"status":"paid_regular","installments":[{"description":"Rata FP n.1 2026/2027","due_date":"2026-05-31","amount_eur":329.89,"payment_date":"2026-06-10","paid_eur":329.89,"balance_eur":0.0,"status":"paid","paid_by":"Matteo","account":"Wise","source_link_id":"CONDO-26-27-R1-WISE"}],"portal_status":"Situazione dei pagamenti regolare. Nessuna rata è scaduta.","payments_to_post_eur":0.0,"administrator_last_update":"2026-06-15T13:58:13+02:00"}
+    {
+      "id": "AMIANTO-2025",
+      "name": "Rimozione amianto",
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "due_eur": 570.66,
+      "paid_eur": 570.66,
+      "balance_eur": 0.0,
+      "overdue_eur": 0.0,
+      "payments_to_post_eur": 0.0,
+      "status": "paid_regular",
+      "portal_status": "Situazione dei pagamenti regolare. Nessuna rata è scaduta.",
+      "installments": [
+        {
+          "description": "Rata 1 - Rimozione MCA",
+          "due_date": "2025-03-20",
+          "amount_eur": 285.33,
+          "paid_eur": 285.33,
+          "payment_date": "2025-03-21",
+          "balance_eur": 0.0,
+          "status": "paid"
+        },
+        {
+          "description": "Rata 2 - Rimozione MCA",
+          "due_date": "2025-06-15",
+          "amount_eur": 285.33,
+          "paid_eur": 285.33,
+          "payment_date": "2025-06-15",
+          "balance_eur": 0.0,
+          "status": "paid"
+        }
+      ]
+    },
+    {
+      "id": "TERRAZZA-2025-2026",
+      "name": "Rifacimento terrazza",
+      "period_start": "2025-11-04",
+      "period_end": "2026-05-31",
+      "due_eur": 241.28,
+      "paid_eur": 241.28,
+      "balance_eur": 0.0,
+      "status": "paid",
+      "installments": [],
+      "note": "Gestione completamente saldata. Il totale di 241,28 EUR è riconciliato; il dettaglio delle singole rate non è stato fornito nel prospetto attuale."
+    },
+    {
+      "id": "ORD-2025-2026",
+      "name": "Ordinaria 2025/2026",
+      "period_start": "2025-05-01",
+      "period_end": "2026-04-30",
+      "due_eur": 1478.61,
+      "paid_eur": 1478.61,
+      "balance_eur": 0.0,
+      "status": "paid",
+      "installments": [
+        {
+          "description": "Rata FP n.1",
+          "due_date": "2025-06-15",
+          "amount_eur": 305.0,
+          "paid_eur": 305.0,
+          "status": "paid"
+        },
+        {
+          "description": "Rata FP n.2",
+          "due_date": "2025-09-01",
+          "amount_eur": 305.0,
+          "paid_eur": 305.0,
+          "status": "paid"
+        },
+        {
+          "description": "Rata n.3 e saldo",
+          "due_date": "2025-12-15",
+          "amount_eur": 550.41,
+          "paid_eur": 550.41,
+          "balance_eur": 0.0,
+          "status": "paid_reconciled",
+          "historical_snapshot": {
+            "paid_eur": 543.42,
+            "residual_eur": 6.99,
+            "status": "partial"
+          },
+          "payment_date": "2026-01-09",
+          "source_link_id": "CONDO-25-26-R3-INT",
+          "note": "Residuo storico di 6,99 EUR saldato il 09/01/2026."
+        },
+        {
+          "description": "Rata n.4",
+          "due_date": "2026-02-15",
+          "amount_eur": 318.2,
+          "paid_eur": 318.2,
+          "balance_eur": 0.0,
+          "status": "paid_reconciled",
+          "payment_date": "2026-01-16",
+          "source_link_id": "CONDO-25-26-R4"
+        }
+      ],
+      "note": "Gestione 2025/2026 completamente saldata. I movimenti 2026 collegati sono già presenti nel file finanziario e non devono essere duplicati nel cash-flow."
+    },
+    {
+      "id": "ORD-2026-2027-R1",
+      "name": "Ordinaria 2026/2027 - Rata FP n.1",
+      "period_start": "2026-05-01",
+      "period_end": "2027-04-30",
+      "due_eur": 329.89,
+      "paid_eur": 329.89,
+      "balance_eur": 0.0,
+      "overdue_eur": 0.0,
+      "payments_to_post_eur": 0.0,
+      "status": "paid_regular",
+      "portal_status": "Situazione dei pagamenti regolare. Nessuna rata è scaduta.",
+      "administrator_last_update": "2026-06-15T13:58:13+02:00",
+      "installments": [
+        {
+          "description": "Rata FP n.1 2026/2027",
+          "due_date": "2026-05-31",
+          "amount_eur": 329.89,
+          "paid_eur": 329.89,
+          "payment_date": "2026-06-10",
+          "balance_eur": 0.0,
+          "overdue_eur": 0.0,
+          "status": "paid",
+          "paid_by": "Matteo",
+          "account": "Wise",
+          "source_link_id": "CONDO-26-27-R1-WISE"
+        }
+      ],
+      "note": "Scadenza nominale 31/05/2026; versamento registrato il 10/06/2026. Il portale certifica comunque posizione regolare, nessuna rata scaduta e nessun pagamento da contabilizzare."
+    }
   ],
-  "accounting_note":"Questo file e una riconciliazione condominiale canonica. I totali storici non devono essere sommati nuovamente ai movimenti di cassa gia presenti in masotto_bookings_patch.json; per il cash-flow usare solo i movimenti effettivi dell'anno di competenza.",
-  "metadata":{"version":"v1_condominium_reconciliation","updated_at":"2026-08-19","currency":"EUR"}
+  "management_summary": [
+    {"management":"Ripartitori di calore 2023/2024","total_eur":125.52,"status":"SALDATA"},
+    {"management":"Rimozione amianto 2025","total_eur":570.66,"status":"SALDATA"},
+    {"management":"Rifacimento terrazza 2025/2026","total_eur":241.28,"status":"SALDATA"},
+    {"management":"Ordinaria 2025/2026","total_eur":1478.61,"status":"SALDATA"},
+    {"management":"Ordinaria 2026/2027 - Rata 1","total_eur":329.89,"status":"PAGATA_REGOLARE"}
+  ],
+  "accounting_note": "Riconciliazione condominiale canonica. I totali storici non devono essere sommati nuovamente ai movimenti di cassa già presenti in masotto_bookings_patch.json; per il cash-flow usare solo i movimenti effettivi dell'anno di competenza.",
+  "metadata": {
+    "version": "v2_condominium_full_reconciliation",
+    "updated_at": "2026-08-20",
+    "currency": "EUR"
+  }
 }
