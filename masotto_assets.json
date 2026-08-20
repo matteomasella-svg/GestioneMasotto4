@@ -1,7 +1,10 @@
 {
   "property_id": "M4TERRACE",
   "property": "Masotto Terrace View",
-  "aliases": ["Masotto Terrace City View", "Masotto A37"],
+  "aliases": [
+    "Masotto Terrace City View",
+    "Masotto A37"
+  ],
   "scope": "ASSETS_ONLY",
   "assets": [
     {
@@ -19,9 +22,7 @@
       "asset_nature": "MOVABLE_OR_EQUIPMENT",
       "asset_family": "PIANO_COTTURA",
       "purchase_date_quality": "MASTER_V21_PRESERVED",
-      "purchase_cost_quality": "MASTER_V21_PRESERVED",
-      "manual": {"id":"MASOTTO__EQ_VILSTA_INDUZIONE","verification":"Parziale","verified_on":"2026-07-28","instructions":"Pentole magnetiche; pulizia a freddo; usare coperchi e zona proporzionata."},
-      "note": "Piano cottura corrente; non risulta sostituito."
+      "purchase_cost_quality": "MASTER_V21_PRESERVED"
     },
     {
       "asset_id": "Masotto Terrace::EQ90",
@@ -37,11 +38,7 @@
       "supplier": "IKEA",
       "status": "current_unflagged",
       "asset_nature": "MOVABLE_OR_EQUIPMENT",
-      "asset_family": "LAVASTOVIGLIE",
-      "purchase_date_quality": "MASTER_V21_PRESERVED",
-      "purchase_cost_quality": "MASTER_V21_PRESERVED",
-      "manual": {"id":"MASOTTO__EQ_MEDELSTOR_DISHWASHER","verification":"Parziale","verified_on":"2026-07-28","instructions":"ECO; pulire filtro; spegnere e contattare host se resta acqua."},
-      "note": "Prod.N. 911 076 076 04."
+      "asset_family": "LAVASTOVIGLIE"
     },
     {
       "asset_id": "Masotto Terrace::EQ12",
@@ -56,11 +53,7 @@
       "status": "current",
       "asset_nature": "MOVABLE_OR_EQUIPMENT",
       "asset_family": "HVAC_ACS",
-      "purchase_date_quality": "MASTER_V21_PRESERVED",
-      "purchase_cost_quality": "STIMATO_PORTFOLIO_COMPARABLE",
-      "purchase_cost_basis": "Stima benchmark di acquisizione/sostituzione; nessuna fattura di acquisto presente nelle fonti V23.",
-      "manual": {"id":"MASOTTO__EQ_HERMANN_OPALIA","verification":"Verificato","verified_on":"2026-07-28","model_verified":"OpaliaExternal F 12/1 LR(H-IT)","instructions":"Temperatura 38-60 °C, consigliata 40-42 °C; avvio automatico all'apertura rubinetto."},
-      "note": "Scaldabagno ACS esterno; targa verificata."
+      "purchase_cost_quality": "STIMATO_PORTFOLIO_COMPARABLE"
     },
     {
       "asset_id": "Masotto Terrace::EQ44",
@@ -75,11 +68,7 @@
       "purchase_cost_eur": 299.0,
       "status": "current_unflagged",
       "asset_nature": "MOVABLE_OR_EQUIPMENT",
-      "asset_family": "TV",
-      "purchase_date_quality": "MASTER_V21_PRESERVED",
-      "purchase_cost_quality": "MASTER_V21_PRESERVED",
-      "manual": {"id":"MASOTTO__EQ_HISENSE_H50BE7000","verification":"Parziale","verified_on":"2026-07-28","instructions":"Home/Source; non modificare account/rete; spegnere completamente."},
-      "note": "Produzione 17/08/2020; sostituisce precedente riferimento 43E63KT."
+      "asset_family": "TV"
     },
     {
       "asset_id": "Masotto Terrace::EQ92",
@@ -93,10 +82,7 @@
       "purchase_cost_eur": 49.0,
       "status": "current_unflagged",
       "asset_nature": "MOVABLE_OR_EQUIPMENT",
-      "asset_family": "ASPIRAPOLVERE",
-      "purchase_date_quality": "MASTER_V21_PRESERVED",
-      "purchase_cost_quality": "MASTER_V21_PRESERVED",
-      "manual": {"id":"MASOTTO__EQ_BLACKDECKER_BXVMS600E","verification":"Parziale","verified_on":"2026-07-28","instructions":"Non aspirare liquidi/cenere; svuotare contenitore; pulire filtro scollegato."}
+      "asset_family": "ASPIRAPOLVERE"
     },
     {
       "asset_id": "Masotto Terrace::EQ41",
@@ -111,8 +97,7 @@
       "asset_nature": "MOVABLE_OR_EQUIPMENT",
       "asset_family": "LAVASCIUGA",
       "purchase_date_quality": "RICOSTRUITO_USER_CORRECTED_LEGACY",
-      "purchase_cost_quality": "RICOSTRUITO_USER_CORRECTED_LEGACY",
-      "manual": {"id":"MASOTTO_TERRACE_VIEW__EQ_MIELE_WT2670","verification":"Verificato","verified_on":"2026-07-28","source_file":"06717280(1).pdf","instructions":"5 kg lavaggio; 2,5 kg asciugatura; Rinse out fluff dopo asciugatura; lavaggio caldo ogni 6 settimane."}
+      "purchase_cost_quality": "RICOSTRUITO_USER_CORRECTED_LEGACY"
     },
     {
       "asset_id": "Masotto Terrace::EQ88",
@@ -126,10 +111,7 @@
       "supplier": "IKEA",
       "status": "current_unflagged",
       "asset_nature": "MOVABLE_OR_EQUIPMENT",
-      "asset_family": "MICROONDE",
-      "purchase_date_quality": "MASTER_V21_PRESERVED",
-      "purchase_cost_quality": "MASTER_V21_PRESERVED",
-      "manual": {"id":"MASOTTO_TERRACE_VIEW__EQ_MATALSKARE_MICRO","verification":"Verificato","verified_on":"2026-07-27","instructions":"Potenza e tempo; niente metallo; pulire piatto e guarnizioni."}
+      "asset_family": "MICROONDE"
     },
     {
       "asset_id": "Masotto Terrace::EQ95",
@@ -143,9 +125,7 @@
       "status": "current",
       "asset_nature": "MOVABLE_OR_EQUIPMENT",
       "asset_family": "CLIMATIZZAZIONE",
-      "purchase_date_quality": "MASTER_V21_PRESERVED",
-      "purchase_cost_quality": "STIMATO_MODEL_FAMILY_COMPARABLE",
-      "manual": {"id":"MASOTTO__EQ_CANDY_CY09TAOUT","verification":"Parziale","verified_on":"2026-07-28","instructions":"COOL 24-26 °C; non sotto 22 °C; spegnere in caso di errore/perdita."}
+      "purchase_cost_quality": "STIMATO_MODEL_FAMILY_COMPARABLE"
     },
     {
       "asset_id": "Masotto Terrace::EQ89",
@@ -159,10 +139,7 @@
       "supplier": "IKEA",
       "status": "current_unflagged",
       "asset_nature": "MOVABLE_OR_EQUIPMENT",
-      "asset_family": "CAPPA",
-      "purchase_date_quality": "MASTER_V21_PRESERVED",
-      "purchase_cost_quality": "MASTER_V21_PRESERVED",
-      "manual": {"id":"MASOTTO_TERRACE_VIEW__EQ_UTDRAG_CAPPA","verification":"Verificato","verified_on":"2026-07-27","instructions":"Estrarre frontalino; filtri antigrasso ogni 60 giorni; carbone ogni 4-6 mesi."}
+      "asset_family": "CAPPA"
     },
     {
       "asset_id": "Masotto Terrace::EQ93",
@@ -175,10 +152,7 @@
       "purchase_cost_eur": 94.9,
       "status": "current_unflagged",
       "asset_nature": "MOVABLE_OR_EQUIPMENT",
-      "asset_family": "MACCHINA_CAFFE",
-      "purchase_date_quality": "MASTER_V21_PRESERVED",
-      "purchase_cost_quality": "MASTER_V21_PRESERVED",
-      "manual": {"id":"MASOTTO__EQ_LAVAZZA_JOLIE_EVO","verification":"Parziale","verified_on":"2026-07-28","instructions":"Riempire serbatoio, inserire capsula A Modo Mio e avviare."}
+      "asset_family": "MACCHINA_CAFFE"
     },
     {
       "asset_id": "Masotto Terrace::EQ87",
@@ -192,11 +166,7 @@
       "supplier": "IKEA",
       "status": "current_unflagged",
       "asset_nature": "MOVABLE_OR_EQUIPMENT",
-      "asset_family": "FRIGORIFERO",
-      "purchase_date_quality": "MASTER_V21_PRESERVED",
-      "purchase_cost_quality": "MASTER_V21_PRESERVED",
-      "manual": {"id":"MASOTTO_TERRACE_VIEW__EQ_HUTTRA_FRIDGE","verification":"Verificato","verified_on":"2026-07-27","instructions":"Termostato 3; guarnizioni e condensa; sbrinare ogni 6 mesi."},
-      "note": "126 L; R600a 38 g."
+      "asset_family": "FRIGORIFERO"
     },
     {
       "asset_id": "Masotto Terrace View::STR-01",
@@ -304,8 +274,7 @@
       "asset_nature": "MOVABLE_OR_EQUIPMENT",
       "asset_family": "SICUREZZA_CASSAFORTE",
       "purchase_cost_quality": "DOCUMENTED_RECEIPT_ALLOCATED_UNIT",
-      "installation_labor_quality": "DOCUMENTED_USER_CONFIRMATION",
-      "note": "La ricevuta riporta due cassaforti identiche da €41,04 ciascuna, ma a Masotto ne è installata una sola."
+      "installation_labor_quality": "DOCUMENTED_USER_CONFIRMATION"
     },
     {
       "asset_id": "Masotto Terrace::CURTAINS-ROD-2026",
@@ -313,8 +282,8 @@
       "quantity": 1,
       "purchase_date": "2026-07-18",
       "curtains_eur": 59.98,
-      "rod_eur": 12.90,
-      "support_eur": 10.90,
+      "rod_eur": 12.9,
+      "support_eur": 10.9,
       "washer_eur": 2.05,
       "purchase_cost_eur": 85.83,
       "installation_labor_eur": 35.0,
@@ -323,8 +292,7 @@
       "asset_nature": "MOVABLE_OR_EQUIPMENT",
       "asset_family": "ARREDO_TENDE",
       "purchase_cost_quality": "DOCUMENTED_RECEIPT_IMAGE",
-      "installation_labor_quality": "DOCUMENTED_USER_CONFIRMATION",
-      "note": "Costo asset €85,83: 2 tende, bastone, supporto e rondella. Il sacchetto da €1,00 dello scontrino totale €86,83 è escluso."
+      "installation_labor_quality": "DOCUMENTED_USER_CONFIRMATION"
     }
   ],
   "asset_counts": {
@@ -340,18 +308,6 @@
     "total_eur": 60.0,
     "status": "documented",
     "source": "user_confirmation_2026-08-19"
-  },
-  "source_reconciliation": {
-    "master_version": 23,
-    "master_as_of": "2026-08-16",
-    "full_sources_identical_for_masotto_assets": true,
-    "source_files": [
-      "2EMME_DB_MASTER_V23_2026-08-16_MAINTENANCE_RECONSTRUCTED(2).json",
-      "2EMME_DB_MASTER_V23_2026-08-16(6).json",
-      "2EMME_DB_MASTER_V23_2026-08-16 (1)(1).json"
-    ],
-    "note": "I due master V23 completi riportano gli stessi 19 asset canonici Masotto Terrace. Il file V23 compatto conferma l'identità M4TERRACE ma non contiene l'inventario asset. Cassaforte e sistema tende sono dati successivi al master, documentati/confirmati il 19/08/2026 e quindi preservati come aggiunte più recenti.",
-    "excluded_from_this_file": ["bookings", "finance", "condominium", "utilities", "pricing", "performance"]
   },
   "metadata": {
     "version": "v3_masotto_assets_master_v23_integrated",
