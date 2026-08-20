@@ -1,0 +1,46 @@
+{
+  "property_id": "MASOTTO4",
+  "scope": "UTILITY_BILLS_PATCH",
+  "updated_at": "2026-08-20",
+  "source_priority": "documentary_primary",
+  "bills": [
+    {
+      "id": "FASTWEB-M025783574-2026-08",
+      "provider": "Fastweb",
+      "utility": "Internet",
+      "bill_number": "M025783574",
+      "issue_date": "2026-08-01",
+      "billing_period_start": "2026-07-01",
+      "billing_period_end": "2026-07-31",
+      "subscription_period_start": "2026-08-01",
+      "subscription_period_end": "2026-08-31",
+      "plan": "Fastweb Casa Light",
+      "amount_eur": 27.95,
+      "vat_rate_pct": 22,
+      "taxable_amount_eur": 22.91,
+      "vat_amount_eur": 5.04,
+      "consumption_charges_eur": 0.0,
+      "other_costs_eur": 0.0,
+      "due_date": "2026-08-25",
+      "payment_method": "Addebito su c/c bancario o postale",
+      "payment_status": "scheduled_direct_debit_not_yet_due",
+      "customer_code": "22259022",
+      "service_address": "Via Umberto Masotto 4, 20133 Milano MI",
+      "category": "Utenze",
+      "source_document": "Fattura_M025783574_01-08-2026.pdf",
+      "source_reliability": "primary_invoice"
+    }
+  ],
+  "tariff_changes": [
+    {
+      "provider": "Fastweb",
+      "utility": "Internet",
+      "plan": "Fastweb Casa Light",
+      "current_monthly_amount_eur": 27.95,
+      "new_monthly_amount_eur": 31.95,
+      "effective_from": "2026-09-01",
+      "first_invoice_with_adjustment_date": "2026-10-01",
+      "note": "Fastweb comunica che dalla mensilita di settembre 2026 il corrispettivo passa a 31,95 EUR; la fattura del 1 ottobre 2026 includera anche l'aumento riferito a settembre 2026."
+    }
+  ]
+}
