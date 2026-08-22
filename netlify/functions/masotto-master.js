@@ -56,25 +56,79 @@ function bookingYear(booking) {
   return String((booking && booking.check_in) || '').slice(0, 4);
 }
 
-function normalizeBookingForMaster(b) {
-  const out = { ...b };
+function normalizeBookingForMaster(source) {
+  const out = { ...(source || {}) };
   delete out.canonical_source;
   delete out.canonical_year;
   delete out.receipt_total_display_eur;
   delete out.city_tax_accounting;
-  if (!out.last_night && out.check_in && out.nights) {
-    const d = new Date(`${out.check_in}T00:00:00Z`);
-    d.setUTCDate(d.getUTCDate() + Number(out.nights) - 1);
-    out.last_night = d.toISOString().slice(0, 10);
-  }
-  if (!out.check_out && out.check_in && out.nights) {
-    const d = new Date(`${out.check_in}T00:00:00Z`);
-    d.setUTCDate(d.getUTCDate() + Number(out.nights));
-    out.check_out = d.toISOString().slice(0, 10);
+  if (out.check_in && out.nights) {
+    const start = new Date(`${out.check_in}T00:00:00Z`);
+    const last = new Date(start);
+    last.setUTCDate(last.getUTCDate() + Number(out.nights) - 1);
+    const end = new Date(start);
+    end.setUTCDate(end.getUTCDate() + Number(out.nights));
+    out.last_night = last.toISOString().slice(0, 10);
+    out.check_out = end.toISOString().slice(0, 10);
   }
   out.updated_at = new Date().toISOString();
   out.updated_via = 'Masotto Control UI';
   return out;
+}
+
+function normalizeAssetForMaster(source, nature) {
+  const a = { ...(source || {}) };
+  const id = a.asset_id || a.id;
+  if (!id) throw new Error('Asset id required');
+  a.asset_id = id;
+  a.type = a.type || a.asset_type || a.tipo || a.nome || 'Asset';
+  a.brand = a.brand || a.marca || '';
+  a.model = a.model || a.modello || '';
+  a.serial = a.serial || a.sn || '';
+  a.purchase_date = a.purchase_date || a.acquisto || a.acquisition_date || '';
+  if (a.purchase_cost_eur == null && a.prezzo_eur != null) a.purchase_cost_eur = Number(a.prezzo_eur) || 0;
+  a.nature = nature || a.nature || a.asset_nature || 'MOVABLE_OR_EQUIPMENT';
+  a.family = a.family || a.asset_family || '';
+  delete a.id;
+  delete a.tipo;
+  delete a.nome;
+  delete a.marca;
+  delete a.modello;
+  delete a.sn;
+  delete a.acquisto;
+  delete a.prezzo_eur;
+  delete a.canonical_source;
+  a.updated_at = new Date().toISOString();
+  a.updated_via = 'Masotto Control UI';
+  return a;
+}
+
+function replaceBookings(master, rows) {
+  master.bookings = master.bookings || {};
+  master.bookings['2025'] = master.bookings['2025'] || {};
+  master.bookings['2026'] = master.bookings['2026'] || {};
+  const normalized = (rows || []).map(normalizeBookingForMaster);
+  master.bookings['2025'].canonical_unique_bookings = normalized.filter(b => bookingYear(b) === '2025');
+  master.bookings['2026'].records = normalized.filter(b => bookingYear(b) === '2026');
+}
+
+function replaceAssets(master, payload) {
+  const mobile = (payload && payload.mobile) || [];
+  const structural = (payload && payload.structural) || [];
+  const items = mobile.map(x => normalizeAssetForMaster(x, 'MOVABLE_OR_EQUIPMENT'))
+    .concat(structural.map(x => normalizeAssetForMaster(x, 'STRUCTURAL_OR_PLANT')));
+  master.assets = master.assets || {};
+  master.assets.items = items;
+  master.assets.count_total = items.length;
+  master.assets.count_movable = mobile.length;
+  master.assets.count_structural = structural.length;
+}
+
+function replaceFinance(master, rows) {
+  master.finance_manual = (rows || [])
+    .filter(x => !String(x.id || '').startsWith('AUTO-'))
+    .map(x => ({ ...x, canonical_source: undefined, updated_at: new Date().toISOString(), updated_via: 'Masotto Control UI' }));
+  master.finance_manual.forEach(x => delete x.canonical_source);
 }
 
 function applyMutation(master, mutation) {
@@ -82,17 +136,28 @@ function applyMutation(master, mutation) {
   const payload = mutation && mutation.payload;
   if (!op) throw new Error('Missing mutation op');
 
+  if (op === 'bookings.replace') { replaceBookings(master, payload && payload.rows); return; }
+  if (op === 'assets.replace') { replaceAssets(master, payload || {}); return; }
+  if (op === 'finance.replace') { replaceFinance(master, payload && payload.rows); return; }
+  if (op === 'tickets.replace') {
+    master.tickets = (payload && payload.rows || []).map(x => ({ ...x, updated_at: new Date().toISOString(), updated_via: 'Masotto Control UI' }));
+    return;
+  }
+  if (op === 'maintenance_presets.replace') { master.maintenance_presets = payload && payload.rows || []; return; }
+  if (op === 'supply_presets.replace') { master.supply_presets = payload && payload.rows || []; return; }
+  if (op === 'inventory.replace') { master.reusable_inventory = payload && payload.rows || []; return; }
+
   if (op === 'booking.upsert') {
     const booking = normalizeBookingForMaster(payload || {});
     const year = bookingYear(booking);
     if (!['2025', '2026'].includes(year)) throw new Error('Booking year must be 2025 or 2026');
-    const y = master.bookings && master.bookings[year];
-    if (!y) throw new Error(`Missing bookings.${year}`);
+    master.bookings = master.bookings || {};
+    master.bookings[year] = master.bookings[year] || {};
     const key = year === '2025' ? 'canonical_unique_bookings' : 'records';
-    y[key] = Array.isArray(y[key]) ? y[key] : [];
-    const idx = y[key].findIndex(x => String(x.id) === String(booking.id));
-    if (idx >= 0) y[key][idx] = { ...y[key][idx], ...booking };
-    else y[key].push(booking);
+    const rows = Array.isArray(master.bookings[year][key]) ? master.bookings[year][key] : [];
+    const idx = rows.findIndex(x => String(x.id) === String(booking.id));
+    if (idx >= 0) rows[idx] = { ...rows[idx], ...booking }; else rows.push(booking);
+    master.bookings[year][key] = rows;
     return;
   }
 
@@ -110,16 +175,9 @@ function applyMutation(master, mutation) {
   if (op === 'asset.upsert') {
     master.assets = master.assets || {};
     master.assets.items = Array.isArray(master.assets.items) ? master.assets.items : [];
-    const a = { ...(payload || {}) };
-    const id = a.asset_id || a.id;
-    if (!id) throw new Error('Asset id required');
-    a.asset_id = id;
-    delete a.id;
-    a.updated_at = new Date().toISOString();
-    a.updated_via = 'Masotto Control UI';
-    const idx = master.assets.items.findIndex(x => String(x.asset_id || x.id) === String(id));
-    if (idx >= 0) master.assets.items[idx] = { ...master.assets.items[idx], ...a };
-    else master.assets.items.push(a);
+    const a = normalizeAssetForMaster(payload || {});
+    const idx = master.assets.items.findIndex(x => String(x.asset_id || x.id) === String(a.asset_id));
+    if (idx >= 0) master.assets.items[idx] = { ...master.assets.items[idx], ...a }; else master.assets.items.push(a);
     master.assets.count_total = master.assets.items.length;
     master.assets.count_movable = master.assets.items.filter(x => (x.nature || x.asset_nature) !== 'STRUCTURAL_OR_PLANT').length;
     master.assets.count_structural = master.assets.items.filter(x => (x.nature || x.asset_nature) === 'STRUCTURAL_OR_PLANT').length;
@@ -143,8 +201,7 @@ function applyMutation(master, mutation) {
     row.updated_at = new Date().toISOString();
     row.updated_via = 'Masotto Control UI';
     const idx = master.finance_manual.findIndex(x => String(x.id) === String(row.id));
-    if (idx >= 0) master.finance_manual[idx] = { ...master.finance_manual[idx], ...row };
-    else master.finance_manual.push(row);
+    if (idx >= 0) master.finance_manual[idx] = { ...master.finance_manual[idx], ...row }; else master.finance_manual.push(row);
     return;
   }
 
@@ -161,8 +218,7 @@ function applyMutation(master, mutation) {
     row.updated_at = new Date().toISOString();
     row.updated_via = 'Masotto Control UI';
     const idx = master.tickets.findIndex(x => String(x.id) === String(row.id));
-    if (idx >= 0) master.tickets[idx] = { ...master.tickets[idx], ...row };
-    else master.tickets.push(row);
+    if (idx >= 0) master.tickets[idx] = { ...master.tickets[idx], ...row }; else master.tickets.push(row);
     return;
   }
 
@@ -195,12 +251,10 @@ async function writeMaster(master, sha, message) {
 exports.handler = async function(event) {
   try {
     if (event.httpMethod === 'OPTIONS') return response(204, {});
-
     if (event.httpMethod === 'GET') {
       const { master, sha } = await readMaster();
       return response(200, { ok: true, sha, master });
     }
-
     if (event.httpMethod !== 'POST') return response(405, { ok: false, error: 'Method not allowed' });
 
     const expectedKey = requireEnv('MASOTTO_WRITE_KEY');
