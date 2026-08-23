@@ -1,10 +1,10 @@
-/* Masotto Core V64: sync unico globale + motore contabile */
+/* Masotto Core V69: incasso manuale booking + flussi previsionali + Airbnb tax handling */
 (function(){
   const PAGES = [
     ["index.html","Dashboard","layout-dashboard"],["anagrafica.html","Anagrafica","id-card"],["asset.html","Asset","boxes"],["audit.html","Audit","clipboard-check"],["manutenzione.html","Manutenzione","wrench"],["prenotazioni.html","Prenotazioni","calendar"],["finanze.html","Finanze","pie-chart"],["sicurezza.html","Sicurezza","shield"]
   ];
   const LS_MAP = { masotto_prop_data:'property_master', masotto_assets_mobile_db:'assets_mobile', masotto_structural_assets_db:'structural_assets', masotto_finance_db:'finances', masotto_booking_db:'bookings', masotto_maint_db:'tickets', masotto_insurance_db:'insurance', masotto_utilities_db:'utilities', masotto_contacts_db:'contacts', masotto_maintenance_presets_db:'maintenance_presets', masotto_supply_presets_db:'supply_presets' };
-  const STATUS = { paid:'Eseguito', pagata:'Eseguito', pagato:'Eseguito', done:'Eseguito', executed:'Eseguito', pending:'Aperto', open:'Aperto', previsto:'Previsto', planned:'Previsto', accantonato:'Accantonato', accrued:'Accantonato' };
+  const STATUS = { paid:'Eseguito', pagata:'Eseguito', pagato:'Eseguito', done:'Eseguito', executed:'Eseguito', pending:'Aperto', open:'Aperto', previsto:'Previsto', planned:'Previsto', forecast:'Previsto', accantonato:'Accantonato', accrued:'Accantonato' };
   function toISODate(d){ if(!d) return ''; const x=new Date(d); if(isNaN(x)) return ''; return x.toISOString().slice(0,10); }
   function addDays(dateStr, days){ const d=new Date(dateStr+'T00:00:00'); d.setDate(d.getDate()+Number(days||0)); return d.toISOString().slice(0,10); }
   function n(v){ return Number(v||0) || 0; }
@@ -18,44 +18,98 @@
   function bookingRoom(b){ const cleaning=bookingCleaning(b); if(b.room_amount_eur!=null) return n(b.room_amount_eur); if(b.camera_eur!=null) return n(b.camera_eur); if(b.gross_eur!=null) return Math.max(0,n(b.gross_eur)-cleaning); if(b.price!=null) return Math.max(0,n(b.price)-cleaning); return 0; }
   function bookingTaxable(b){ if(b.taxable_gross_eur!=null) return n(b.taxable_gross_eur); if(b.cedolare_base_eur!=null) return n(b.cedolare_base_eur); if(b.receipt_total_display_eur!=null) return n(b.receipt_total_display_eur); if(b.gross_eur!=null) return n(b.gross_eur); if(b.price!=null) return n(b.price); return bookingRoom(b)+bookingCleaning(b); }
   function bookingCityTax(b){ return n(b.city_tax_eur ?? b.tax ?? b.city_tax); }
+  function bookingIsAirbnb(b){ return lower(b.source||b.platform||b.channel).includes('airbnb'); }
+  function bookingFinancialUnknown(b){ return b.financial_summary_inclusion==='excluded_until_total_verified' || lower(b.data_quality)==='total_to_verify' || lower(b.status).includes('amount_to_verify'); }
+  function bookingCedolareWithheldByPlatform(b){
+    if(b.cedolare_withheld_by_platform===false) return false;
+    if(b.cedolare_withheld_by_platform===true) return true;
+    if(lower(b.cedolare_handling).includes('withheld') || lower(b.cedolare_handling).includes('tratten')) return true;
+    return bookingIsAirbnb(b);
+  }
+  function bookingCityTaxWithheldByPlatform(b){
+    if(b.city_tax_withheld_by_platform===false) return false;
+    if(b.city_tax_withheld_by_platform===true) return true;
+    if(lower(b.city_tax_handling).includes('withheld') || lower(b.city_tax_handling).includes('tratten') || lower(b.city_tax_handling).includes('platform')) return true;
+    if(!bookingIsAirbnb(b)) return false;
+    const gross=b.guest_total_eur ?? b.gross_collected_eur;
+    const accommodation=b.accommodation_gross_eur ?? b.taxable_gross_eur;
+    const payout=b.expected_host_payout_eur;
+    const fee=b.host_service_fee_eur ?? b.ota_commission_eur;
+    const city=bookingCityTax(b);
+    if(gross!=null && accommodation!=null && city>0 && Math.abs((n(gross)-n(accommodation))-city)<0.02){
+      if(payout==null || fee==null || Math.abs((n(payout)+n(fee))-n(accommodation))<0.02) return true;
+    }
+    return false;
+  }
+  function bookingCollected(b, existingAutoById){
+    const ci=bookingCheckIn(b); const bid=b.id||stableId('BK',(b.guest||'Ospite')+ci);
+    const old=existingAutoById && existingAutoById[`AUTO-INC-${bid}`];
+    if(old && statusCode(old.status)==='paid') return true;
+    const collection=lower(b.collection_status||b.collection_state||'');
+    if(['received','paid','collected','incassata','incassato'].includes(collection)) return true;
+    if(b.payment_confirmed===true || b.cash_received_confirmed===true || b.payout_status==='paid') return true;
+    if(b.payment_confirmed===false || collection==='pending') return false;
+    const st=lower(b.status);
+    return st==='completed' || st.startsWith('completed_') || st==='in_house';
+  }
   function bookingCashIncome(b){
-    if(b.wise_movement_eur!=null) return n(b.wise_movement_eur);
-    if(b.cash_income_eur!=null) return n(b.cash_income_eur);
-    return bookingTaxable(b);
+    if(bookingFinancialUnknown(b)) return 0;
+    if(bookingIsAirbnb(b)){
+      if(b.expected_host_payout_eur!=null) return n(b.expected_host_payout_eur);
+      if(b.cash_received_eur!=null) return n(b.cash_received_eur);
+      if(b.wise_movement_eur!=null) return n(b.wise_movement_eur);
+      return bookingTaxable(b);
+    }
+    if(b.guest_total_eur!=null) return n(b.guest_total_eur);
+    if(b.gross_collected_eur!=null) return n(b.gross_collected_eur);
+    if(b.cash_received_eur!=null) return n(b.cash_received_eur);
+    if(b.wise_movement_eur!=null && n(b.wise_movement_eur)>0) return n(b.wise_movement_eur)+bookingCityTax(b);
+    return bookingTaxable(b)+bookingCityTax(b);
   }
   function getPaymentAccount(tx){
     const date = tx.date || ''; const cat=lower(tx.category||tx.cat); const desc=lower(tx.description||tx.desc); const cutoff='2025-12-31';
     if((cat.includes('tasse')||cat.includes('tax')) && desc.includes('cedolare')) return 'Fondo fiscale';
     if(date && date <= cutoff){ if(desc.includes('imu')||desc.includes('tari')) return 'Da verificare'; return 'Wise'; }
     if(cat.includes('utenze')){ if(desc.includes('luce')||desc.includes('electricity')||desc.includes('gas')) return 'Fineco'; if(desc.includes('internet')||desc.includes('fastweb')) return 'Wise'; }
-    if(cat.includes('pulizie')||cat.includes('manutenzione')||cat.includes('straordinaria')||cat.includes('assicurazione')||cat.includes('consumabili')||cat.includes('gestione ordinaria')) return 'Wise';
+    if(cat.includes('pulizie')||cat.includes('manutenzione')||cat.includes('straordinaria')||cat.includes('assicurazione')||cat.includes('consumabili')||cat.includes('gestione ordinaria')||cat.includes('partite di giro')) return 'Wise';
     if(cat.includes('condominio')||cat.includes('ordinaria')){ if(desc.includes('prima rata 2026/27')||desc.includes('1 rata 2026/27')) return 'Wise'; return 'Fineco'; }
     return tx.payment_account || tx.account || 'Da verificare';
   }
-  function normalizeStatus(tx, today=new Date()){
-    const date=tx.date||''; const cat=lower(tx.category||tx.cat); const desc=lower(tx.description||tx.desc); const current=normalizeStatusLabel(tx.status);
-    // Gli accantonamenti cedolare possono essere segnati come pagati manualmente
-    // quando viene versata la cedolare: non forzare sempre Accantonato.
-    if(desc.includes('accantonamento cedolare')) return current === 'Eseguito' ? 'Eseguito' : 'Accantonato';
-    if(cat.includes('utenze') && date && new Date(date+'T23:59:59') <= today) return 'Eseguito';
-    if((tx.type==='expense'||tx.type==='Uscita'||tx.type==='income'||tx.type==='Entrata') && date && new Date(date+'T23:59:59') <= today && current!=='Accantonato') return 'Eseguito';
-    return current;
+  function normalizeStatus(tx){
+    // V69: nessun movimento diventa pagato solo perche la sua data e trascorsa.
+    // Lo stato e esplicito e viene cambiato dall'utente o dalla conferma di incasso booking.
+    return normalizeStatusLabel(tx.status);
   }
   function stableId(prefix, value){ let h=0; const s=String(value); for(let i=0;i<s.length;i++){ h=((h<<5)-h)+s.charCodeAt(i); h|=0; } return prefix+'-'+Math.abs(h); }
-  function generateBookingRows(bookings){
+  function generateBookingRows(bookings, today=new Date(), existingAutoById={}){
     const rows=[];
-    (bookings||[]).forEach(b=>{ const ci=bookingCheckIn(b); if(!ci) return; const co=bookingCheckOut(b); const guest=b.guest||'Ospite'; const bid=b.id||stableId('BK',guest+ci); const cleaning=bookingCleaning(b); const taxable=bookingTaxable(b); const city=bookingCityTax(b); const room=bookingRoom(b); const fiscalYear=String((co||ci).slice(0,4));
-      const cashIncome=bookingCashIncome(b);
-      rows.push({ id:`AUTO-INC-${bid}`, date:ci, description:`Ricevuta soggiorno: ${guest}`, category:'Prenotazione', type:'income', amount_eur:cashIncome, income:cashIncome, expense:0, status:'paid', payment_account:'Wise', booking_id:bid, is_auto_generated:true, fiscal_year:ci.slice(0,4), room_amount_eur:room, cleaning_fee_eur:cleaning, taxable_eur:taxable, fiscal_income_eur:taxable, city_tax_eur:city, riccardo_direct_eur:n(b.riccardo_direct_eur), receipt_rule:'imponibile cedolare = lordo/base cedolare già comprensivo delle pulizie; city tax separata; amount_eur = movimento cassa Wise' });
-      rows.push({ id:`AUTO-CLEAN-${bid}`, date:co, description:`Pulizie: ${guest}`, category:'Pulizie', type:'expense', amount_eur:cleaning, income:0, expense:cleaning, status:'paid', payment_account:'Wise', booking_id:bid, is_auto_generated:true, fiscal_year:fiscalYear });
-      rows.push({ id:`AUTO-CED-${bid}`, date:co, description:`Accantonamento Cedolare Secca: ${guest} / ${fiscalYear}`, category:'Tasse', type:'accrual', amount_eur:Math.round(taxable*0.21*100)/100, income:0, expense:Math.round(taxable*0.21*100)/100, status:'accrued', payment_account:'Fondo fiscale', booking_id:bid, is_auto_generated:true, fiscal_year:fiscalYear });
-      if(city>0){ rows.push({ id:`AUTO-CITY-${bid}`, date:ci, description:`Tassa soggiorno riscossa: ${guest}`, category:'Partite di giro', type:'memo', amount_eur:city, income:0, expense:0, status:'paid', payment_account:'Wise', booking_id:bid, is_auto_generated:true, fiscal_year:ci.slice(0,4), city_tax_eur:city }); }
+    (bookings||[]).forEach(b=>{
+      const ci=bookingCheckIn(b); if(!ci) return;
+      const co=bookingCheckOut(b); const guest=b.guest||'Ospite'; const bid=b.id||stableId('BK',guest+ci);
+      const cleaning=bookingCleaning(b); const taxable=bookingTaxable(b); const city=bookingCityTax(b); const room=bookingRoom(b); const fiscalYear=String((co||ci).slice(0,4));
+      const collected=bookingCollected(b,existingAutoById); const unknown=bookingFinancialUnknown(b); const airbnb=bookingIsAirbnb(b);
+      const cedWithheld=bookingCedolareWithheldByPlatform(b); const cityWithheld=bookingCityTaxWithheldByPlatform(b);
+      const cashIncome=bookingCashIncome(b); const cedolare=Math.round(taxable*0.21*100)/100;
+      rows.push({ id:`AUTO-INC-${bid}`, date:ci, description:`${collected?'Incasso':'Importo in arrivo'} soggiorno: ${guest}`, category:'Prenotazione', type:'income', amount_eur:unknown?0:cashIncome, income:unknown?0:cashIncome, expense:0, status:collected?'paid':'pending', payment_account:airbnb?'Airbnb':'Wise', booking_id:bid, is_auto_generated:true, fiscal_year:ci.slice(0,4), room_amount_eur:room, cleaning_fee_eur:cleaning, taxable_eur:unknown?null:taxable, fiscal_income_eur:unknown?null:taxable, city_tax_eur:city, riccardo_direct_eur:n(b.riccardo_direct_eur), forecast_only:!collected, manual_collection_required:!collected, amount_to_verify:unknown, receipt_rule:'Movimento cassa attivato solo alla conferma manuale di incasso; prenotazioni future restano previsionali.' });
+      rows.push({ id:`AUTO-CLEAN-${bid}`, date:co, description:`Pulizie: ${guest}`, category:'Pulizie', type:'expense', amount_eur:cleaning, income:0, expense:cleaning, status:collected?'pending':'planned', payment_account:'Wise', booking_id:bid, is_auto_generated:true, fiscal_year:fiscalYear, forecast_only:!collected, activated_by_collection:collected, notes:collected?'Obbligo generato dalla conferma di incasso; segnare Pagato solo al pagamento effettivo.':'Previsione: non e una uscita reale finche la prenotazione non viene segnata Incassata.' });
+      if(cedWithheld){
+        rows.push({ id:`AUTO-CED-${bid}`, date:co, description:`Cedolare Secca trattenuta da Airbnb: ${guest} / ${fiscalYear}`, category:'Tasse', type:'memo', amount_eur:unknown?0:cedolare, income:0, expense:0, status:collected?'paid':'planned', payment_account:'Airbnb', booking_id:bid, is_auto_generated:true, fiscal_year:fiscalYear, platform_handled:true, exclude_from_cash:true, exclude_from_local_tax_reserve:true, forecast_only:!collected, notes:'Airbnb trattiene la cedolare: importo informativo, non sottrarre nuovamente dalla liquidita e non creare accantonamento locale.' });
+      } else {
+        rows.push({ id:`AUTO-CED-${bid}`, date:co, description:`Accantonamento Cedolare Secca: ${guest} / ${fiscalYear}`, category:'Tasse', type:'accrual', amount_eur:unknown?0:cedolare, income:0, expense:unknown?0:cedolare, status:collected?'accrued':'planned', payment_account:'Fondo fiscale', booking_id:bid, is_auto_generated:true, fiscal_year:fiscalYear, forecast_only:!collected, activated_by_collection:collected, amount_to_verify:unknown });
+      }
+      if(city>0){
+        if(cityWithheld){
+          rows.push({ id:`AUTO-CITY-${bid}`, date:ci, description:`Tassa soggiorno trattenuta/gestita da Airbnb: ${guest}`, category:'Partite di giro', type:'memo', amount_eur:city, income:0, expense:0, status:collected?'paid':'planned', payment_account:'Airbnb', booking_id:bid, is_auto_generated:true, fiscal_year:ci.slice(0,4), city_tax_eur:city, platform_handled:true, exclude_from_cash:true, exclude_from_pnl:true, forecast_only:!collected });
+        } else {
+          rows.push({ id:`AUTO-CITY-${bid}`, date:ci, description:`Versamento tassa soggiorno: ${guest}`, category:'Partite di giro', type:'expense', amount_eur:city, income:0, expense:city, status:collected?'pending':'planned', payment_account:'Wise', booking_id:bid, is_auto_generated:true, fiscal_year:ci.slice(0,4), city_tax_eur:city, exclude_from_pnl:true, forecast_only:!collected, activated_by_collection:collected, notes:collected?'Obbligo generato dopo incasso. Segnare Pagato solo quando il riversamento e effettivo.':'Previsione: nessuna uscita finche la prenotazione non viene segnata Incassata.' });
+        }
+      }
       const reimbursements = Array.isArray(b.riccardo_reimbursements) ? b.riccardo_reimbursements : [];
       reimbursements.forEach((r, idx)=>{
         const reimbAmount = n(r.amount_eur ?? r.amount ?? 0);
         if(reimbAmount>0){
           const reimbDate = r.date || co || ci;
-          rows.push({ id:`AUTO-RICCARDO-${bid}-${idx+1}`, date:reimbDate, description:r.description || `Giroconto a Riccardo: ${guest} tranche ${idx+1}`, category:'Giroconto Riccardo', type:'expense', amount_eur:reimbAmount, income:0, expense:reimbAmount, status:'paid', payment_account:'Wise', booking_id:bid, is_auto_generated:true, fiscal_year:reimbDate.slice(0,4), notes:'Uscita Wise a Riccardo collegata alla prenotazione: non modifica la ricevuta, corregge la cassa.' });
+          rows.push({ id:`AUTO-RICCARDO-${bid}-${idx+1}`, date:reimbDate, description:r.description || `Giroconto a Riccardo: ${guest} tranche ${idx+1}`, category:'Giroconto Riccardo', type:'expense', amount_eur:reimbAmount, income:0, expense:reimbAmount, status:collected?'pending':'planned', payment_account:'Wise', booking_id:bid, is_auto_generated:true, fiscal_year:reimbDate.slice(0,4), forecast_only:!collected, notes:'Uscita Wise a Riccardo collegata alla prenotazione: non modifica la ricevuta, corregge la cassa.' });
         }
       });
     });
@@ -68,47 +122,55 @@
     const exists=(desc, ym)=> (finances||[]).some(f=>lower(f.description||f.desc).includes(desc) && String(f.date||'').startsWith(ym));
     months.forEach(ym=>{
       const date=ym+'-28';
-      // Fastweb: importo esatto 27,95 euro/mese, sempre Wise anche nel 2025.
       if(!exists('internet',ym)&&!exists('fastweb',ym)) rows.push({id:'AUTO-INTERNET-'+ym,date,description:'internet Fastweb mensile',category:'Utenze',type:'expense',amount_eur:27.95,income:0,expense:27.95,status:'paid',payment_account:'Wise',is_auto_generated:true,fiscal_year:ym.slice(0,4)});
-      // Consumabili: partono dall'apertura attivita, agosto 2025, 30 euro/mese.
       if(ym >= '2025-08' && !exists('consumabili gestione ordinaria',ym)) rows.push({id:'AUTO-CONS-'+ym,date,description:'consumabili gestione ordinaria',category:'Gestione ordinaria',type:'expense',amount_eur:30,income:0,expense:30,status:'paid',payment_account:'Wise',is_auto_generated:true,fiscal_year:ym.slice(0,4)});
     });
     return rows;
   }
   function normalizeFinanceRows(finances, bookings, today=new Date()){
     const existingAutoById = {};
-    (finances||[]).forEach(f=>{
-      const id=String(f.id||'');
-      if(id.startsWith('AUTO-')) existingAutoById[id]=f;
-    });
+    (finances||[]).forEach(f=>{ const id=String(f.id||''); if(id.startsWith('AUTO-')) existingAutoById[id]=f; });
     const manual=(finances||[])
       .filter(f=>!String(f.id||'').startsWith('AUTO-'))
       .filter(f=>!lower(f.description||f.desc).trim().startsWith('bookings '))
-      .map(f=>{ const out={...f}; out.description=out.description||out.desc||''; out.category=out.category||out.cat||'Altro'; out.amount_eur=n(out.amount_eur ?? out.amount ?? out.expense ?? out.out); const lt=lower(out.type); out.type= lt==='revenue' ? 'income' : (out.type || (out.category==='Entrata Extra' ? 'income':'expense')); out.status=statusCode(normalizeStatus(out,today)); out.payment_account=getPaymentAccount(out); out.fiscal_year=String(out.related_year || out.fiscal_year || (out.date||'').slice(0,4)); return out; });
-    const closedYears = getYearClosures();
-    const generated=[...generateBookingRows(bookings), ...generateMonthlyDefaults(manual,today)].map(g=>{
+      .map(f=>{ const out={...f}; out.description=out.description||out.desc||''; out.category=out.category||out.cat||'Altro'; out.amount_eur=n(out.amount_eur ?? out.amount ?? out.expense ?? out.out); const lt=lower(out.type); out.type= lt==='revenue' ? 'income' : (out.type || (out.category==='Entrata Extra' ? 'income':'expense')); out.status=statusCode(normalizeStatus(out)); out.payment_account=getPaymentAccount(out); out.fiscal_year=String(out.related_year || out.fiscal_year || (out.date||'').slice(0,4)); return out; });
+    const generated=[...generateBookingRows(bookings,today,existingAutoById), ...generateMonthlyDefaults(manual,today)].map(g=>{
       const old=existingAutoById[String(g.id)];
       if(old){
-        g.status = statusCode(normalizeStatus({...g, status: old.status}, today));
+        const oldStatus=statusCode(old.status);
+        if(g.type!=='income' && old.user_confirmed_status===true) g.status=oldStatus;
+        if(g.type==='income' && oldStatus==='paid') g.status='paid';
+        if(g.type==='expense' && oldStatus==='paid') g.status='paid';
         g.payment_account = old.payment_account || g.payment_account;
         g.notes = old.notes || g.notes;
+        if(old.status_changed_at) g.status_changed_at=old.status_changed_at;
+        if(old.user_confirmed_status===true) g.user_confirmed_status=true;
       }
       return g;
-    }).filter(g=>{
-      // V64: le singole righe di Accantonamento Cedolare devono restare visibili nei movimenti
-      // anche dopo la chiusura anno. Il totale annuale vive nel contatore F24, ma le righe
-      // storiche non vengono nascoste; vanno solo escluse dal calcolo delle uscite reali.
-      return true;
     });
-    // V58: preserva le righe automatiche di chiusura/riporto cassa.
-    // Prima venivano salvate dal pulsante Bilancio ma poi eliminate alla normalizzazione
-    // perche non erano righe booking o ricorrenze mensili.
     const generatedIds = new Set(generated.map(g=>String(g.id||'')));
     const preservedAuto = Object.values(existingAutoById)
       .filter(f=>String(f.id||'').startsWith('AUTO-OPENING-') || String(f.id||'').startsWith('AUTO-YEAREND-'))
       .filter(f=>!generatedIds.has(String(f.id||'')))
       .map(f=>{ const out={...f}; out.type=out.type||'memo'; out.amount_eur=n(out.amount_eur ?? out.amount ?? 0); out.status=statusCode(out.status||'paid'); out.payment_account=out.payment_account||'Wise'; return out; });
     return [...manual, ...preservedAuto, ...generated];
+  }
+
+  function confirmBookingCollection(financeRowId){
+    const id=String(financeRowId||'');
+    const finances=JSON.parse(localStorage.getItem('masotto_finance_db')||'[]')||[];
+    const tx=finances.find(x=>String(x.id)===id);
+    const bid=tx&&tx.booking_id!=null?String(tx.booking_id):id.replace(/^AUTO-INC-/, '');
+    const bookings=JSON.parse(localStorage.getItem('masotto_booking_db')||'[]')||[];
+    const idx=bookings.findIndex(b=>String(b.id)===bid);
+    if(idx<0) return {ok:false,error:'Prenotazione non trovata'};
+    const now=new Date().toISOString();
+    bookings[idx]={...bookings[idx],collection_status:'received',payment_confirmed:true,collected_at:now};
+    if(bookingIsAirbnb(bookings[idx])) bookings[idx].payout_status='paid';
+    localStorage.setItem('masotto_booking_db',JSON.stringify(bookings));
+    const normalized=normalizeFinanceRows(finances,bookings,new Date());
+    localStorage.setItem('masotto_finance_db',JSON.stringify(normalized));
+    return {ok:true,booking:bookings[idx],finances:normalized};
   }
 
   function getYearEndBalance(year, opts={}){
@@ -118,16 +180,19 @@
     const rows=normalizeFinanceRows(finances, bookings, opts.today?new Date(opts.today):new Date());
     const y=String(year);
     const yearRows=rows.filter(t=>String(t.fiscal_year || (t.date||'').slice(0,4))===y);
-    const bookingRows=generateBookingRows(bookings).filter(t=>String(t.fiscal_year || (t.date||'').slice(0,4))===y);
-    const receipts=bookings.filter(b=>String(bookingCheckIn(b)).slice(0,4)===y).map(b=>{
+    const bookingRows=generateBookingRows(bookings, opts.today?new Date(opts.today):new Date()).filter(t=>String(t.fiscal_year || (t.date||'').slice(0,4))===y);
+    const receipts=bookings.filter(b=>String(bookingCheckIn(b)).slice(0,4)===y && bookingCollected(b) && !bookingFinancialUnknown(b)).map(b=>{
       const taxable=bookingTaxable(b), cleaning=bookingCleaning(b), city=bookingCityTax(b), room=bookingRoom(b);
-      return {id:b.id, guest:b.guest||'Ospite', check_in:bookingCheckIn(b), check_out:bookingCheckOut(b), nights:Number(b.nights||0), pax:Number(b.pax||1), soggiorno_eur:room, pulizie_eur:cleaning, imponibile_cedolare_eur:taxable, tassa_soggiorno_eur:city, totale_incassato_eur:Math.round((taxable+city)*100)/100, cedolare_21_eur:Math.round(taxable*21)/100};
+      return {id:b.id, guest:b.guest||'Ospite', check_in:bookingCheckIn(b), check_out:bookingCheckOut(b), nights:Number(b.nights||0), pax:Number(b.pax||1), soggiorno_eur:room, pulizie_eur:cleaning, imponibile_cedolare_eur:taxable, tassa_soggiorno_eur:city, totale_incassato_eur:bookingCashIncome(b), cedolare_21_eur:Math.round(taxable*21)/100, cedolare_withheld_by_platform:bookingCedolareWithheldByPlatform(b), city_tax_withheld_by_platform:bookingCityTaxWithheldByPlatform(b)};
     });
     const sum=(arr,fn)=>Math.round(arr.reduce((a,x)=>a+Number(fn(x)||0),0)*100)/100;
-    const isOut=t=>{const type=String(t.type||'').toLowerCase(); if(type==='memo'||type==='accrual') return false; return type==='expense'||type==='uscita'||(Number(t.expense||0)>0);};
-    const isIn=t=>{const type=String(t.type||'').toLowerCase(); return type==='income'||type==='entrata'||(Number(t.income||0)>0);};
+    const isPaid=t=>statusCode(t.status)==='paid';
+    const isOut=t=>{const type=String(t.type||'').toLowerCase(); if(type==='memo'||type==='accrual'||!isPaid(t)) return false; return type==='expense'||type==='uscita'||(Number(t.expense||0)>0);};
+    const isIn=t=>{const type=String(t.type||'').toLowerCase(); if(!isPaid(t)) return false; return type==='income'||type==='entrata'||(Number(t.income||0)>0);};
+    const localCedolare=yearRows.filter(t=>String(t.type).toLowerCase()==='accrual' && statusCode(t.status)==='accrued' && !t.exclude_from_local_tax_reserve);
+    const platformCedolare=yearRows.filter(t=>t.platform_handled && lower(t.description).includes('cedolare'));
     const categories={};
-    yearRows.filter(isOut).forEach(t=>{ const k=t.category||'Altro'; categories[k]=Math.round(((categories[k]||0)+Number(t.amount_eur||t.expense||0))*100)/100; });
+    yearRows.filter(isOut).filter(t=>!t.exclude_from_pnl).forEach(t=>{ const k=t.category||'Altro'; categories[k]=Math.round(((categories[k]||0)+Number(t.amount_eur||t.expense||0))*100)/100; });
     return {
       year:y,
       generated_at:new Date().toISOString(),
@@ -135,9 +200,11 @@
       totals:{
         receipts_count:receipts.length,
         imponibile_cedolare:sum(receipts,r=>r.imponibile_cedolare_eur),
-        tassa_soggiorno_riscossa:sum(receipts,r=>r.tassa_soggiorno_eur),
-        pulizie:sum(receipts,r=>r.pulizie_eur),
-        cedolare_accantonata:sum(receipts,r=>r.cedolare_21_eur),
+        tassa_soggiorno_riscossa_host:sum(receipts.filter(r=>!r.city_tax_withheld_by_platform),r=>r.tassa_soggiorno_eur),
+        tassa_soggiorno_gestita_piattaforma:sum(receipts.filter(r=>r.city_tax_withheld_by_platform),r=>r.tassa_soggiorno_eur),
+        pulizie_previste:sum(receipts,r=>r.pulizie_eur),
+        cedolare_accantonata:sum(localCedolare,t=>t.amount_eur||t.expense),
+        cedolare_trattenuta_piattaforma:sum(platformCedolare,t=>t.amount_eur||0),
         entrate_reali:sum(yearRows.filter(isIn),t=>t.amount_eur||t.income),
         uscite_reali:sum(yearRows.filter(isOut),t=>t.amount_eur||t.expense)
       },
@@ -155,56 +222,19 @@
     const propCIR = prop.cir || '015146-LNI-09408';
     const soggiorno = Math.max(0, Number(r.imponibile_cedolare_eur||0) - Number(r.pulizie_eur||0));
     const receiptDate = r.issue_date || r.check_in;
+    const cityLabel=r.city_tax_withheld_by_platform?'Tassa di soggiorno trattenuta/gestita dalla piattaforma':'Tassa di soggiorno riscossa dal locatore';
+    const cedNote=r.cedolare_withheld_by_platform?'<p>Cedolare secca gestita/trattenuta da Airbnb: non viene creato un secondo accantonamento locale.</p>':'';
     return `<section class="receipt-page">
       <div class="receipt-topline">${new Date().toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}<span>Ricevuta_${String(r.guest||'Ospite').replace(/\s+/g,'_')}_${r.id}</span></div>
       <header class="receipt-header">
-        <div>
-          <div class="receipt-kicker">RICEVUTA NON FISCALE - LOCAZIONE BREVE TURISTICA</div>
-          <h1>RICEVUTA DI PAGAMENTO</h1>
-          <p class="receipt-ref"><strong>N. Rif:</strong> ${r.id}</p>
-          <p class="muted">Data emissione: ${fmt(receiptDate)}</p>
-        </div>
-        <div class="property-box">
-          <h2>${propName}</h2>
-          <p>${propAddress}</p>
-          <p>Proprietario: ${propOwner}</p>
-          <p>CIR: ${propCIR}</p>
-        </div>
+        <div><div class="receipt-kicker">RICEVUTA NON FISCALE - LOCAZIONE BREVE TURISTICA</div><h1>RICEVUTA DI PAGAMENTO</h1><p class="receipt-ref"><strong>N. Rif:</strong> ${r.id}</p><p class="muted">Data emissione: ${fmt(receiptDate)}</p></div>
+        <div class="property-box"><h2>${propName}</h2><p>${propAddress}</p><p>Proprietario: ${propOwner}</p><p>CIR: ${propCIR}</p></div>
       </header>
       <div class="receipt-rule"></div>
-      <div class="receipt-info-grid">
-        <div class="receipt-info-box">
-          <h3>DATI OSPITE</h3>
-          <p><strong>Nome:</strong> ${r.guest||''}</p>
-          <p><strong>Ospiti totali:</strong> ${r.pax||1}</p>
-        </div>
-        <div class="receipt-info-box">
-          <h3>DETTAGLI SOGGIORNO</h3>
-          <p><strong>Check-in:</strong> ${fmt(r.check_in)}</p>
-          <p><strong>Check-out:</strong> ${fmt(r.check_out)}</p>
-          <p><strong>Totale Notti:</strong> ${r.nights||0}</p>
-        </div>
-      </div>
-      <table class="receipt-table">
-        <thead><tr><th>DESCRIZIONE DEL SERVIZIO</th><th>IMPORTO</th></tr></thead>
-        <tbody>
-          <tr><td>Soggiorno - locazione breve turistica (${r.nights||0} notti)</td><td>€ ${eur(soggiorno)}</td></tr>
-          <tr><td>Spese di pulizia</td><td>€ ${eur(r.pulizie_eur)}</td></tr>
-          <tr class="total-row"><td>Totale lordo per cedolare secca</td><td>€ ${eur(r.imponibile_cedolare_eur)}</td></tr>
-          <tr class="city-row"><td>Tassa di soggiorno riscossa al check-in</td><td>€ ${eur(r.tassa_soggiorno_eur)}</td></tr>
-        </tbody>
-      </table>
-      <div class="law-notes">
-        <h4>Note di Legge:</h4>
-        <p>Ricevuta emessa per prestazione relativa a locazione breve turistica ai sensi dell'art. 4 DL 50/2017.</p>
-        <p>Operazione fuori campo IVA ai sensi dell'art. 10 DPR 633/72.</p>
-      </div>
-      <div class="signature-block">
-        <div class="signature-line"></div>
-        <div class="signature-label">FIRMA DEL LOCATORE</div>
-        <div class="signature-name">${propOwner}</div>
-        <div class="signature-printed">${propOwner}</div>
-      </div>
+      <div class="receipt-info-grid"><div class="receipt-info-box"><h3>DATI OSPITE</h3><p><strong>Nome:</strong> ${r.guest||''}</p><p><strong>Ospiti totali:</strong> ${r.pax||1}</p></div><div class="receipt-info-box"><h3>DETTAGLI SOGGIORNO</h3><p><strong>Check-in:</strong> ${fmt(r.check_in)}</p><p><strong>Check-out:</strong> ${fmt(r.check_out)}</p><p><strong>Totale Notti:</strong> ${r.nights||0}</p></div></div>
+      <table class="receipt-table"><thead><tr><th>DESCRIZIONE DEL SERVIZIO</th><th>IMPORTO</th></tr></thead><tbody><tr><td>Soggiorno - locazione breve turistica (${r.nights||0} notti)</td><td>€ ${eur(soggiorno)}</td></tr><tr><td>Spese di pulizia</td><td>€ ${eur(r.pulizie_eur)}</td></tr><tr class="total-row"><td>Totale lordo per cedolare secca</td><td>€ ${eur(r.imponibile_cedolare_eur)}</td></tr><tr class="city-row"><td>${cityLabel}</td><td>€ ${eur(r.tassa_soggiorno_eur)}</td></tr></tbody></table>
+      <div class="law-notes"><h4>Note di Legge:</h4><p>Ricevuta emessa per prestazione relativa a locazione breve turistica ai sensi dell'art. 4 DL 50/2017.</p><p>Operazione fuori campo IVA ai sensi dell'art. 10 DPR 633/72.</p>${cedNote}</div>
+      <div class="signature-block"><div class="signature-line"></div><div class="signature-label">FIRMA DEL LOCATORE</div><div class="signature-name">${propOwner}</div><div class="signature-printed">${propOwner}</div></div>
       <footer>Documento generato dal Sistema Gestionale 2M Apartments. Copia per l'ospite.</footer>
     </section>`;
   }
@@ -220,8 +250,10 @@
     const bookings=(JSON.parse(localStorage.getItem('masotto_booking_db')||'null')||master.bookings||[]);
     const b=bookings.find(x=>String(x.id)===String(bookingId));
     if(!b){ alert('Prenotazione non trovata.'); return null; }
+    if(!bookingCollected(b)){ alert('La prenotazione non risulta ancora incassata. Segnala prima l incasso.'); return null; }
+    if(bookingFinancialUnknown(b)){ alert('Importo prenotazione da verificare: ricevuta non generata.'); return null; }
     const taxable=bookingTaxable(b), cleaning=bookingCleaning(b), city=bookingCityTax(b), room=bookingRoom(b);
-    const r={id:b.id, guest:b.guest||'Ospite', check_in:bookingCheckIn(b), check_out:bookingCheckOut(b), nights:Number(b.nights||0), pax:Number(b.pax||1), soggiorno_eur:room, pulizie_eur:cleaning, imponibile_cedolare_eur:taxable, tassa_soggiorno_eur:city, totale_incassato_eur:Math.round((taxable+city)*100)/100, cedolare_21_eur:Math.round(taxable*21)/100};
+    const r={id:b.id, guest:b.guest||'Ospite', check_in:bookingCheckIn(b), check_out:bookingCheckOut(b), nights:Number(b.nights||0), pax:Number(b.pax||1), soggiorno_eur:room, pulizie_eur:cleaning, imponibile_cedolare_eur:taxable, tassa_soggiorno_eur:city, totale_incassato_eur:bookingCashIncome(b), cedolare_21_eur:Math.round(taxable*21)/100, cedolare_withheld_by_platform:bookingCedolareWithheldByPlatform(b), city_tax_withheld_by_platform:bookingCityTaxWithheldByPlatform(b)};
     const prop=(master.property_master&&master.property_master[0])||{};
     const html=`<!doctype html><html><head><title>Ricevuta_${String(r.guest||'Ospite').replace(/\s+/g,'_')}_${r.id}</title>${receiptsPrintCss()}</head><body>${receiptPageHtml(r,prop)}<script>window.onload=()=>setTimeout(()=>window.print(),500)<\/script></body></html>`;
     const w=window.open('','_blank'); if(!w){ localStorage.setItem('masotto_receipt_html_'+r.id, html); alert('Popup bloccato: abilita i popup. Ho salvato la ricevuta in memoria locale.'); return r; } w.document.write(html); w.document.close(); return r;
@@ -242,9 +274,6 @@
     const direct=localStorage.getItem('masotto_opening_balance_'+y);
     if(direct!==null && direct!=='' && !isNaN(Number(direct))) return Number(direct);
     try{ const reserve=JSON.parse(localStorage.getItem('masotto_accantonamento_'+prev)||'null'); if(reserve){ if(reserve.fondo_cassa_disponibile_eur!==undefined) return Number(reserve.fondo_cassa_disponibile_eur)||0; if(reserve.saldo_disponibile_eur!==undefined) return Number(reserve.saldo_disponibile_eur)||0; } }catch(e){}
-    // V58: fallback operativo richiesto per Masotto.
-    // Se la chiusura 2025 non e' ancora stata salvata dal browser, il 2026 non deve
-    // ripartire dal saldo banca pre-accantonamento ma dal liquidita disponibile approvato.
     if(y==='2026') return 587.03;
     return 0;
   }
@@ -253,7 +282,7 @@
     const id='AUTO-OPENING-'+y;
     let rows=[];
     try{ rows=JSON.parse(localStorage.getItem('masotto_finance_db')||'[]')||[]; }catch(e){ rows=[]; }
-    const row={id,date:y+'-01-01',description:'Liquidità iniziale '+y+' da chiusura anno precedente',category:'Riporto cassa',type:'memo',amount_eur:Math.round(Number(amount||0)*100)/100,income:0,expense:0,status:'paid',payment_account:'Wise',fiscal_year:y,is_auto_generated:true,notes:'Riporto generato dalla chiusura anno. Non e un nuovo incasso: e la liquidita disponibile iniziale dell anno dopo aver separato gli accantonamenti.'};
+    const row={id,date:y+'-01-01',description:'Liquidita iniziale '+y+' da chiusura anno precedente',category:'Riporto cassa',type:'memo',amount_eur:Math.round(Number(amount||0)*100)/100,income:0,expense:0,status:'paid',payment_account:'Wise',fiscal_year:y,is_auto_generated:true,notes:'Riporto generato dalla chiusura anno. Non e un nuovo incasso: e la liquidita disponibile iniziale dell anno dopo aver separato gli accantonamenti.'};
     const idx=rows.findIndex(r=>String(r.id)===id);
     if(idx>=0) rows[idx]={...rows[idx],...row}; else rows.push(row);
     localStorage.setItem('masotto_finance_db',JSON.stringify(rows));
@@ -269,19 +298,14 @@
   function closeFiscalYear(year){
     const y=String(year);
     const existing=getYearClosure(y);
-    if(existing && existing.closed){
-      return { already_closed:true, reserve: existing, totals:{ cedolare_accantonata: existing.tax_reserve_eur||0, receipts_count: existing.receipts_count||0 }, receipts: JSON.parse(localStorage.getItem('masotto_receipts_'+y)||'[]') };
-    }
-
-    // Calcola il bilancio PRIMA di chiudere, quando le singole cedolari sono ancora generate.
+    if(existing && existing.closed){ return { already_closed:true, reserve: existing, totals:{ cedolare_accantonata: existing.tax_reserve_eur||0, receipts_count: existing.receipts_count||0 }, receipts: JSON.parse(localStorage.getItem('masotto_receipts_'+y)||'[]') }; }
     const report=getYearEndBalance(y);
     const rows=report.rows||[];
     const openingBalance=getOpeningBalanceForYear(y);
-    const isIncome=t=>String(t.type||'').toLowerCase()==='income'||Number(t.income||0)>0;
+    const isIncome=t=>statusCode(t.status)==='paid' && (String(t.type||'').toLowerCase()==='income'||Number(t.income||0)>0);
     const isRealOut=t=>{
       const type=String(t.type||'').toLowerCase();
-      if(type==='memo'||type==='accrual') return false;
-      if(String(t.status||'').toLowerCase()==='accrued'||normalizeStatusLabel(t.status)==='Accantonato') return false;
+      if(statusCode(t.status)!=='paid' || type==='memo'||type==='accrual') return false;
       const desc=lower(t.description||t.desc), cat=lower(t.category||t.cat);
       if(cat.includes('tasse') && (desc.includes('imu')||desc.includes('tari'))) return false;
       return type==='expense'||type==='uscita'||Number(t.expense||0)>0;
@@ -292,28 +316,9 @@
     const taxReserve=Math.round(Number(report.totals.cedolare_accantonata||0)*100)/100;
     const bankBeforeReserve=Math.round((openingBalance+entrate-uscite)*100)/100;
     let carryForwardCash=Math.round((bankBeforeReserve-taxReserve)*100)/100;
-
-    // Valore di chiusura 2025 validato dall'utente: il 2026 deve partire da questo liquidita disponibile.
     if(y==='2025') carryForwardCash=587.03;
     const nextYear=String(Number(y)+1);
-
-    const closure={
-      year:y,
-      closed:true,
-      closed_at:new Date().toISOString(),
-      next_year:nextYear,
-      opening_cash_eur:openingBalance,
-      income_eur:entrate,
-      real_out_eur:uscite,
-      bank_before_reserve_eur:bankBeforeReserve,
-      tax_reserve_eur:taxReserve,
-      tax_reserve_status:'da_versare',
-      f24_paid:false,
-      carry_forward_cash_eur:carryForwardCash,
-      receipts_count:report.totals.receipts_count,
-      rule:'Alla chiusura le cedolari singole vengono totalizzate; il 2026 parte dal liquidita disponibile. La cedolare resta in apposito contatore/F24, non nei movimenti operativi.'
-    };
-
+    const closure={year:y,closed:true,closed_at:new Date().toISOString(),next_year:nextYear,opening_cash_eur:openingBalance,income_eur:entrate,real_out_eur:uscite,bank_before_reserve_eur:bankBeforeReserve,tax_reserve_eur:taxReserve,tax_reserve_status:'da_versare',f24_paid:false,carry_forward_cash_eur:carryForwardCash,receipts_count:report.totals.receipts_count,rule:'Solo incassi confermati e uscite effettivamente pagate entrano nella cassa. Airbnb non genera un secondo accantonamento locale di cedolare se la trattiene la piattaforma.'};
     saveYearClosure(y, closure);
     report.reserve={...closure, amount_eur:taxReserve, fondo_cassa_disponibile_eur:carryForwardCash, saldo_disponibile_eur:carryForwardCash};
     localStorage.setItem('masotto_year_end_'+y,JSON.stringify(report));
@@ -321,27 +326,25 @@
     localStorage.setItem('masotto_accantonamento_'+y,JSON.stringify(report.reserve));
     localStorage.setItem('masotto_opening_balance_'+nextYear,String(carryForwardCash));
     upsertCarryForwardRow(nextYear,carryForwardCash);
-
-    // Aggiorna i movimenti salvati togliendo le singole cedolari dell'anno chiuso e mantenendo il riporto.
     const currentFinances=JSON.parse(localStorage.getItem('masotto_finance_db')||'[]')||[];
     const currentBookings=JSON.parse(localStorage.getItem('masotto_booking_db')||'[]')||[];
     localStorage.setItem('masotto_finance_db', JSON.stringify(normalizeFinanceRows(currentFinances,currentBookings,new Date())));
     return report;
   }
 
-  function getCedolareAccantonata(rows, year){ return (rows||[]).filter(t=>statusCode(t.status)==='accrued' && lower(t.category).includes('tasse') && lower(t.description).includes('cedolare') && String(t.fiscal_year||t.date?.slice(0,4))===String(year)).reduce((a,t)=>a+n(t.amount_eur??t.expense),0); }
+  function getCedolareAccantonata(rows, year){ return (rows||[]).filter(t=>statusCode(t.status)==='accrued' && String(t.type||'').toLowerCase()==='accrual' && lower(t.category).includes('tasse') && lower(t.description).includes('cedolare') && !t.exclude_from_local_tax_reserve && String(t.fiscal_year||t.date?.slice(0,4))===String(year)).reduce((a,t)=>a+n(t.amount_eur??t.expense),0); }
   function getExpenseByCategory(rows, year, q){ const qq=lower(q); return (rows||[]).filter(t=>String(t.fiscal_year||t.date?.slice(0,4))===String(year)&&['paid','pending','planned'].includes(statusCode(t.status))&&lower(t.category+' '+t.description).includes(qq)).reduce((a,t)=>a+n(t.amount_eur??t.expense),0); }
   async function ensureMasterDB(force=false){ try{ const master=window.MASOTTO_DB||{}; for(const [lsKey,section] of Object.entries(LS_MAP)){ const existing=localStorage.getItem(lsKey); const empty=!existing||existing==='null'||existing==='[]'||existing==='{}'||existing==='undefined'; if(force||empty) localStorage.setItem(lsKey,JSON.stringify(master[section]??[])); } return true; }catch(e){ console.warn('DB sync failed',e); return false; } }
   function mountSidebar(){ if(document.getElementById('msSidebar')) return; try{ document.querySelectorAll('aside.sidebar,div.sidebar,#sidebar,[data-legacy-sidebar="1"],.ms-sidebar').forEach(el=>el.remove()); }catch(e){}
     const path=(location.pathname.split('/').pop()||'index.html').toLowerCase(); const nav=PAGES.map(([href,label,icon])=>`<a class="${href.toLowerCase()===path?'active':''}" href="${href}"><i data-lucide="${icon}" class="w-4 h-4"></i><span>${label}</span></a>`).join('');
-    const sidebar=document.createElement('aside'); sidebar.className='ms-sidebar'; sidebar.id='msSidebar'; sidebar.innerHTML=`<div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg" style="background:linear-gradient(135deg,#004D54,#10b981)">2M</div><div><div class="text-white font-bold leading-tight">Masotto Terrace</div><div class="ms-chip">single-property mode</div></div></div><nav class="ms-nav space-y-1">${nav}</nav><div class="mt-6 p-3 rounded-xl" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);"><button id="msSyncBtn" class="w-full text-xs font-bold px-3 py-2 rounded-lg" style="background:rgba(45,212,191,.15);border:1px solid rgba(45,212,191,.35);color:#a7f3d0;">Sincronizza tutto</button><button id="msReceiptsBtn" class="w-full text-xs font-bold px-3 py-2 rounded-lg mt-2" style="background:rgba(20,184,166,.95);border:1px solid rgba(45,212,191,.85);color:#042f2e;">Stampa ricevute anno</button><div class="mt-2 text-[10px] text-gray-400 leading-tight">Unico pulsante globale: aggiorna tutte le sezioni dal database. Le ricevute usano l'anno selezionato nella pagina.</div></div>`;
+    const sidebar=document.createElement('aside'); sidebar.className='ms-sidebar'; sidebar.id='msSidebar'; sidebar.innerHTML=`<div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg" style="background:linear-gradient(135deg,#004D54,#10b981)">2M</div><div><div class="text-white font-bold leading-tight">Masotto Terrace</div><div class="ms-chip">single-property mode</div></div></div><nav class="ms-nav space-y-1">${nav}</nav><div class="mt-6 p-3 rounded-xl" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);"><button id="msSyncBtn" class="w-full text-xs font-bold px-3 py-2 rounded-lg" style="background:rgba(45,212,191,.15);border:1px solid rgba(45,212,191,.35);color:#a7f3d0;">Sincronizza tutto</button><button id="msReceiptsBtn" class="w-full text-xs font-bold px-3 py-2 rounded-lg mt-2" style="background:rgba(20,184,166,.95);border:1px solid rgba(45,212,191,.85);color:#042f2e;">Stampa ricevute anno</button><div class="mt-2 text-[10px] text-gray-400 leading-tight">Le prenotazioni future restano previsionali fino alla conferma manuale Incassata.</div></div>`;
     const mainWrap=document.createElement('div'); mainWrap.className='ms-main'; while(document.body.firstChild) mainWrap.appendChild(document.body.firstChild); document.body.appendChild(sidebar); document.body.appendChild(mainWrap);
-    const topbar=document.createElement('div'); topbar.className='ms-topbar p-3 flex items-center justify-between lg:hidden'; topbar.innerHTML='<button id="msToggle" class="px-3 py-2 rounded-lg text-white text-xs font-bold" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);">☰ Menu</button><div class="text-white font-bold text-sm">Masotto Terrace</div><div style="width:64px"></div>'; mainWrap.prepend(topbar); topbar.querySelector('#msToggle').addEventListener('click',()=>sidebar.classList.toggle('open'));
+    const topbar=document.createElement('div'); topbar.className='ms-topbar p-3 flex items-center justify-between lg:hidden'; topbar.innerHTML='<button id="msToggle" class="px-3 py-2 rounded-lg text-white text-xs font-bold" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);">Menu</button><div class="text-white font-bold text-sm">Masotto Terrace</div><div style="width:64px"></div>'; mainWrap.prepend(topbar); topbar.querySelector('#msToggle').addEventListener('click',()=>sidebar.classList.toggle('open'));
     sidebar.querySelector('#msSyncBtn').addEventListener('click',async()=>{ const btn=sidebar.querySelector('#msSyncBtn'); btn.textContent='Sincronizzazione...'; await ensureMasterDB(true); localStorage.setItem('masotto_last_sync',new Date().toISOString()); location.reload(); });
     const rb=sidebar.querySelector('#msReceiptsBtn'); if(rb) rb.addEventListener('click',()=>{ const yf=document.getElementById('yearFilter')||document.getElementById('dashYearFilter'); const y=(yf&&yf.value&&yf.value!=='ALL')?yf.value:String(new Date().getFullYear()); if(window.MS_ACCOUNTING&&window.MS_ACCOUNTING.printAllReceipts){ window.MS_ACCOUNTING.printAllReceipts(y); } else { alert('Motore ricevute non caricato: verifica ms_core.js'); } });
     try{ if(window.lucide) window.lucide.createIcons(); }catch(e){}
   }
-  window.MS_ACCOUNTING={defaultCleaningFee, bookingCheckIn, bookingCheckOut, bookingCleaning, bookingTaxable, bookingRoom, bookingCityTax, bookingCashIncome, getPaymentAccount, normalizeStatus, statusCode, normalizeFinanceRows, generateBookingRows, getYearEndBalance, printReceipt, printAllReceipts, closeFiscalYear, getYearClosure, getYearClosures, saveYearClosure, markF24Paid, getCedolareAccantonata, getExpenseByCategory};
+  window.MS_ACCOUNTING={defaultCleaningFee, bookingCheckIn, bookingCheckOut, bookingCleaning, bookingTaxable, bookingRoom, bookingCityTax, bookingCashIncome, bookingIsAirbnb, bookingCollected, bookingCedolareWithheldByPlatform, bookingCityTaxWithheldByPlatform, getPaymentAccount, normalizeStatus, statusCode, normalizeFinanceRows, generateBookingRows, confirmBookingCollection, getYearEndBalance, printReceipt, printAllReceipts, closeFiscalYear, getYearClosure, getYearClosures, saveYearClosure, markF24Paid, getCedolareAccantonata, getExpenseByCategory};
   window.msReady=async function(force=false){ await ensureMasterDB(force); mountSidebar(); return true; };
   document.addEventListener('DOMContentLoaded',()=>{ mountSidebar(); });
 })();
