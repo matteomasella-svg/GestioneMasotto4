@@ -9,3 +9,7 @@
   for = "/.netlify/functions/masotto-master"
   [headers.values]
     Cache-Control = "no-store"
+
+[[edge_functions]]
+  path = "/*"
+  function = "inject-admin"
