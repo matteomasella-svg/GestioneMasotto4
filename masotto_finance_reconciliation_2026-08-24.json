@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "as_of": "2026-08-24",
+  "property": "Masotto Terrace View - Via Umberto Masotto 4, Milano",
+  "purpose": "Riconciliazione gestionale 2026 basata esclusivamente sulle prenotazioni effettivamente incassate e sui costi 2026. Documento di lavoro: non sostituisce l'estratto conto bancario/Wise.",
+  "accounting_policy": {
+    "booking_scope": "Solo prenotazioni effettivamente incassate/reconciliate. Prenotazioni future, confermate ma non incassate e payout pending sono escluse.",
+    "cleaning": "Partita di giro. La quota pulizie incassata dall'ospite e poi girata all'addetto non e' un costo operativo della proprieta'. Non deve essere sottratta due volte.",
+    "city_tax": "Partita di giro. La tassa di soggiorno incassata per conto del Comune e poi riversata non e' un costo operativo della proprieta'. Non deve essere sottratta due volte.",
+    "operating_costs": "Sono costi reali: condominio, utenze, internet, assicurazione, manutenzione, acquisti/asset, IMU, TARI, canone RAI, materiali e consumabili di competenza.",
+    "cash_vs_pnl": "Le partite di giro possono generare movimenti di cassa ma devono essere escluse dal conto economico operativo. Il saldo bancario e il risultato operativo sono KPI distinti.",
+    "consumables": "Budget annuale 300 EUR, imputato pro-rata YTD. Al 23/08/2026: 193.15 EUR."
+  },
+  "cash_collections_2026": {
+    "reconciled_booking_cash_eur": 6019.50,
+    "source_note": "Valore di lavoro derivato dal master storico con movimenti Wise/reconciliati; da riallineare al ledger bancario definitivo.",
+    "exclude": [
+      "prenotazioni non incassate",
+      "prenotazioni future",
+      "payout pending",
+      "movimenti proprietario/giroconti"
+    ]
+  },
+  "operating_costs_2026_ytd": [
+    {"category":"Condominio","amount_eur":655.08},
+    {"category":"Energia elettrica pagata","amount_eur":529.00},
+    {"category":"Gas pagato","amount_eur":165.00},
+    {"category":"Internet Fastweb","amount_eur":179.70},
+    {"category":"Assicurazione","amount_eur":195.00},
+    {"category":"Manutenzione","amount_eur":419.00},
+    {"category":"Acquisti e asset","amount_eur":345.87},
+    {"category":"IMU 2026","amount_eur":668.00},
+    {"category":"TARI 2026","amount_eur":73.00},
+    {"category":"Commissione TARI","amount_eur":0.50},
+    {"category":"Canone RAI","amount_eur":203.70},
+    {"category":"Materiali manutenzione","amount_eur":170.00,"status":"working_estimate"},
+    {"category":"Consumabili pro-rata YTD","amount_eur":193.15,"basis":"300 EUR annuali x 235/365"}
+  ],
+  "operating_costs_ytd_total_eur": 3797.00,
+  "operating_balance_before_pending_eur": 2222.50,
+  "pending_or_accrued_not_paid": [
+    {"category":"Energia elettrica","amount_eur":170.83,"status":"documented_pending","note":"Bolletta maturata/documentata, non ancora pagata al momento della riconciliazione."}
+  ],
+  "prudent_balance_after_pending_eur": 2051.67,
+  "excluded_from_operating_costs": [
+    {"category":"Pulizie","treatment":"partita_di_giro"},
+    {"category":"Tassa di soggiorno","treatment":"partita_di_giro"},
+    {"category":"Cedolare secca","treatment":"fiscalita_personale/accantonamento_separato","included_in_balance":false}
+  ],
+  "data_quality": {
+    "status": "PROVISIONAL_RECONCILIATION",
+    "open_items": [
+      "Riconciliare il totale 6019.50 EUR con l'estratto conto Wise/banca e con l'ultimo calendario prenotazioni del 23/08/2026.",
+      "Confermare lo stato pagato/competenza di IMU, RAI e materiali manutenzione se serve un saldo di cassa puro.",
+      "Mantenere separati saldo di cassa, risultato operativo e accantonamento cedolare."
+    ]
+  }
+}
