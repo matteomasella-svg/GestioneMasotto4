@@ -28,7 +28,11 @@
     var idx=rows.findIndex(function(x){return String(x.id)===String(id);});
     if(idx<0) return false;
     rows[idx]=Object.assign({},rows[idx],{status:next,user_confirmed_status:true,status_changed_at:new Date().toISOString()});
+    var saved=rows[idx];
     writeRows(rows);
+    if(window.MS_MASTER_SYNC&&typeof window.MS_MASTER_SYNC.save==='function'){
+      window.MS_MASTER_SYNC.save('finance.upsert',saved);
+    }
     return true;
   }
   function confirmIncome(e,id){
