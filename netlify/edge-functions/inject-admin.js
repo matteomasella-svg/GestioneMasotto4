@@ -3,15 +3,25 @@ export default async (req, context) => {
   const type = response.headers.get('content-type') || '';
   if (!type.includes('text/html')) return response;
 
-  const html = await response.text();
-  if (html.includes('masotto_admin_crud.js')) return new Response(html, response);
+  let html = await response.text();
+  const scripts = [];
 
-  const script = '<script src="/masotto_admin_crud.js?v=20260824-1" defer></script>';
-  const nextHtml = html.includes('</body>') ? html.replace('</body>', `${script}</body>`) : `${html}${script}`;
+  if (!html.includes('masotto_asset_manual_v1.js')) {
+    scripts.push('<script src="/masotto_asset_manual_v1.js?v=20260824-1" defer></script>');
+  }
+  if (!html.includes('masotto_admin_crud.js')) {
+    scripts.push('<script src="/masotto_admin_crud.js?v=20260824-1" defer></script>');
+  }
+
+  if (scripts.length) {
+    const injection = scripts.join('');
+    html = html.includes('</body>') ? html.replace('</body>', `${injection}</body>`) : `${html}${injection}`;
+  }
+
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.set('cache-control', 'no-store');
-  return new Response(nextHtml, { status: response.status, statusText: response.statusText, headers });
+  return new Response(html, { status: response.status, statusText: response.statusText, headers });
 };
 
 export const config = {
